@@ -1,0 +1,16 @@
+[project]
+name = "butler_whatsapp"
+authors = [{ name = "Butler", email = "alharam20023@gmail.com" }]
+description = "WhatsApp inbox, document sending and push notifications for ERPNext (Meta Cloud API)"
+requires-python = ">=3.10"
+readme = "README.md"
+dynamic = ["version"]
+dependencies = []
+
+[build-system]
+requires = ["flit_core >=3.4,<4"]
+build-backend = "flit_core.buildapi"
+
+[tool.bench.frappe-dependencies]
+frappe = ">=16.0.0,<17.0.0"
+erpnext = ">=16.0.0,<17.0.0"
