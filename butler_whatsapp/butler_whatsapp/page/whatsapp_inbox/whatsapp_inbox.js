@@ -1,5 +1,5 @@
 // Butler - WhatsApp inbox (Arabic, RTL, works on phones).
-// Server: butler_whatsapp/inbox.py
+// Server: butler_whatsapp/inbox.py (+ access.py for who sees what)
 
 frappe.pages["whatsapp-inbox"].on_page_load = function (wrapper) {
 	const page = frappe.ui.make_app_page({ parent: wrapper, title: "واتساب", single_column: true });
@@ -12,6 +12,18 @@ frappe.pages["whatsapp-inbox"].on_page_show = function (wrapper) {
 
 const BWA = "butler_whatsapp.inbox";
 const esc = (s) => frappe.utils.escape_html(s == null ? "" : String(s));
+const on_inbox_route = () => (frappe.get_route_str() || "").endsWith("whatsapp-inbox");
+
+const VIEWS = [
+	["all", "الكل"],
+	["unread", "غير مقروءة"],
+	["mine", "محادثاتي"],
+	["unassigned", "غير مسندة"],
+	["closed", "مغلقة"],
+];
+
+const EMOJIS = ("😀 😁 😂 🤣 😊 😍 😘 😎 🤔 😅 😢 😭 😡 🙏 👍 👎 👌 👏 🙌 💪 🤝 ✌️ 👋 ❤️ 💚 🔥 ⭐ ✅ ❌ ⚠️ " +
+	"🎉 🎁 📌 📎 📄 📞 📍 🏠 💡 🔌 🔑 🕐 📅 💰 🚚 🛠️ ⚙️ 📷 🌙 ☀️").split(" ");
 
 class ButlerInbox {
 	constructor(page, wrapper) {
@@ -20,22 +32,43 @@ class ButlerInbox {
 		this.number = null;
 		this.info = null;
 		this.messages = [];
+		this.notes = [];
 		this.has_more = false;
 		this.conversations = [];
 		this.search = "";
+		this.view = "all";
 		this.list_offset = 0;
 		this.list_done = false;
+		this.reply_to = null;
+		this.ctx = { supervisor: false, agents: [], quick_replies: [] };
 		this.make();
 		this.bind_realtime();
-		this.load_list();
+		this.load_context().then(() => this.load_list());
 		setInterval(() => this.is_visible() && this.load_list(true), 60000);
+	}
+
+	async load_context() {
+		try {
+			this.ctx = await frappe.xcall(`${BWA}.get_inbox_context`);
+		} catch (e) {
+			console.error(e);
+		}
+		this.render_views();
+		if (this.ctx.can_settings && !this._settings_added) {
+			this._settings_added = true;
+			this.page.add_menu_item("إعدادات صندوق واتساب", () => frappe.set_route("Form", "WhatsApp Inbox Settings"));
+		}
 	}
 
 	// ------------------------------------------------------------ layout
 	make() {
+		this.page.set_primary_action("محادثة جديدة", () => this.new_conversation_dialog(), "add");
 		this.page.set_secondary_action("تحديث", () => this.refresh_all(), "refresh");
 		this.page.add_menu_item("تفعيل الإشعارات على هذا الجهاز", () => window.butler_wa && window.butler_wa.enablePush());
-		this.page.add_menu_item("واجهة المحادثة القديمة", () => $("#chat-bubble").trigger("click"));
+		this.page.add_menu_item("إظهار / إخفاء زر واتساب العائم", () => window.butler_wa && window.butler_wa.toggleLauncher());
+		this.page.add_menu_item("إعادة الزر العائم لمكانه", () => window.butler_wa && window.butler_wa.resetLauncher());
+		this.page.add_menu_item("الردود الجاهزة", () => frappe.set_route("List", "WhatsApp Quick Reply"));
+		this.page.add_menu_item("القوالب", () => frappe.set_route("List", "WhatsApp Templates"));
 		this.page.add_menu_item("كل رسائل واتساب", () => frappe.set_route("List", "WhatsApp Message"));
 
 		this.$root = $(`
@@ -43,6 +76,7 @@ class ButlerInbox {
 				<div class="bwa-list">
 					<div class="bwa-search">
 						<input type="search" class="form-control" placeholder="بحث بالاسم أو الرقم أو العميل...">
+						<div class="bwa-views"></div>
 					</div>
 					<div class="bwa-items"></div>
 				</div>
@@ -50,17 +84,25 @@ class ButlerInbox {
 					<div class="bwa-placeholder">
 						<div style="font-size:48px">💬</div>
 						<div>اختر محادثة من القائمة</div>
+						<button class="btn btn-sm btn-primary bwa-new">＋ محادثة جديدة</button>
 					</div>
 				</div>
 			</div>`).appendTo(this.page.main);
 
 		this.$items = this.$root.find(".bwa-items");
 		this.$chat = this.$root.find(".bwa-chat");
+		this.$views = this.$root.find(".bwa-views");
+		this.$root.find(".bwa-new").on("click", () => this.new_conversation_dialog());
 
 		this.$root.find(".bwa-search input").on("input", frappe.utils.debounce((e) => {
 			this.search = e.target.value.trim();
 			this.load_list();
 		}, 350));
+		this.$views.on("click", "button", (e) => {
+			this.view = $(e.currentTarget).attr("data-view");
+			this.render_views();
+			this.load_list();
+		});
 
 		this.$items.on("scroll", () => {
 			const el = this.$items.get(0);
@@ -71,15 +113,32 @@ class ButlerInbox {
 		this.$items.on("click", ".bwa-item", (e) => this.open($(e.currentTarget).attr("data-number")));
 	}
 
-	is_visible() {
-		return frappe.get_route_str() === "whatsapp-inbox" && !document.hidden;
+	render_views() {
+		const views = VIEWS.filter(([v]) => this.ctx.supervisor || !["unassigned"].includes(v));
+		this.$views.html(views.map(([v, label]) =>
+			`<button class="${v === this.view ? "active" : ""}" data-view="${v}">${label}</button>`).join(""));
 	}
 
-	on_show() {
+	is_visible() {
+		return on_inbox_route() && !document.hidden;
+	}
+
+	async on_show() {
 		const params = new URLSearchParams(location.search);
-		const number = (frappe.route_options && frappe.route_options.number) || params.get("number");
+		const opts = frappe.route_options || {};
+		const number = opts.number || params.get("number");
 		frappe.route_options = null;
-		if (number && number !== this.number) this.open(number);
+		if (number && (opts.doctype || params.get("doctype"))) {
+			// opened from a Customer / Lead / Contact form: link + claim, then open
+			try {
+				await frappe.xcall(`${BWA}.start_conversation`, {
+					number, doctype: opts.doctype || params.get("doctype"), name: opts.name || params.get("name"),
+				});
+			} catch (e) {
+				return;
+			}
+		}
+		if (number && number.replace(/[^0-9]/g, "") !== this.number) this.open(number);
 		else if (this.number) this.load_messages({ mark_read: 1, keep_scroll: true });
 		this.load_list(true);
 	}
@@ -95,7 +154,9 @@ class ButlerInbox {
 		this.list_loading = true;
 		const offset = append ? this.list_offset : 0;
 		try {
-			const rows = await frappe.xcall(`${BWA}.get_conversations`, { search: this.search, offset, limit: 60 });
+			const rows = await frappe.xcall(`${BWA}.get_conversations`, {
+				search: this.search, offset, limit: 60, view: this.view,
+			});
 			this.conversations = append ? this.conversations.concat(rows) : rows;
 			this.list_offset = offset + rows.length;
 			this.list_done = rows.length < 60;
@@ -109,7 +170,10 @@ class ButlerInbox {
 
 	render_list() {
 		if (!this.conversations.length) {
-			this.$items.html(`<div class="bwa-empty">${this.search ? "لا توجد نتائج" : "لا توجد محادثات بعد"}</div>`);
+			const msg = this.search ? "لا توجد نتائج"
+				: !this.ctx.supervisor && this.ctx.restricted ? "لا توجد محادثات مسندة لك"
+				: "لا توجد محادثات";
+			this.$items.html(`<div class="bwa-empty">${msg}</div>`);
 			return;
 		}
 		this.$items.html(this.conversations.map((c) => this.list_item(c)).join(""));
@@ -126,10 +190,11 @@ class ButlerInbox {
 		const tag = c.customer ? `<span class="bwa-tag customer">عميل</span>`
 			: c.lead ? `<span class="bwa-tag lead">عميل محتمل</span>`
 			: c.suggestion ? `<span class="bwa-tag" title="${esc(c.suggestion.doctype)}: ${esc(c.suggestion.title)}">🔎 مسجّل</span>` : "";
-		let sub = "";
-		if (last.type === "Incoming" && last.read_by && !c.unread) {
-			sub = `<div class="bwa-sub">👁 قرأها: ${esc(last.read_by)}</div>`;
-		}
+		const subs = [];
+		if (c.assigned_name) subs.push(`<span class="bwa-assignee">👤 ${esc(c.assigned_name)}</span>`);
+		else if (this.ctx.supervisor && this.ctx.restricted) subs.push(`<span class="bwa-unassigned">غير مسندة</span>`);
+		if (c.status === "Closed") subs.push(`<span class="bwa-closed">مغلقة</span>`);
+		if (last.type === "Incoming" && last.read_by && !c.unread) subs.push(`<span>👁 ${esc(last.read_by)}</span>`);
 		return `
 			<div class="bwa-item ${c.unread ? "unread" : ""} ${c.number === this.number ? "active" : ""}" data-number="${esc(c.number)}">
 				<div class="bwa-avatar ${kind}">${initial}</div>
@@ -142,7 +207,7 @@ class ButlerInbox {
 						<div class="bwa-preview">${preview || "&nbsp;"}</div>
 						${c.unread ? `<span class="bwa-count">${c.unread}</span>` : ""}
 					</div>
-					${sub}
+					${subs.length ? `<div class="bwa-sub">${subs.join(" · ")}</div>` : ""}
 				</div>
 			</div>`;
 	}
@@ -153,13 +218,19 @@ class ButlerInbox {
 		if (!number) return;
 		this.number = number;
 		this.messages = [];
+		this.notes = [];
 		this.info = null;
+		this.reply_to = null;
 		this.$root.addClass("chat-open");
 		this.$items.find(".bwa-item").removeClass("active");
 		this.$items.find(`.bwa-item[data-number="${number}"]`).addClass("active").removeClass("unread")
 			.find(".bwa-count").remove();
 		this.render_chat_shell();
-		await this.load_messages({ mark_read: 1 });
+		try {
+			await this.load_messages({ mark_read: 1 });
+		} catch (e) {
+			this.$msgs.html(`<div class="bwa-empty">لا يمكنك فتح هذه المحادثة</div>`);
+		}
 		this.load_list(true);
 	}
 
@@ -172,16 +243,44 @@ class ButlerInbox {
 			<div class="bwa-head"></div>
 			<div class="bwa-window" style="display:none"></div>
 			<div class="bwa-msgs"><div class="text-muted text-center p-4">جارِ التحميل...</div></div>
+			<div class="bwa-replybar" style="display:none"></div>
+			<div class="bwa-popup" style="display:none"></div>
 			<div class="bwa-compose">
+				<button class="bwa-icon-btn bwa-emoji-btn" title="إيموجي">😊</button>
 				<button class="bwa-icon-btn bwa-attach" title="إرسال ملف">📎</button>
-				<textarea class="form-control" rows="1" placeholder="اكتب رسالة..."></textarea>
+				<button class="bwa-icon-btn bwa-tpl-btn" title="إرسال قالب">📋</button>
+				<textarea class="form-control" rows="1" placeholder="اكتب رسالة... ( / للردود الجاهزة )"></textarea>
+				<button class="bwa-icon-btn bwa-mic" title="رسالة صوتية">🎤</button>
 				<button class="bwa-icon-btn bwa-send" title="إرسال">➤</button>
+			</div>
+			<div class="bwa-outside" style="display:none">
+				<div>⏰ مرت أكثر من 24 ساعة على آخر رسالة من العميل (أو لم يراسلك بعد). واتساب يسمح فقط بالقوالب المعتمدة.</div>
+				<button class="btn btn-sm btn-primary bwa-tpl-big">📋 إرسال قالب</button>
+			</div>
+			<div class="bwa-recording" style="display:none">
+				<span class="bwa-rec-dot"></span><span class="bwa-rec-time">0:00</span>
+				<button class="btn btn-xs btn-default bwa-rec-cancel">إلغاء</button>
+				<button class="btn btn-xs btn-primary bwa-rec-send">إرسال ➤</button>
 			</div>`);
 		this.$msgs = this.$chat.find(".bwa-msgs");
 		this.$input = this.$chat.find("textarea");
+		this.$popup = this.$chat.find(".bwa-popup");
 		this.$chat.find(".bwa-send").on("click", () => this.send_text());
 		this.$chat.find(".bwa-attach").on("click", () => this.pick_file());
+		this.$chat.find(".bwa-tpl-btn, .bwa-tpl-big").on("click", () => this.template_dialog());
+		this.$chat.find(".bwa-emoji-btn").on("click", () => this.toggle_emoji());
+		this.$chat.find(".bwa-mic").on("click", () => this.start_recording());
+		this.$chat.find(".bwa-rec-cancel").on("click", () => this.stop_recording(false));
+		this.$chat.find(".bwa-rec-send").on("click", () => this.stop_recording(true));
 		this.$input.on("keydown", (e) => {
+			if (this.$popup.is(":visible") && this.popup_kind === "quick") {
+				if (e.key === "Enter") {
+					e.preventDefault();
+					this.$popup.find(".bwa-qr").first().trigger("click");
+					return;
+				}
+				if (e.key === "Escape") return this.$popup.hide();
+			}
 			if (e.key === "Enter" && !e.shiftKey && !frappe.is_mobile()) {
 				e.preventDefault();
 				this.send_text();
@@ -191,9 +290,24 @@ class ButlerInbox {
 			const el = this.$input.get(0);
 			el.style.height = "auto";
 			el.style.height = Math.min(el.scrollHeight, 140) + "px";
+			this.quick_reply_popup();
 		});
 		this.$msgs.on("click", ".bwa-more button", () => this.load_older());
 		this.$msgs.on("click", ".bwa-media img", (e) => window.open(e.currentTarget.src, "_blank"));
+		this.$msgs.on("click", ".bwa-reply-btn", (e) => {
+			const name = $(e.currentTarget).closest(".bwa-msg").attr("data-name");
+			this.set_reply(this.messages.find((m) => m.name === name));
+		});
+		this.$msgs.on("click", ".bwa-quote", (e) => {
+			const id = $(e.currentTarget).attr("data-target");
+			const $t = this.$msgs.find(`.bwa-msg[data-mid="${id}"]`);
+			if ($t.length) {
+				$t.get(0).scrollIntoView({ block: "center", behavior: "smooth" });
+				$t.addClass("bwa-flash");
+				setTimeout(() => $t.removeClass("bwa-flash"), 1200);
+			}
+		});
+		this.$chat.on("click", ".bwa-replybar .bwa-x", () => this.set_reply(null));
 	}
 
 	async load_messages({ mark_read = 0, keep_scroll = false } = {}) {
@@ -203,6 +317,7 @@ class ButlerInbox {
 		const el = this.$msgs.get(0);
 		const at_bottom = !keep_scroll || el.scrollTop + el.clientHeight > el.scrollHeight - 60;
 		this.messages = r.messages;
+		this.notes = r.notes || [];
 		this.has_more = r.has_more;
 		if (r.info) this.set_info(r.info);
 		this.render_messages();
@@ -224,7 +339,12 @@ class ButlerInbox {
 	}
 
 	async upsert_message(name) {
-		const m = await frappe.xcall(`${BWA}.get_message`, { name });
+		let m;
+		try {
+			m = await frappe.xcall(`${BWA}.get_message`, { name });
+		} catch (e) {
+			return;
+		}
 		const i = this.messages.findIndex((x) => x.name === m.name);
 		if (i >= 0) this.messages[i] = m;
 		else this.messages.push(m);
@@ -242,11 +362,15 @@ class ButlerInbox {
 	}
 
 	// -------------------------------------------------------- header / party
-	set_info(info) {
-		this.info = info;
-		const title = info.customer_name || info.lead_name ||
+	title_of(info) {
+		return info.customer_name || info.lead_name ||
 			(info.contact_name && info.contact_name.replace("+", "") !== info.number ? info.contact_name : null) ||
 			info.profile_name || "+" + info.number;
+	}
+
+	set_info(info) {
+		this.info = info;
+		const title = this.title_of(info);
 		const chips = [];
 		if (info.customer) {
 			chips.push(`<span class="bwa-chip customer">👤 عميل:
@@ -278,13 +402,32 @@ class ButlerInbox {
 			buttons.push(`<button class="btn btn-xs btn-default" data-act="customer">${info.lead ? "تحويل إلى عميل" : "إنشاء عميل"}</button>`);
 		}
 		buttons.push(`<button class="btn btn-xs btn-default" data-act="link">ربط بعميل موجود</button>`);
+		if (info.customer || info.lead) {
+			buttons.push(`<button class="btn btn-xs btn-default" data-act="docs">📄 إرسال مستند</button>`);
+		}
+
+		// assignment + status
+		let assign_html;
+		if (info.supervisor && this.ctx.agents.length) {
+			const opts = [`<option value="">— غير مسندة —</option>`].concat(this.ctx.agents.map((a) =>
+				`<option value="${esc(a.user)}" ${a.user === info.assigned_to ? "selected" : ""}>${esc(a.name)}${a.supervisor ? " (مشرف)" : ""}</option>`));
+			assign_html = `<label class="bwa-assign">مسندة إلى: <select class="form-control input-xs">${opts.join("")}</select></label>`;
+		} else {
+			assign_html = info.assigned_name ? `<span class="bwa-note">👤 مسندة إلى: ${esc(info.assigned_name)}</span>` : "";
+		}
+		const closed = info.status === "Closed";
 
 		this.$chat.find(".bwa-head").html(`
 			<div class="bwa-head-top">
 				<button class="btn btn-xs btn-default bwa-back">→ رجوع</button>
 				<div style="flex:1;min-width:0">
-					<div class="bwa-head-name">${esc(title)}</div>
+					<div class="bwa-head-name">${esc(title)} ${closed ? `<span class="bwa-closed">مغلقة</span>` : ""}</div>
 					<div class="bwa-head-num">+${esc(info.number)}${info.profile_name && info.profile_name !== title ? ` · ${esc(info.profile_name)}` : ""}</div>
+				</div>
+				<div class="bwa-head-actions">
+					${assign_html}
+					<button class="btn btn-xs btn-default" data-act="note">📝 ملاحظة</button>
+					<button class="btn btn-xs ${closed ? "btn-primary" : "btn-default"}" data-act="status">${closed ? "إعادة فتح" : "✔ إغلاق"}</button>
 				</div>
 			</div>
 			<div class="bwa-party">
@@ -299,6 +442,10 @@ class ButlerInbox {
 		$head.find("[data-act=lead]").on("click", () => this.make_lead());
 		$head.find("[data-act=customer]").on("click", () => this.make_customer());
 		$head.find("[data-act=link]").on("click", () => this.link_dialog());
+		$head.find("[data-act=docs]").on("click", () => this.documents_dialog());
+		$head.find("[data-act=note]").on("click", () => this.note_dialog());
+		$head.find("[data-act=status]").on("click", () => this.toggle_status());
+		$head.find(".bwa-assign select").on("change", (e) => this.assign(e.target.value));
 		$head.find("[data-unlink]").on("click", (e) => this.unlink($(e.currentTarget).attr("data-unlink")));
 		$head.find(".bwa-link-match").on("click", (e) => {
 			e.preventDefault();
@@ -307,21 +454,52 @@ class ButlerInbox {
 		});
 
 		const $w = this.$chat.find(".bwa-window");
-		const can_send = info.can_send && info.in_window;
-		if (!info.in_window) {
-			$w.html(`⏰ لم يرسل العميل أي رسالة خلال آخر 24 ساعة — واتساب لا يسمح بإرسال رسالة حرة الآن.
-				يمكن إرسال قالب معتمد فقط، أو انتظر حتى يراسلك العميل.`).show();
-		} else if (!info.can_send) {
+		if (!info.can_send) {
 			$w.html("ليست لديك صلاحية الإرسال.").show();
 		} else {
 			$w.hide();
 		}
-		this.$chat.find(".bwa-compose button, .bwa-compose textarea").prop("disabled", !can_send);
+		const free = info.can_send && info.in_window;
+		this.$chat.find(".bwa-compose").toggle(!!free);
+		this.$chat.find(".bwa-outside").toggle(!!info.can_send && !info.in_window);
 	}
 
 	default_name() {
 		const i = this.info || {};
 		return i.profile_name || (i.contact_name && i.contact_name.replace("+", "") !== i.number ? i.contact_name : "") || "";
+	}
+
+	async assign(user) {
+		const info = await frappe.xcall(`${BWA}.assign`, { number: this.number, user });
+		this.set_info(info);
+		frappe.show_alert({ indicator: "green", message: user ? "تم إسناد المحادثة" : "أُلغي الإسناد" });
+		this.load_messages({ keep_scroll: true });
+		this.load_list(true);
+	}
+
+	async toggle_status() {
+		const status = this.info.status === "Closed" ? "Open" : "Closed";
+		const info = await frappe.xcall(`${BWA}.set_status`, { number: this.number, status });
+		this.set_info(info);
+		frappe.show_alert({ indicator: "green", message: status === "Closed" ? "أُغلقت المحادثة" : "أُعيد فتح المحادثة" });
+		this.load_messages({ keep_scroll: true });
+		this.load_list(true);
+	}
+
+	note_dialog() {
+		const d = new frappe.ui.Dialog({
+			title: "ملاحظة داخلية (لا تُرسل للعميل)",
+			fields: [{ fieldname: "note", fieldtype: "Small Text", label: "الملاحظة", reqd: 1 }],
+			primary_action_label: "حفظ",
+			primary_action: async (v) => {
+				const r = await frappe.xcall(`${BWA}.add_note`, { number: this.number, note: v.note });
+				this.notes = r.notes;
+				d.hide();
+				this.render_messages();
+				this.scroll_bottom();
+			},
+		});
+		d.show();
 	}
 
 	make_lead() {
@@ -414,21 +592,190 @@ class ButlerInbox {
 		this.load_list(true);
 	}
 
+	// ------------------------------------------------- new conversation
+	new_conversation_dialog() {
+		const d = new frappe.ui.Dialog({
+			title: "محادثة جديدة",
+			fields: [
+				{ fieldname: "q", fieldtype: "Data", label: "ابحث عن عميل / عميل محتمل / جهة اتصال",
+					description: "بالاسم أو رقم الجوال" },
+				{ fieldname: "results", fieldtype: "HTML" },
+				{ fieldname: "sep", fieldtype: "Section Break", label: "أو اكتب رقماً" },
+				{ fieldname: "number", fieldtype: "Data", label: "رقم الجوال", description: "مثال: 05xxxxxxxx أو +9665xxxxxxxx" },
+			],
+			primary_action_label: "فتح المحادثة",
+			primary_action: (v) => v.number && start(v.number),
+		});
+		const start = async (number, doctype, name) => {
+			const r = await frappe.xcall(`${BWA}.start_conversation`, { number, doctype, name });
+			d.hide();
+			await this.open(r.number);
+			this.load_list(true);
+		};
+		const $res = d.fields_dict.results.$wrapper;
+		const label = { Customer: "عميل", Lead: "عميل محتمل", Contact: "جهة اتصال" };
+		d.fields_dict.q.$input.on("input", frappe.utils.debounce(async () => {
+			const q = d.get_value("q");
+			if (!q || q.length < 2) return $res.empty();
+			const rows = await frappe.xcall(`${BWA}.search_targets`, { q });
+			$res.html(rows.length ? `<div class="bwa-results">${rows.map((r, i) => `
+				<div class="bwa-result" data-i="${i}"><b>${esc(r.title)}</b>
+				<span class="bwa-tag">${label[r.doctype]}</span><div class="text-muted small" dir="ltr">${esc(r.phone)}</div></div>`).join("")}</div>`
+				: `<div class="text-muted small">لا نتائج بجوال مسجّل</div>`);
+			$res.find(".bwa-result").on("click", (e) => {
+				const r = rows[$(e.currentTarget).attr("data-i")];
+				start(r.number, r.doctype, r.name);
+			});
+		}, 300));
+		d.show();
+	}
+
+	// ------------------------------------------------------------ templates
+	async template_dialog() {
+		const { templates, defaults } = await frappe.xcall(`${BWA}.get_templates`, { number: this.number });
+		if (!templates.length) {
+			frappe.msgprint("لا توجد قوالب معتمدة. أنشئ قالباً من «القوالب» وانتظر موافقة Meta.");
+			return;
+		}
+		let header_file = null;
+		const d = new frappe.ui.Dialog({
+			title: "إرسال قالب معتمد",
+			size: "large",
+			fields: [
+				{ fieldname: "template", fieldtype: "Select", label: "القالب", reqd: 1,
+					options: templates.map((t) => ({ value: t.name, label: `${t.actual_name || t.name} (${t.language_code})` })) },
+				{ fieldname: "params", fieldtype: "HTML" },
+				{ fieldname: "preview", fieldtype: "HTML" },
+			],
+			primary_action_label: "إرسال",
+			primary_action: async () => {
+				const t = current();
+				const body = d.$wrapper.find("[data-body]").map((_, el) => el.value).get();
+				const head = d.$wrapper.find("[data-head]").map((_, el) => el.value).get();
+				if (body.some((v) => !v.trim()) || head.some((v) => !v.trim())) {
+					frappe.msgprint("أكمل كل المتغيرات");
+					return;
+				}
+				const m = await frappe.xcall(`${BWA}.send_template`, {
+					number: this.number, template: t.name, body_params: JSON.stringify(body),
+					header_params: JSON.stringify(head), header_file_url: header_file,
+				}, { freeze: true });
+				d.hide();
+				this.push_local(m);
+				this.reload_info();
+				frappe.show_alert({ indicator: "green", message: "تم إرسال القالب ✅" });
+			},
+		});
+		const current = () => templates.find((t) => t.name === d.get_value("template"));
+		const render = () => {
+			const t = current();
+			if (!t) return;
+			header_file = null;
+			const inputs = [];
+			for (let i = 1; i <= t.header_vars; i++) {
+				inputs.push(`<div class="form-group"><label class="control-label">متغير العنوان {{${i}}}</label>
+					<input class="form-control" data-head="${i}"></div>`);
+			}
+			for (let i = 1; i <= t.body_vars; i++) {
+				const def = i === 1 ? (defaults.name || "") : "";
+				inputs.push(`<div class="form-group"><label class="control-label">{{${i}}}</label>
+					<input class="form-control" data-body="${i}" value="${esc(def)}"></div>`);
+			}
+			if (["DOCUMENT", "IMAGE"].includes(t.header_type)) {
+				inputs.push(`<div class="form-group"><label class="control-label">${t.header_type === "DOCUMENT" ? "ملف المستند" : "الصورة"}</label>
+					<div><button class="btn btn-xs btn-default bwa-hdr-file">اختيار ملف</button>
+					<span class="bwa-hdr-name text-muted small">${t.sample ? "سيُستخدم الملف الافتراضي للقالب" : "مطلوب"}</span></div></div>`);
+			}
+			d.fields_dict.params.$wrapper.html(inputs.join("") || `<div class="text-muted small">هذا القالب بلا متغيرات</div>`);
+			d.fields_dict.params.$wrapper.find(".bwa-hdr-file").on("click", (e) => {
+				e.preventDefault();
+				new frappe.ui.FileUploader({
+					allow_multiple: false, make_attachments_public: false,
+					on_success: (f) => {
+						header_file = f.file_url;
+						d.fields_dict.params.$wrapper.find(".bwa-hdr-name").text(f.file_name);
+					},
+				});
+			});
+			const update = () => {
+				const vals = d.$wrapper.find("[data-body]").map((_, el) => el.value || `{{${el.dataset.body}}}`).get();
+				let text = t.template || "";
+				vals.forEach((v, i) => (text = text.split(`{{${i + 1}}}`).join(v)));
+				d.fields_dict.preview.$wrapper.html(`<div class="bwa-tpl-preview">
+					${t.header && t.header_type === "TEXT" ? `<b>${esc(t.header)}</b><br>` : ""}
+					${t.header_type && t.header_type !== "TEXT" ? `<div class="text-muted small">📎 ${t.header_type === "DOCUMENT" ? "مستند" : "صورة"}</div>` : ""}
+					${esc(text).replace(/\n/g, "<br>")}
+					${t.footer ? `<div class="text-muted small">${esc(t.footer)}</div>` : ""}</div>`);
+			};
+			d.$wrapper.find("[data-body]").on("input", update);
+			update();
+		};
+		d.fields_dict.template.$input.on("change", render);
+		d.show();
+		render();
+	}
+
+	// ------------------------------------------------------------ documents
+	async documents_dialog() {
+		const docs = await frappe.xcall(`${BWA}.get_party_documents`, { number: this.number });
+		if (!docs.length) {
+			frappe.msgprint("لا توجد عروض أسعار أو أوامر بيع أو فواتير لهذا العميل.");
+			return;
+		}
+		const label = { Quotation: "عرض سعر", "Sales Order": "أمر بيع", "Sales Invoice": "فاتورة" };
+		const d = new frappe.ui.Dialog({ title: "إرسال مستند للعميل", fields: [{ fieldname: "list", fieldtype: "HTML" }] });
+		d.fields_dict.list.$wrapper.html(`<div class="bwa-results">${docs.map((x, i) => `
+			<div class="bwa-result" data-i="${i}">
+				<b>${label[x.doctype] || x.doctype}: ${esc(x.name)}</b>
+				<span class="text-muted small">${esc(x.date)} · ${esc(x.status || "")}</span>
+				<div class="small">${format_currency(x.grand_total, x.currency)}</div>
+			</div>`).join("")}</div>`);
+		d.fields_dict.list.$wrapper.find(".bwa-result").on("click", (e) => {
+			const x = docs[$(e.currentTarget).attr("data-i")];
+			d.hide();
+			window.butler_wa.sendDocument(x.doctype, x.name, "+" + this.number);
+		});
+		d.show();
+	}
+
 	// ---------------------------------------------------------- messages
 	render_messages() {
+		const items = this.messages.map((m) => ({ t: m.creation, m }));
+		const first = this.messages.length ? this.messages[0].creation : null;
+		for (const n of this.notes) {
+			if (!this.has_more || !first || n.creation >= first) items.push({ t: n.creation, n });
+		}
+		items.sort((a, b) => (a.t < b.t ? -1 : a.t > b.t ? 1 : 0));
 		const parts = [];
 		if (this.has_more) parts.push(`<div class="bwa-more"><button class="btn btn-xs btn-default">تحميل الرسائل الأقدم</button></div>`);
 		let day = null;
-		for (const m of this.messages) {
-			const d = (m.creation || "").slice(0, 10);
+		for (const it of items) {
+			const d = (it.t || "").slice(0, 10);
 			if (d !== day) {
 				day = d;
-				parts.push(`<div class="bwa-day"><span>${this.day_label(m.creation)}</span></div>`);
+				parts.push(`<div class="bwa-day"><span>${this.day_label(it.t)}</span></div>`);
 			}
-			parts.push(this.bubble(m));
+			parts.push(it.m ? this.bubble(it.m) : this.note_html(it.n));
 		}
-		if (!this.messages.length) parts.push(`<div class="bwa-empty">لا توجد رسائل</div>`);
+		if (!items.length) parts.push(`<div class="bwa-empty">لا توجد رسائل بعد — ابدأ بإرسال قالب</div>`);
 		this.$msgs.html(parts.join(""));
+	}
+
+	note_html(n) {
+		if (n.kind === "event") {
+			return `<div class="bwa-event">${esc(n.content)} — ${esc(n.by || "")} · ${this.clock(n.creation)}</div>`;
+		}
+		return `<div class="bwa-noteb"><div class="bwa-note-h">📝 ملاحظة داخلية — ${esc(n.by || "")} · ${this.clock(n.creation)}</div>
+			<div class="bwa-text">${esc(n.content)}</div></div>`;
+	}
+
+	quote_html(m) {
+		if (!m.reply_to) return "";
+		const t = this.messages.find((x) => x.message_id === m.reply_to);
+		const text = t ? (t.message || `[${t.content_type}]`) : "رسالة سابقة";
+		const who = t ? (t.type === "Outgoing" ? (t.sender || "نحن") : "العميل") : "";
+		return `<div class="bwa-quote" data-target="${esc(m.reply_to)}"><b>${esc(who)}</b>
+			<div>${esc(String(text).slice(0, 120))}</div></div>`;
 	}
 
 	bubble(m) {
@@ -444,13 +791,14 @@ class ButlerInbox {
 					? `<span>${time}</span>` // history from before the inbox existed
 					: `<span class="bwa-unread-mark">● لم تُقرأ</span><span>${time}</span>`;
 		}
-		let body = "";
+		if (m.message_id) meta = `<span class="bwa-reply-btn" title="رد على هذه الرسالة">↩</span>` + meta;
+		let body = this.quote_html(m);
 		if (m.message_type === "Template") body += `<div class="bwa-tpl">📋 قالب${m.template ? ": " + esc(m.template) : ""}</div>`;
 		body += this.content(m);
 		if (m.reference_doctype && m.reference_name) {
 			body += `<div class="bwa-ref">🔗 <a href="/desk/${frappe.router.slug(m.reference_doctype)}/${encodeURIComponent(m.reference_name)}">${esc(__(m.reference_doctype))} ${esc(m.reference_name)}</a></div>`;
 		}
-		return `<div class="bwa-msg ${out ? "out" : "in"}" data-name="${esc(m.name)}">
+		return `<div class="bwa-msg ${out ? "out" : "in"}" data-name="${esc(m.name)}" data-mid="${esc(m.message_id || "")}">
 			<div class="bwa-bubble">${body}<div class="bwa-meta">${meta}</div></div></div>`;
 	}
 
@@ -458,8 +806,8 @@ class ButlerInbox {
 		const type = m.content_type || "text";
 		const url = m.attach ? encodeURI(m.attach) : null;
 		const caption = m.message ? `<div class="bwa-text">${this.linkify(m.message)}</div>` : "";
-		if (type === "text" || type === "button" || type === "interactive") {
-			return `<div class="bwa-text">${this.linkify(m.message) || "&nbsp;"}</div>`;
+		if (type === "text" || type === "button" || type === "interactive" || type === "location" || type === "contacts") {
+			return `<div class="bwa-text">${this.linkify(m.message) || (type === "location" ? "📍 موقع" : type === "contacts" ? "👤 جهة اتصال" : "&nbsp;")}</div>`;
 		}
 		if (type === "reaction") return `<div class="bwa-text">تفاعل: ${esc(m.message)}</div>`;
 		if (["image", "video", "audio", "document"].includes(type) && !url) {
@@ -527,6 +875,54 @@ class ButlerInbox {
 		return m.format("YYYY/MM/DD");
 	}
 
+	// ------------------------------------------------------- reply / popups
+	set_reply(m) {
+		this.reply_to = m && m.message_id ? m : null;
+		const $bar = this.$chat.find(".bwa-replybar");
+		if (!this.reply_to) return $bar.hide().empty();
+		const who = m.type === "Outgoing" ? (m.sender || "نحن") : "العميل";
+		$bar.html(`<div class="bwa-quote"><b>↩ رد على ${esc(who)}</b><div>${esc(String(m.message || `[${m.content_type}]`).slice(0, 120))}</div></div>
+			<span class="bwa-x" title="إلغاء">✕</span>`).show();
+		this.$input.trigger("focus");
+	}
+
+	toggle_emoji() {
+		if (this.$popup.is(":visible") && this.popup_kind === "emoji") return this.$popup.hide();
+		this.popup_kind = "emoji";
+		this.$popup.html(`<div class="bwa-emojis">${EMOJIS.map((e) => `<span>${e}</span>`).join("")}</div>`).show();
+		this.$popup.find("span").on("click", (e) => {
+			const el = this.$input.get(0);
+			const pos = el.selectionStart || el.value.length;
+			el.value = el.value.slice(0, pos) + e.currentTarget.textContent + el.value.slice(pos);
+			el.focus();
+		});
+	}
+
+	quick_reply_popup() {
+		const val = this.$input.val() || "";
+		if (!val.startsWith("/") || val.includes("\n")) {
+			if (this.popup_kind === "quick") this.$popup.hide();
+			return;
+		}
+		const q = val.slice(1).trim().toLowerCase();
+		const rows = (this.ctx.quick_replies || []).filter((r) =>
+			!q || (r.shortcut || "").toLowerCase().includes(q) || (r.title || "").toLowerCase().includes(q)).slice(0, 8);
+		this.popup_kind = "quick";
+		if (!rows.length) {
+			this.$popup.html(`<div class="text-muted small p-2">لا توجد ردود جاهزة${this.ctx.quick_replies.length ? " مطابقة" : " — أضفها من القائمة ⋯ > الردود الجاهزة"}</div>`).show();
+			return;
+		}
+		this.$popup.html(rows.map((r, i) => `<div class="bwa-qr" data-i="${i}"><b>/${esc(r.shortcut || "")}</b> ${esc(r.title)}
+			<div class="text-muted small">${esc((r.message || "").slice(0, 90))}</div></div>`).join("")).show();
+		this.$popup.find(".bwa-qr").on("click", (e) => {
+			const r = rows[$(e.currentTarget).attr("data-i")];
+			const name = this.info ? this.title_of(this.info).replace(/^\+\d+$/, "") : "";
+			this.$input.val((r.message || "").split("{name}").join(name)).trigger("input");
+			this.$popup.hide();
+			this.$input.trigger("focus");
+		});
+	}
+
 	// ------------------------------------------------------------ sending
 	async send_text() {
 		const text = (this.$input.val() || "").trim();
@@ -534,12 +930,16 @@ class ButlerInbox {
 		this.sending = true;
 		this.$chat.find(".bwa-send").prop("disabled", true);
 		try {
-			const m = await frappe.xcall(`${BWA}.send_text`, { number: this.number, message: text });
+			const m = await frappe.xcall(`${BWA}.send_text`, {
+				number: this.number, message: text, reply_to: this.reply_to ? this.reply_to.message_id : null,
+			});
 			this.$input.val("").trigger("input");
+			this.$popup.hide();
+			this.set_reply(null);
 			this.push_local(m);
 		} finally {
 			this.sending = false;
-			this.$chat.find(".bwa-send").prop("disabled", !(this.info && this.info.in_window));
+			this.$chat.find(".bwa-send").prop("disabled", false);
 		}
 	}
 
@@ -553,12 +953,79 @@ class ButlerInbox {
 				frappe.show_alert({ message: "جارِ إرسال الملف...", indicator: "blue" });
 				const m = await frappe.xcall(`${BWA}.send_file`, {
 					number: this.number, file_url: file.file_url, caption,
+					reply_to: this.reply_to ? this.reply_to.message_id : null,
 				});
 				if (caption) this.$input.val("").trigger("input");
+				this.set_reply(null);
 				this.push_local(m);
 				frappe.show_alert({ message: "تم إرسال الملف ✅", indicator: "green" });
 			},
 		});
+	}
+
+	// voice notes ---------------------------------------------------------
+	async start_recording() {
+		if (!navigator.mediaDevices || !window.MediaRecorder) {
+			frappe.msgprint("المتصفح لا يدعم تسجيل الصوت.");
+			return;
+		}
+		let stream;
+		try {
+			stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+		} catch (e) {
+			frappe.msgprint("لم يُسمح باستخدام الميكروفون. فعّله من إعدادات المتصفح لهذا الموقع.");
+			return;
+		}
+		const types = ["audio/ogg;codecs=opus", "audio/webm;codecs=opus", "audio/mp4", "audio/webm"];
+		const mime = types.find((t) => MediaRecorder.isTypeSupported(t)) || "";
+		const rec = new MediaRecorder(stream, mime ? { mimeType: mime } : undefined);
+		const chunks = [];
+		rec.ondataavailable = (e) => e.data.size && chunks.push(e.data);
+		this.recording = { rec, stream, chunks, mime: rec.mimeType || mime, started: Date.now() };
+		rec.start();
+		this.$chat.find(".bwa-compose").hide();
+		this.$chat.find(".bwa-recording").css("display", "flex");
+		this.rec_timer = setInterval(() => {
+			const s = Math.floor((Date.now() - this.recording.started) / 1000);
+			this.$chat.find(".bwa-rec-time").text(`${Math.floor(s / 60)}:${String(s % 60).padStart(2, "0")}`);
+		}, 500);
+	}
+
+	stop_recording(send) {
+		const r = this.recording;
+		if (!r) return;
+		clearInterval(this.rec_timer);
+		this.recording = null;
+		this.$chat.find(".bwa-recording").hide();
+		this.$chat.find(".bwa-compose").show();
+		r.rec.onstop = async () => {
+			r.stream.getTracks().forEach((t) => t.stop());
+			if (!send || !r.chunks.length) return;
+			const type = r.mime || "audio/webm";
+			const ext = type.includes("ogg") ? "ogg" : type.includes("mp4") ? "m4a" : "webm";
+			const blob = new Blob(r.chunks, { type });
+			const fd = new FormData();
+			fd.append("file", blob, `voice-${Date.now()}.${ext}`);
+			fd.append("is_private", "1");
+			frappe.show_alert({ message: "جارِ إرسال الرسالة الصوتية...", indicator: "blue" });
+			try {
+				const res = await fetch("/api/method/upload_file", {
+					method: "POST", body: fd, headers: { "X-Frappe-CSRF-Token": frappe.csrf_token },
+				});
+				const j = await res.json();
+				if (!res.ok) throw new Error(j.exception || res.statusText);
+				const m = await frappe.xcall(`${BWA}.send_voice`, {
+					number: this.number, file_url: j.message.file_url,
+					reply_to: this.reply_to ? this.reply_to.message_id : null,
+				});
+				this.set_reply(null);
+				this.push_local(m);
+			} catch (e) {
+				console.error(e);
+				frappe.msgprint("تعذّر إرسال الرسالة الصوتية.");
+			}
+		};
+		r.rec.stop();
 	}
 
 	push_local(m) {
@@ -580,20 +1047,27 @@ class ButlerInbox {
 			if (this.is_visible()) {
 				await frappe.xcall(`${BWA}.mark_read`, { number: this.number });
 			}
-			// new message re-opens the 24h window
-			if (this.info && !this.info.in_window) this.reload_info();
+			// a new message re-opens the 24h window (and maybe the conversation)
+			this.reload_info();
 		});
 
 		frappe.realtime.on("butler_wa_update", (data) => {
 			refresh_list();
 			if (!this.number || data.number !== this.number) return;
-			if (data.kind === "party") return this.reload_info();
-			if (data.kind === "read") return this.load_messages({ keep_scroll: true });
+			if (["party", "assign", "status_change"].includes(data.kind)) {
+				return this.load_messages({ keep_scroll: true }).catch(() => {
+					this.$msgs.html(`<div class="bwa-empty">لم تعد هذه المحادثة مسندة إليك</div>`);
+				});
+			}
+			if (data.kind === "read" || data.kind === "note") return this.load_messages({ keep_scroll: true });
 			if (data.name) this.upsert_message(data.name);
+			else this.load_messages({ keep_scroll: true });
 		});
 
+		frappe.realtime.on("butler_wa_assigned", () => refresh_list());
+
 		document.addEventListener("visibilitychange", () => {
-			if (!document.hidden && this.number && frappe.get_route_str() === "whatsapp-inbox") {
+			if (!document.hidden && this.number && on_inbox_route()) {
 				this.load_messages({ mark_read: 1, keep_scroll: true });
 			}
 		});

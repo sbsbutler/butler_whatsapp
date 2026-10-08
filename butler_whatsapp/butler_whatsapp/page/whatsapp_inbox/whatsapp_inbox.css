@@ -275,3 +275,138 @@
 	.bwa-bubble { max-width: 88%; }
 	.bwa-msgs { padding: 10px 8px; }
 }
+
+/* ---------- views / assignment */
+.bwa-views { display: flex; gap: 4px; margin-top: 8px; flex-wrap: wrap; }
+.bwa-views button {
+	border: 1px solid var(--bwa-border);
+	background: transparent;
+	border-radius: 14px;
+	padding: 2px 10px;
+	font-size: 12px;
+	color: var(--text-color);
+	cursor: pointer;
+}
+.bwa-views button.active { background: var(--bwa-green); border-color: var(--bwa-green); color: #fff; }
+.bwa-assignee { color: #1f7a35; }
+[data-theme="dark"] .bwa-assignee { color: #7ad08f; }
+.bwa-unassigned { color: #c27c00; }
+.bwa-closed {
+	font-size: 10.5px;
+	padding: 0 6px;
+	border-radius: 8px;
+	background: var(--bwa-chip);
+	color: var(--bwa-muted);
+}
+.bwa-head-actions { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
+.bwa-assign { display: flex; gap: 4px; align-items: center; font-size: 12px; margin: 0; white-space: nowrap; }
+.bwa-assign select { height: 26px; padding: 0 6px; font-size: 12px; min-width: 130px; }
+.bwa-placeholder .bwa-new { margin-top: 8px; }
+
+/* ---------- notes / events */
+.bwa-noteb {
+	margin: 6px auto;
+	max-width: min(80%, 560px);
+	background: #fff8d6;
+	color: #5c4a00;
+	border: 1px dashed #e0c95a;
+	border-radius: 8px;
+	padding: 6px 10px;
+}
+[data-theme="dark"] .bwa-noteb { background: #3b3315; color: #f1e3a6; border-color: #7a6a2a; }
+.bwa-note-h { font-size: 11px; opacity: .8; margin-bottom: 2px; }
+.bwa-event { text-align: center; font-size: 11px; color: var(--bwa-muted); margin: 6px 0; }
+
+/* ---------- reply / quotes */
+.bwa-quote {
+	border-inline-start: 3px solid var(--bwa-green);
+	background: rgba(0,0,0,.05);
+	border-radius: 6px;
+	padding: 4px 8px;
+	margin-bottom: 4px;
+	font-size: 12px;
+	cursor: pointer;
+	max-width: 100%;
+	overflow: hidden;
+}
+[data-theme="dark"] .bwa-quote { background: rgba(255,255,255,.07); }
+.bwa-quote div { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--bwa-muted); }
+.bwa-reply-btn { cursor: pointer; opacity: 0; transition: opacity .15s; font-size: 13px; }
+.bwa-msg:hover .bwa-reply-btn { opacity: .8; }
+@media (hover: none) { .bwa-reply-btn { opacity: .6; } }
+.bwa-replybar {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	padding: 6px 12px;
+	background: var(--bwa-compose);
+	border-top: 1px solid var(--bwa-border);
+}
+.bwa-replybar .bwa-quote { flex: 1; margin: 0; cursor: default; }
+.bwa-replybar .bwa-x { cursor: pointer; font-size: 16px; color: var(--bwa-muted); }
+.bwa-flash .bwa-bubble { box-shadow: 0 0 0 3px #53bdeb; }
+
+/* ---------- popups (emoji / quick replies) */
+.bwa-popup {
+	max-height: 220px;
+	overflow-y: auto;
+	background: var(--card-bg, #fff);
+	border-top: 1px solid var(--bwa-border);
+	padding: 4px;
+}
+.bwa-emojis { display: flex; flex-wrap: wrap; gap: 2px; }
+.bwa-emojis span { font-size: 22px; cursor: pointer; padding: 3px 5px; border-radius: 6px; }
+.bwa-emojis span:hover { background: var(--bwa-chip); }
+.bwa-qr { padding: 6px 8px; cursor: pointer; border-radius: 6px; }
+.bwa-qr:hover, .bwa-qr:first-child { background: var(--bwa-chip); }
+
+/* ---------- outside 24h / recording */
+.bwa-outside {
+	padding: 10px 12px;
+	background: var(--bwa-compose);
+	border-top: 1px solid var(--bwa-border);
+	font-size: 12.5px;
+	display: flex;
+	gap: 10px;
+	align-items: center;
+	justify-content: space-between;
+	flex-wrap: wrap;
+}
+.bwa-recording {
+	align-items: center;
+	gap: 10px;
+	padding: 10px 14px;
+	background: var(--bwa-compose);
+	border-top: 1px solid var(--bwa-border);
+}
+.bwa-rec-dot {
+	width: 10px; height: 10px; border-radius: 50%; background: #e53935;
+	animation: bwa-blink 1s infinite;
+}
+.bwa-rec-time { flex: 1; font-variant-numeric: tabular-nums; }
+@keyframes bwa-blink { 50% { opacity: .2; } }
+
+/* ---------- dialogs */
+.bwa-results { max-height: 320px; overflow-y: auto; }
+.bwa-result {
+	padding: 8px 10px;
+	border: 1px solid var(--border-color);
+	border-radius: 8px;
+	margin-bottom: 6px;
+	cursor: pointer;
+}
+.bwa-result:hover { background: var(--fg-hover-color); }
+.bwa-tpl-preview {
+	background: var(--bwa-out, #d9fdd3);
+	border-radius: 8px;
+	padding: 8px 10px;
+	white-space: normal;
+	direction: auto;
+}
+[data-theme="dark"] .bwa-tpl-preview { background: #005c4b; color: #e9edef; }
+
+@media (max-width: 767px) {
+	.bwa-head-actions { width: 100%; }
+	.bwa-compose { gap: 4px; padding: 6px; }
+	.bwa-icon-btn { flex-basis: 34px; width: 34px; height: 34px; font-size: 18px; }
+}
