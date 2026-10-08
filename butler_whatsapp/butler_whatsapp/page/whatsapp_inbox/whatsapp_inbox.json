@@ -1,0 +1,24 @@
+{
+ "content": null,
+ "creation": "2026-10-08 12:00:00.000000",
+ "docstatus": 0,
+ "doctype": "Page",
+ "icon": "",
+ "idx": 0,
+ "modified": "2026-10-08 21:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Butler WhatsApp",
+ "name": "whatsapp-inbox",
+ "owner": "Administrator",
+ "page_name": "whatsapp-inbox",
+ "roles": [
+  {
+   "role": "System Manager"
+  }
+ ],
+ "script": null,
+ "standard": "Yes",
+ "style": null,
+ "system_page": 0,
+ "title": "واتساب"
+}
