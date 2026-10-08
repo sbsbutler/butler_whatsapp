@@ -39,7 +39,13 @@ def rt(monkeypatch):
 	fr.get_traceback = lambda: "tb"
 	monkeypatch.setitem(sys.modules, "frappe", fr)
 	monkeypatch.setitem(sys.modules, "frappe.utils", utils)
+	fr._ = lambda s: s
+	fake_inbox = types.ModuleType("butler_whatsapp.inbox")
+	fake_inbox.on_incoming = lambda doc: None
+	fake_inbox.publish = lambda *a, **k: None
+	monkeypatch.setitem(sys.modules, "butler_whatsapp.inbox", fake_inbox)
 	sys.modules.pop("butler_whatsapp.realtime", None)
+	sys.modules.pop("butler_whatsapp.access", None)
 	import butler_whatsapp.realtime as mod
 	return mod, fr
 

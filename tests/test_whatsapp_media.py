@@ -49,3 +49,24 @@ def test_text_message():
 ])
 def test_phone_tail(raw, tail):
 	assert phone_tail(raw) == tail
+
+
+def test_template_message_and_render():
+	from butler_whatsapp.meta import render_template, template_message, with_reply
+
+	p = template_message("966", "offer_ar", "ar", ["علي", 5], {"type": "document", "document": {"id": "M"}})
+	comps = p["template"]["components"]
+	assert comps[0] == {"type": "header", "parameters": [{"type": "document", "document": {"id": "M"}}]}
+	assert comps[1]["parameters"][1] == {"type": "text", "text": "5"}
+	assert "components" not in template_message("966", "hi", "ar")["template"]
+	assert render_template("مرحبا {{1}} و{{ 2 }}", ["أ", "ب"]) == "مرحبا أ وب"
+	assert with_reply({"a": 1}, None) == {"a": 1}
+	assert with_reply({"a": 1}, "wamid.X")["context"] == {"message_id": "wamid.X"}
+
+
+def test_describe_location_and_contacts():
+	from butler_whatsapp.meta import describe_contacts, describe_location
+
+	assert describe_location({"latitude": 21.4, "longitude": 39.8, "name": "البيت", "address": "مكة"}).splitlines() == [
+		"📍 البيت", "مكة", "https://maps.google.com/?q=21.4,39.8"]
+	assert describe_contacts([{"name": {"formatted_name": "علي"}, "phones": [{"phone": "+966500"}]}]) == "👤 علي: +966500"
