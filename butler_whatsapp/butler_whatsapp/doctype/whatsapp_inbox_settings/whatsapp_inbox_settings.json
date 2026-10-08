@@ -1,0 +1,105 @@
+{
+ "actions": [],
+ "creation": "2026-10-09 03:00:00.000000",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "modified": "2026-10-09 03:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Butler WhatsApp",
+ "name": "WhatsApp Inbox Settings",
+ "owner": "Administrator",
+ "links": [],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": [],
+ "issingle": 1,
+ "track_changes": 1,
+ "field_order": [
+  "access_section",
+  "supervisors",
+  "notify_supervisors",
+  "column_break_1",
+  "auto_assign",
+  "assign_pool",
+  "last_assigned",
+  "reopen_on_incoming",
+  "ui_section",
+  "show_launcher"
+ ],
+ "fields": [
+  {
+   "fieldname": "access_section",
+   "fieldtype": "Section Break",
+   "label": "الصلاحيات وتوزيع المحادثات"
+  },
+  {
+   "fieldname": "supervisors",
+   "fieldtype": "Table MultiSelect",
+   "label": "المشرفون (يرون كل المحادثات)",
+   "options": "WhatsApp Inbox User",
+   "description": "باقي الموظفين يرون فقط المحادثات المسندة لهم. إذا كانت القائمة فارغة يرى الجميع كل المحادثات."
+  },
+  {
+   "fieldname": "notify_supervisors",
+   "fieldtype": "Check",
+   "label": "تنبيه المشرفين برسائل المحادثات المسندة أيضاً",
+   "default": "0"
+  },
+  {
+   "fieldname": "column_break_1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "auto_assign",
+   "fieldtype": "Select",
+   "label": "الإسناد التلقائي للمحادثات الجديدة",
+   "options": "\nبالتناوب",
+   "default": "",
+   "description": "بالتناوب: كل محادثة جديدة غير مسندة تُسند للموظف التالي في القائمة أدناه."
+  },
+  {
+   "fieldname": "assign_pool",
+   "fieldtype": "Table MultiSelect",
+   "label": "موظفو التوزيع التلقائي",
+   "options": "WhatsApp Inbox User",
+   "depends_on": "eval:doc.auto_assign"
+  },
+  {
+   "fieldname": "last_assigned",
+   "fieldtype": "Data",
+   "label": "آخر من أُسند إليه",
+   "read_only": 1,
+   "hidden": 1
+  },
+  {
+   "fieldname": "reopen_on_incoming",
+   "fieldtype": "Check",
+   "label": "إعادة فتح المحادثة المغلقة عند وصول رسالة جديدة",
+   "default": "1"
+  },
+  {
+   "fieldname": "ui_section",
+   "fieldtype": "Section Break",
+   "label": "الواجهة"
+  },
+  {
+   "fieldname": "show_launcher",
+   "fieldtype": "Check",
+   "label": "إظهار زر واتساب العائم",
+   "default": "1",
+   "description": "كل مستخدم يستطيع أيضاً سحب الزر لأي مكان أو إخفاءه من قائمة صفحة واتساب."
+  }
+ ],
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "print": 1,
+   "read": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ]
+}
