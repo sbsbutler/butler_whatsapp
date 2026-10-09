@@ -267,6 +267,9 @@
 /* ---------- phones */
 @media (max-width: 767px) {
 	.bwa { height: calc(100vh - 110px); border-radius: 0; border-left: 0; border-right: 0; }
+}
+/* single-pane layout for phones and narrow windows (desk sidebar eats width) */
+@media (max-width: 991px) {
 	.bwa-list { width: 100%; min-width: 0; border-left: 0; }
 	.bwa-chat { display: none; }
 	.bwa.chat-open .bwa-list { display: none; }
