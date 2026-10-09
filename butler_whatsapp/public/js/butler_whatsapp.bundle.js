@@ -7,6 +7,18 @@
 //  3. Web Push: notifications on phones (iOS home-screen app / Android) and desktops.
 
 (() => {
+	// ------------------------------------------------------------ legacy chat bubble
+	// The whatsapp_chat app mounts its own bubble (.chat-app) with no on/off setting.
+	// It ignores inbox assignment, so it is hidden for everyone; the app itself must
+	// stay installed because it owns the "WhatsApp Contact" DocType.
+	(function hideLegacyChat() {
+		if (document.getElementById("butler-wa-hide-legacy")) return;
+		const style = document.createElement("style");
+		style.id = "butler-wa-hide-legacy";
+		style.textContent = ".chat-app { display: none !important; }";
+		(document.head || document.documentElement).appendChild(style);
+	})();
+
 	// ------------------------------------------------------------ inbox launcher
 	const LAUNCHER_ID = "butler-wa-launcher";
 	const INBOX = "whatsapp-inbox";
