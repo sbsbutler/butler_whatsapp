@@ -73,10 +73,26 @@ def ensure_whatsapp_inbox():
 				"insert_after": "butler_customer",
 			},
 			{
+				"fieldname": "butler_assigned_to",
+				"fieldtype": "Link",
+				"options": "User",
+				"label": "Assigned To",
+				"insert_after": "butler_lead",
+				"search_index": 1,
+			},
+			{
+				"fieldname": "butler_status",
+				"fieldtype": "Select",
+				"options": "Open\nClosed",
+				"default": "Open",
+				"label": "Conversation Status",
+				"insert_after": "butler_assigned_to",
+			},
+			{
 				"fieldname": "butler_no_auto_link",
 				"fieldtype": "Check",
 				"label": "Do not auto-link by phone",
-				"insert_after": "butler_lead",
+				"insert_after": "butler_status",
 			},
 		]
 	create_custom_fields(fields, ignore_validate=True)

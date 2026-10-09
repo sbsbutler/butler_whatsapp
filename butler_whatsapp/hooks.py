@@ -32,3 +32,18 @@ doc_events = {
 		"on_update": "butler_whatsapp.inbox.on_message_update",
 	},
 }
+
+# Supervisors see every conversation, everybody else only the ones assigned to them (access.py)
+permission_query_conditions = {
+	"WhatsApp Message": "butler_whatsapp.access.message_query",
+	"WhatsApp Contact": "butler_whatsapp.access.contact_query",
+}
+has_permission = {
+	"WhatsApp Message": "butler_whatsapp.access.message_has_permission",
+	"WhatsApp Contact": "butler_whatsapp.access.contact_has_permission",
+}
+
+# launcher visibility + supervisor flag for the Desk bundle
+boot_session = "butler_whatsapp.access.boot_session"
+
+# "WhatsApp" button on Customer / Lead / Contact is added by the bundle (all Desk pages)

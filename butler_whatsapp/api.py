@@ -182,6 +182,10 @@ def send_document(
 
 	_log_message(account.name, msisdn, message_id, doctype, name, file_doc.file_url,
 		caption or "", tpl.name if tpl else None)
+	from butler_whatsapp.inbox import claim_if_unassigned, publish
+
+	claim_if_unassigned(msisdn)
+	publish(msisdn, "outgoing")
 	frappe.get_doc(doctype, name).add_comment(
 		"Info", _("Sent via WhatsApp to {0}").format("+" + msisdn)
 	)
