@@ -124,6 +124,63 @@ def phone_tail(raw: str | None, digits: int = 9) -> str | None:
 	return only[-digits:] if len(only) >= digits else None
 
 
+def render_template(text: str | None, params: list | None) -> str:
+	"""Fill {{1}}, {{2}}... with params (for showing what was sent)."""
+	out = text or ""
+	for i, value in enumerate(params or [], start=1):
+		out = re.sub(r"\{\{\s*%d\s*\}\}" % i, str(value), out)
+	return out
+
+
+def template_message(
+	to: str,
+	name: str,
+	language: str,
+	body_params: list | None = None,
+	header: dict | None = None,
+) -> dict:
+	"""Approved template payload.
+
+	`header` is one Graph API header parameter, e.g. {"type": "text", "text": "..."} or
+	{"type": "document", "document": {"id": ..., "filename": ...}} / {"type": "image", "image": {"id": ...}}.
+	"""
+	components = []
+	if header:
+		components.append({"type": "header", "parameters": [header]})
+	if body_params:
+		components.append({"type": "body", "parameters": [{"type": "text", "text": str(p)} for p in body_params]})
+	template = {"name": name, "language": {"code": language}}
+	if components:
+		template["components"] = components
+	return {"messaging_product": "whatsapp", "to": to, "type": "template", "template": template}
+
+
+def with_reply(payload: dict, reply_to: str | None) -> dict:
+	"""Quote an earlier message (its wamid) in the customer's WhatsApp."""
+	if reply_to:
+		payload = {**payload, "context": {"message_id": reply_to}}
+	return payload
+
+
+def describe_location(loc: dict) -> str:
+	lat, lng = loc.get("latitude"), loc.get("longitude")
+	parts = ["📍 " + (loc.get("name") or "موقع")]
+	if loc.get("address"):
+		parts.append(loc["address"])
+	if lat is not None and lng is not None:
+		parts.append(f"https://maps.google.com/?q={lat},{lng}")
+	return "\n".join(parts)
+
+
+def describe_contacts(contacts: list) -> str:
+	lines = []
+	for c in contacts or []:
+		name = (c.get("name") or {}).get("formatted_name") or ""
+		phones = ", ".join(p.get("phone") or p.get("wa_id") or "" for p in c.get("phones") or [])
+		lines.append(f"👤 {name}: {phones}".strip())
+	return "\n".join(lines)
+
+
 class CloudAPI:
 	"""Minimal Graph API client for one phone number."""
 

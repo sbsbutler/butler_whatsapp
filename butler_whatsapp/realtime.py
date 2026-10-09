@@ -28,6 +28,13 @@ def on_message_insert(doc, method=None):
 		return
 	if doc.type != "Incoming" or not doc.get("from"):
 		return
+	try:
+		# reopen / auto-assign / location text, in this transaction
+		from butler_whatsapp.inbox import on_incoming
+
+		on_incoming(doc)
+	except Exception:
+		frappe.log_error(title="WhatsApp incoming hook failed", message=frappe.get_traceback())
 	name = doc.name
 	# whatsapp_chat creates the WhatsApp Contact in its own after_insert; wait
 	# for the transaction so the contact (room) exists before broadcasting.
@@ -82,8 +89,17 @@ def audience(name: str) -> dict:
 		"new_contact": new_contact,
 		"display": msg.get("profile_name") or (contact.contact_name if contact else None) or mobile,
 		"content": _preview(msg),
-		"recipients": [contact.email] if contact and contact.email else _agents(),
+		"recipients": _recipients(mobile, contact),
 	}
+
+
+def _recipients(mobile, contact) -> list[str]:
+	from butler_whatsapp.access import notify_targets
+
+	targets = notify_targets(mobile)
+	if targets is not None:
+		return targets
+	return [contact.email] if contact and contact.email else _agents()
 
 
 def _broadcast(name: str):

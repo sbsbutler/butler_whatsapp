@@ -174,3 +174,9 @@ def notify_incoming(message: str):
 		},
 	)
 	frappe.db.commit()
+
+
+def notify_users_job(users: list[str], data: dict):
+	"""Background job wrapper (assignment notifications)."""
+	notify_users(users, data)
+	frappe.db.commit()
