@@ -27,6 +27,8 @@ def inbox(monkeypatch):
 	utils.get_fullname = lambda u: {"a@x": "Ahmed"}.get(u, u)
 	utils.now_datetime = lambda: "now"
 	utils.strip_html = lambda s: s
+	utils.fmt_money = lambda v, **k: str(v)
+	utils.formatdate = lambda v, *a, **k: str(v)
 	fr.utils = utils
 	fr._ = lambda s: s
 	fr._dict = _AD
@@ -54,7 +56,7 @@ def inbox(monkeypatch):
 	fr.get_traceback = lambda: "tb"
 	monkeypatch.setitem(sys.modules, "frappe", fr)
 	monkeypatch.setitem(sys.modules, "frappe.utils", utils)
-	for m in ("butler_whatsapp.inbox", "butler_whatsapp.api"):
+	for m in ("butler_whatsapp.inbox", "butler_whatsapp.api", "butler_whatsapp.compliance"):
 		sys.modules.pop(m, None)
 	import butler_whatsapp.inbox as mod
 
