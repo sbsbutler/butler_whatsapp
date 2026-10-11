@@ -413,3 +413,23 @@
 	.bwa-compose { gap: 4px; padding: 6px; }
 	.bwa-icon-btn { flex-basis: 34px; width: 34px; height: 34px; font-size: 18px; }
 }
+
+/* ---------- compliance / SLA */
+.bwa-overdue { color: #b54708; font-weight: 600; }
+[data-theme="dark"] .bwa-overdue { color: #fdb022; }
+.bwa-consent { font-size: 11px; white-space: nowrap; }
+.bwa-consent.ok { color: #067647; }
+.bwa-consent.stop { color: #b42318; font-weight: 600; }
+.bwa-consent.none { color: var(--bwa-muted); }
+[data-theme="dark"] .bwa-consent.ok { color: #47cd89; }
+[data-theme="dark"] .bwa-consent.stop { color: #f97066; }
+.bwa-error {
+	margin-top: 6px;
+	padding: 4px 8px;
+	border-radius: 6px;
+	background: rgba(217, 45, 32, .1);
+	color: #b42318;
+	font-size: 12px;
+	line-height: 1.6;
+}
+[data-theme="dark"] .bwa-error { color: #fda29b; background: rgba(240, 68, 56, .15); }

@@ -195,6 +195,11 @@ class ButlerInbox {
 		else if (this.ctx.supervisor && this.ctx.restricted) subs.push(`<span class="bwa-unassigned">غير مسندة</span>`);
 		if (c.status === "Closed") subs.push(`<span class="bwa-closed">مغلقة</span>`);
 		if (last.type === "Incoming" && last.read_by && !c.unread) subs.push(`<span>👁 ${esc(last.read_by)}</span>`);
+		const sla = this.ctx.sla_minutes || 0;
+		if (sla && last.type === "Incoming" && c.status !== "Closed") {
+			const waited = (Date.now() - frappe.datetime.str_to_obj(c.last_at).getTime()) / 60000;
+			if (waited >= sla) subs.push(`<span class="bwa-overdue">⏰ بانتظار الرد ${this.wait_label(waited)}</span>`);
+		}
 		return `
 			<div class="bwa-item ${c.unread ? "unread" : ""} ${c.number === this.number ? "active" : ""}" data-number="${esc(c.number)}">
 				<div class="bwa-avatar ${kind}">${initial}</div>
@@ -368,6 +373,50 @@ class ButlerInbox {
 			info.profile_name || "+" + info.number;
 	}
 
+	wait_label(minutes) {
+		if (minutes < 60) return `${Math.round(minutes)} د`;
+		if (minutes < 1440) return `${Math.round(minutes / 60)} س`;
+		return `${Math.round(minutes / 1440)} يوم`;
+	}
+
+	consent_html(c) {
+		c = c || {};
+		if (c.state === "موافق") return `<span class="bwa-consent ok" title="${esc(c.source || "")}">✓ موافق على الرسائل</span>`;
+		if (c.state === "أوقف الرسائل") return `<span class="bwa-consent stop" title="${esc(c.at || "")}">⛔ أوقف الرسائل</span>`;
+		return `<span class="bwa-consent none">لا توجد موافقة</span>`;
+	}
+
+	consent_dialog(after) {
+		const sources = this.ctx.consent_sources || [];
+		const c = (this.info && this.info.consent) || {};
+		const states = ["موافق", "أوقف الرسائل"].concat(this.ctx.supervisor ? [""] : []);
+		const d = new frappe.ui.Dialog({
+			title: "موافقة العميل على رسائل واتساب",
+			fields: [
+				{ fieldname: "info", fieldtype: "HTML", options: `<div class="text-muted small" dir="rtl" style="line-height:1.8">
+					سياسة Meta: لا تُبدأ مراسلة العميل بقالب إلا بعد موافقته الواضحة على تلقي رسائل باتلر.
+					سجّل هنا كيف وافق (أو أنه طلب الإيقاف)، ويُحفظ ذلك في سجل المحادثة.</div>` },
+				{ fieldname: "state", fieldtype: "Select", label: "الحالة", reqd: 1, default: c.state || "موافق",
+					options: states.map((v) => ({ value: v, label: v || "— مسح الحالة —" })) },
+				{ fieldname: "source", fieldtype: "Select", label: "مصدر الموافقة", options: [""].concat(sources),
+					depends_on: "eval:doc.state=='موافق'", mandatory_depends_on: "eval:doc.state=='موافق'" },
+				{ fieldname: "note", fieldtype: "Small Text", label: "ملاحظة (اختياري)" },
+			],
+			primary_action_label: "حفظ",
+			primary_action: async (v) => {
+				const res = await frappe.xcall("butler_whatsapp.compliance.set_consent", {
+					number: this.number, state: v.state || "", source: v.source || "", note: v.note || "",
+				});
+				d.hide();
+				if (this.info) this.info.consent = res;
+				await this.reload_info();
+				frappe.show_alert({ indicator: "green", message: "تم الحفظ" });
+				after && after(res);
+			},
+		});
+		d.show();
+	}
+
 	set_info(info) {
 		this.info = info;
 		const title = this.title_of(info);
@@ -426,6 +475,7 @@ class ButlerInbox {
 				</div>
 				<div class="bwa-head-actions">
 					${assign_html}
+					<button class="btn btn-xs btn-default bwa-consent-btn" data-act="consent">${this.consent_html(info.consent)}</button>
 					<button class="btn btn-xs btn-default" data-act="note">📝 ملاحظة</button>
 					<button class="btn btn-xs ${closed ? "btn-primary" : "btn-default"}" data-act="status">${closed ? "إعادة فتح" : "✔ إغلاق"}</button>
 				</div>
@@ -444,6 +494,7 @@ class ButlerInbox {
 		$head.find("[data-act=link]").on("click", () => this.link_dialog());
 		$head.find("[data-act=docs]").on("click", () => this.documents_dialog());
 		$head.find("[data-act=note]").on("click", () => this.note_dialog());
+		$head.find("[data-act=consent]").on("click", () => this.consent_dialog());
 		$head.find("[data-act=status]").on("click", () => this.toggle_status());
 		$head.find(".bwa-assign select").on("change", (e) => this.assign(e.target.value));
 		$head.find("[data-unlink]").on("click", (e) => this.unlink($(e.currentTarget).attr("data-unlink")));
@@ -632,9 +683,21 @@ class ButlerInbox {
 
 	// ------------------------------------------------------------ templates
 	async template_dialog() {
-		const { templates, defaults } = await frappe.xcall(`${BWA}.get_templates`, { number: this.number });
+		const { templates, defaults, consent, in_window, require_opt_in } = await frappe.xcall(`${BWA}.get_templates`, { number: this.number });
 		if (!templates.length) {
-			frappe.msgprint("لا توجد قوالب معتمدة. أنشئ قالباً من «القوالب» وانتظر موافقة Meta.");
+			frappe.msgprint("لا توجد قوالب معتمدة ومفعّلة. أنشئ قالباً من «مسودات القوالب» وانتظر موافقة Meta، أو فعّل قالباً موقوفاً.");
+			return;
+		}
+		if (consent && consent.state === "أوقف الرسائل") {
+			frappe.msgprint({ title: "العميل أوقف الرسائل", indicator: "red",
+				message: "طلب هذا العميل إيقاف رسائل باتلر، فلا يُرسل له أي قالب. إذا طلب العودة سجّل موافقة جديدة." });
+			return;
+		}
+		if (require_opt_in && !in_window && (!consent || consent.state !== "موافق")) {
+			frappe.confirm(
+				"لا توجد موافقة مسجلة من هذا العميل على تلقي رسائل باتلر، وسياسة Meta تمنع بدء المراسلة بدونها.<br><br>هل وافق العميل؟ سجّل الموافقة ومصدرها أولاً.",
+				() => this.consent_dialog((res) => res.state === "موافق" && this.template_dialog()),
+			);
 			return;
 		}
 		let header_file = null;
@@ -652,13 +715,15 @@ class ButlerInbox {
 				const t = current();
 				const body = d.$wrapper.find("[data-body]").map((_, el) => el.value).get();
 				const head = d.$wrapper.find("[data-head]").map((_, el) => el.value).get();
-				if (body.some((v) => !v.trim()) || head.some((v) => !v.trim())) {
+				const btns = d.$wrapper.find("[data-btn]").map((_, el) => el.value).get();
+				if (body.some((v) => !v.trim()) || head.some((v) => !v.trim()) || btns.some((v) => !v.trim())) {
 					frappe.msgprint("أكمل كل المتغيرات");
 					return;
 				}
 				const m = await frappe.xcall(`${BWA}.send_template`, {
 					number: this.number, template: t.name, body_params: JSON.stringify(body),
 					header_params: JSON.stringify(head), header_file_url: header_file,
+					button_params: JSON.stringify(btns),
 				}, { freeze: true });
 				d.hide();
 				this.push_local(m);
@@ -681,6 +746,11 @@ class ButlerInbox {
 				inputs.push(`<div class="form-group"><label class="control-label">{{${i}}}</label>
 					<input class="form-control" data-body="${i}" value="${esc(def)}"></div>`);
 			}
+			(t.url_buttons || []).forEach((b) => {
+				inputs.push(`<div class="form-group"><label class="control-label">رابط الزر «${esc(b.label || "")}»</label>
+					<input class="form-control" data-btn="${b.index}" dir="ltr" placeholder="${esc(b.url || "")}">
+					<div class="text-muted small">القيمة التي تحل محل {{1}} في: ${esc(b.url || "")}</div></div>`);
+			});
 			if (["DOCUMENT", "IMAGE"].includes(t.header_type)) {
 				inputs.push(`<div class="form-group"><label class="control-label">${t.header_type === "DOCUMENT" ? "ملف المستند" : "الصورة"}</label>
 					<div><button class="btn btn-xs btn-default bwa-hdr-file">اختيار ملف</button>
@@ -795,6 +865,9 @@ class ButlerInbox {
 		let body = this.quote_html(m);
 		if (m.message_type === "Template") body += `<div class="bwa-tpl">📋 قالب${m.template ? ": " + esc(m.template) : ""}</div>`;
 		body += this.content(m);
+		if (out && m.error) {
+			body += `<div class="bwa-error">⚠️ ${esc(m.error)}</div>`;
+		}
 		if (m.reference_doctype && m.reference_name) {
 			body += `<div class="bwa-ref">🔗 <a href="/desk/${frappe.router.slug(m.reference_doctype)}/${encodeURIComponent(m.reference_name)}">${esc(__(m.reference_doctype))} ${esc(m.reference_name)}</a></div>`;
 		}
@@ -1054,6 +1127,7 @@ class ButlerInbox {
 		frappe.realtime.on("butler_wa_update", (data) => {
 			refresh_list();
 			if (!this.number || data.number !== this.number) return;
+			if (data.kind === "consent") return this.reload_info();
 			if (["party", "assign", "status_change"].includes(data.kind)) {
 				return this.load_messages({ keep_scroll: true }).catch(() => {
 					this.$msgs.html(`<div class="bwa-empty">لم تعد هذه المحادثة مسندة إليك</div>`);
