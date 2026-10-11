@@ -375,7 +375,8 @@
 				{ fieldname: "caption", fieldtype: "Small Text", label: __("Message"), default: ctx.caption,
 					depends_on: "eval:!doc.template" },
 				{ fieldname: "template", fieldtype: "Select", label: __("Template (needed after 24h)"),
-					options: [""].concat(ctx.templates.map((t) => t.name)), hidden: !hasTemplates },
+					options: [""].concat(ctx.templates.map((t) => t.name)), hidden: !hasTemplates,
+					default: !ctx.in_window && ctx.default_template ? ctx.default_template : "" },
 				{ fieldname: "params_html", fieldtype: "HTML" },
 			],
 			primary_action_label: __("Send"),
@@ -407,24 +408,34 @@
 			},
 		});
 
-		const windowNote = ctx.in_window
+		const consent = ctx.consent || {};
+		const consentNote = consent.state === "أوقف الرسائل"
+			? `<div class="alert alert-danger small mb-2">⛔ هذا العميل طلب إيقاف رسائل باتلر — لا يمكن إرسال قالب له.</div>`
+			: (!ctx.in_window && consent.state !== "موافق")
+				? `<div class="alert alert-warning small mb-2">لا توجد موافقة مسجلة من العميل على رسائل واتساب. سجّلها من صندوق واتساب (رأس المحادثة ← الموافقة) قبل إرسال قالب.</div>`
+				: "";
+		const windowNote = consentNote + (ctx.in_window
 			? `<div class="alert alert-success small mb-2">${__("Customer wrote within 24h — you can send the PDF directly.")}</div>`
 			: `<div class="alert alert-warning small mb-2">${
 				hasTemplates
 					? __("No message from this number in the last 24h — choose an approved template.")
 					: __("No message from this number in the last 24h and no approved document template yet. Ask the customer to send any message first.")
-			}</div>`;
+			}</div>`);
 		d.fields_dict.window.$wrapper.html(windowNote);
 
-		const defaults = [ctx.customer_name, target.name, ctx.grand_total ? format_currency(ctx.grand_total, ctx.currency) : ""];
-		d.fields_dict.template.$input && d.fields_dict.template.$input.on("change", () => {
+		const defaults = ctx.param_defaults && ctx.param_defaults.length ? ctx.param_defaults
+			: [ctx.customer_name, target.name, ctx.grand_total ? format_currency(ctx.grand_total, ctx.currency) : ""];
+		const renderParams = () => {
 			const tpl = ctx.templates.find((t) => t.name === d.get_value("template"));
 			const html = tpl ? Array.from({ length: tpl.variables }, (_, i) =>
 				`<div class="form-group"><label class="control-label">{{${i + 1}}}</label>
 				 <input class="form-control" data-wa-param="${i + 1}" value="${frappe.utils.escape_html(String(defaults[i] || ""))}"></div>`).join("") : "";
-			d.fields_dict.params_html.$wrapper.html(html);
-		});
+			const preview = tpl && tpl.text ? `<div class="text-muted small" style="white-space:pre-wrap;border:1px dashed var(--border-color);padding:6px;border-radius:6px">${frappe.utils.escape_html(tpl.text)}</div>` : "";
+			d.fields_dict.params_html.$wrapper.html(preview + html);
+		};
+		d.fields_dict.template.$input && d.fields_dict.template.$input.on("change", renderParams);
 		d.show();
+		renderParams();
 	}
 
 	function sendDocument(doctype, name, mobile, reload) {
