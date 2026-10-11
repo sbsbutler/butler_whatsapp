@@ -6,8 +6,11 @@ quotations and invoices never need a public URL on our site.
 
 from __future__ import annotations
 
+import hashlib
+import hmac
 import re
-from datetime import datetime, timedelta
+import unicodedata
+from datetime import datetime, time, timedelta
 
 import requests
 
@@ -16,7 +19,154 @@ _TIMEOUT = 60
 
 
 class WhatsAppError(Exception):
-	"""Raised when Meta returns an error for a request."""
+	"""Raised when Meta returns an error for a request (`code` = Meta error code)."""
+
+	def __init__(self, message: str, code: int | None = None):
+		super().__init__(message)
+		self.code = code
+
+
+# Meta error codes we explain to staff in Arabic (anything else shows Meta's own text).
+ERROR_HINTS = {
+	131047: "انتهت نافذة الـ24 ساعة — لا يمكن إرسال رسالة حرة، استخدم قالباً معتمداً.",
+	131026: "تعذّر التسليم: الرقم غير مسجل في واتساب، أو تطبيق العميل قديم، أو لم يقبل شروط واتساب.",
+	131049: "لم تُسلَّم: Meta حدّت عدد الرسائل التسويقية لهذا العميل مؤقتاً. لا تُعِد الإرسال الآن.",
+	131048: "تم تقييد الإرسال بسبب بلاغات أو حظر من العملاء. خفّف الإرسال وراجع جودة الرقم.",
+	131056: "رسائل كثيرة لنفس الرقم خلال وقت قصير. انتظر قليلاً قبل الإعادة.",
+	131051: "نوع الرسالة غير مدعوم.",
+	131052: "تعذّر تنزيل الوسائط المرسلة من العميل.",
+	131053: "تعذّر رفع الملف إلى واتساب (النوع أو الحجم غير مدعوم).",
+	131031: "الحساب مقفل من Meta — راجع مدير أعمال Meta.",
+	131000: "خطأ عام من واتساب، حاول لاحقاً.",
+	130472: "الرقم ضمن تجربة من Meta ولم تُسلَّم الرسالة التسويقية.",
+	132000: "عدد متغيرات القالب لا يطابق القالب المعتمد.",
+	132001: "القالب غير موجود أو لغته غير صحيحة.",
+	132005: "النص بعد تعبئة المتغيرات أطول من المسموح.",
+	132007: "محتوى المتغيرات يخالف سياسة Meta.",
+	132012: "صيغة متغيرات القالب غير صحيحة.",
+	132015: "القالب موقوف مؤقتاً من Meta بسبب انخفاض جودته.",
+	132016: "القالب معطّل نهائياً من Meta بسبب تكرار انخفاض جودته.",
+	133010: "رقم الشركة غير مسجل في Cloud API.",
+	368: "الحساب محظور مؤقتاً بسبب مخالفة سياسات Meta.",
+	190: "رمز الوصول (Token) منتهي أو غير صالح.",
+}
+
+
+def explain_error(code, title: str | None = None, details: str | None = None) -> str:
+	"""Arabic explanation for a Meta error, falling back to Meta's text."""
+	try:
+		code = int(code) if code is not None else None
+	except (TypeError, ValueError):
+		code = None
+	hint = ERROR_HINTS.get(code) if code is not None else None
+	meta_text = " — ".join(x for x in (title, details) if x)
+	if hint:
+		return f"{hint} (#{code})"
+	if meta_text:
+		return f"{meta_text} (#{code})" if code is not None else meta_text
+	return f"خطأ من واتساب (#{code})" if code is not None else "خطأ من واتساب"
+
+
+def errors_for_message(payload: dict, message_id: str) -> list[dict]:
+	"""Errors Meta reported for one sent message in a status webhook payload."""
+	out = []
+	for entry in payload.get("entry") or []:
+		for change in entry.get("changes") or []:
+			for st in (change.get("value") or {}).get("statuses") or []:
+				if st.get("id") == message_id and st.get("errors"):
+					out.extend(st["errors"])
+	return out
+
+
+# ---------------------------------------------------------------- webhook signature
+
+
+def webhook_signature_ok(secret: str, body: bytes, header: str | None) -> bool:
+	"""Meta signs the raw body with the App Secret: X-Hub-Signature-256: sha256=<hex>."""
+	if not secret or not header:
+		return False
+	expected = "sha256=" + hmac.new(secret.encode(), body or b"", hashlib.sha256).hexdigest()
+	return hmac.compare_digest(expected, header.strip())
+
+
+# ------------------------------------------------------------- opt-out keywords
+
+_PUNCT = re.compile(r"[\s\.\!\?،؛,;:\-_ـ\u064B-\u0652]+")
+
+
+def normalize_keyword(text: str | None) -> str:
+	"""Lower-case, unify Arabic letter forms and drop punctuation / tashkeel,
+	so 'إيقاف!' == 'ايقاف' and 'Stop' == 'STOP'."""
+	t = unicodedata.normalize("NFKC", str(text or "")).strip().casefold()
+	t = t.translate(str.maketrans({"أ": "ا", "إ": "ا", "آ": "ا", "ى": "ي", "ة": "ه"}))
+	return _PUNCT.sub("", t)
+
+
+def keyword_list(raw: str | None) -> list[str]:
+	return [k for k in (normalize_keyword(x) for x in re.split(r"[\n,،]+", raw or "")) if k]
+
+
+def matches_keyword(text: str | None, keywords: list[str]) -> bool:
+	"""Whole-message match only, so 'أبي إيقاف الطلب' is NOT an opt-out."""
+	t = normalize_keyword(text)
+	return bool(t) and t in keywords
+
+
+# ---------------------------------------------------------------- business hours
+
+
+def in_business_hours(now: datetime, work_days: set[int], start: time | None, end: time | None) -> bool:
+	"""work_days uses Python weekday(): Monday=0 ... Sunday=6."""
+	if now.weekday() not in work_days:
+		return False
+	if not start or not end:
+		return True
+	t = now.time()
+	if start <= end:
+		return start <= t < end
+	return t >= start or t < end  # overnight shift
+
+
+# --------------------------------------------------------------- template rules
+
+
+def validate_template_text(body: str, samples: list[str], header: str | None = None,
+	header_sample: str | None = None, footer: str | None = None) -> list[str]:
+	"""Problems Meta would reject a new template for (empty list = OK)."""
+	problems = []
+	body = body or ""
+	nums = [int(n) for n in re.findall(r"\{\{\s*(\d+)\s*\}\}", body)]
+	distinct = sorted(set(nums))
+	if not body.strip():
+		problems.append("نص القالب فارغ.")
+	if len(body) > 1024:
+		problems.append("نص القالب أطول من 1024 حرفاً.")
+	if distinct and distinct != list(range(1, len(distinct) + 1)):
+		problems.append("المتغيرات يجب أن تكون متتالية تبدأ من {{1}}.")
+	stripped = body.strip()
+	if re.match(r"^\{\{\s*\d+\s*\}\}", stripped) or re.search(r"\{\{\s*\d+\s*\}\}[\s\.\!\?،]*$", stripped):
+		problems.append("لا يُسمح أن يبدأ النص أو ينتهي بمتغير.")
+	if re.search(r"\}\}\s*\{\{", body):
+		problems.append("لا يُسمح بمتغيرين متجاورين بدون نص بينهما.")
+	if len(samples) != len(distinct):
+		problems.append(f"عدد الأمثلة ({len(samples)}) لا يساوي عدد المتغيرات ({len(distinct)}).")
+	if any("," in s for s in samples):
+		problems.append("الأمثلة يجب ألا تحتوي فاصلة إنجليزية (,).")
+	if any(not (s or "").strip() for s in samples):
+		problems.append("يوجد مثال فارغ.")
+	if header:
+		hv = re.findall(r"\{\{\s*(\d+)\s*\}\}", header)
+		if len(header) > 60:
+			problems.append("العنوان أطول من 60 حرفاً.")
+		if len(set(hv)) > 1:
+			problems.append("العنوان يقبل متغيراً واحداً فقط.")
+		if hv and not (header_sample or "").strip():
+			problems.append("العنوان فيه متغير ويحتاج مثالاً.")
+	if footer and len(footer) > 60:
+		problems.append("التذييل أطول من 60 حرفاً.")
+	if footer and "{{" in footer:
+		problems.append("التذييل لا يقبل متغيرات.")
+	return problems
 
 
 def normalize_msisdn(raw: str | None, default_cc: str = "966") -> str | None:
@@ -196,7 +346,10 @@ class CloudAPI:
 			data = {}
 		if resp.status_code >= 400 or "error" in data:
 			err = data.get("error") or {}
-			raise WhatsAppError(err.get("error_user_msg") or err.get("message") or f"HTTP {resp.status_code}")
+			code = err.get("code")
+			details = (err.get("error_data") or {}).get("details") if isinstance(err.get("error_data"), dict) else None
+			msg = err.get("error_user_msg") or details or err.get("message") or f"HTTP {resp.status_code}"
+			raise WhatsAppError(explain_error(code, msg) if code in ERROR_HINTS else msg, code)
 		return data
 
 	def upload_media(self, content: bytes, filename: str, mime: str = "application/pdf") -> str:
@@ -218,3 +371,62 @@ class CloudAPI:
 		)
 		data = self._check(resp)
 		return (data.get("messages") or [{}])[0].get("id", "")
+
+	def mark_read(self, message_id: str) -> bool:
+		"""Blue ticks on the customer's phone for this (and earlier) messages."""
+		resp = self.http.post(
+			f"{self.root}/messages",
+			headers={**self.headers, "Content-Type": "application/json"},
+			json={"messaging_product": "whatsapp", "status": "read", "message_id": message_id},
+			timeout=_TIMEOUT,
+		)
+		return bool(self._check(resp).get("success"))
+
+	def phone_info(self) -> dict:
+		"""Quality rating, messaging limit and display-name status of the number."""
+		resp = self.http.get(
+			self.root,
+			headers=self.headers,
+			params={"fields": "display_phone_number,verified_name,quality_rating,messaging_limit_tier,name_status"},
+			timeout=_TIMEOUT,
+		)
+		return self._check(resp)
+
+	def list_templates(self, waba_root: str, max_pages: int = 10) -> list[dict]:
+		"""All message templates of the WhatsApp Business Account (`waba_root` =
+		<base>/<version>/<business_id>)."""
+		url = f"{waba_root.rstrip('/')}/message_templates"
+		params = {"fields": "id,name,status,category,language", "limit": 100}
+		out = []
+		for _ in range(max_pages):
+			resp = self.http.get(url, headers=self.headers, params=params, timeout=_TIMEOUT)
+			data = self._check(resp)
+			out.extend(data.get("data") or [])
+			nxt = (data.get("paging") or {}).get("next")
+			if not nxt:
+				break
+			url, params = nxt, None
+		return out
+
+
+def business_minutes(start: datetime, end: datetime, work_days: set[int], day_start: time | None,
+	day_end: time | None) -> float:
+	"""Minutes between start and end that fall inside business hours
+	(weekday() numbering, Monday=0). Without hours, whole work days count."""
+	if end <= start:
+		return 0.0
+	total = 0.0
+	day = start.date()
+	while day <= end.date():
+		if day.weekday() in work_days:
+			if day_start and day_end and day_start < day_end:
+				a = datetime.combine(day, day_start)
+				b = datetime.combine(day, day_end)
+			else:
+				a = datetime.combine(day, time.min)
+				b = a + timedelta(days=1)
+			lo, hi = max(a, start), min(b, end)
+			if hi > lo:
+				total += (hi - lo).total_seconds() / 60
+		day += timedelta(days=1)
+	return total

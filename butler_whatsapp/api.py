@@ -9,7 +9,7 @@ from __future__ import annotations
 
 import frappe
 from frappe import _
-from frappe.utils import get_datetime, now_datetime
+from frappe.utils import fmt_money, formatdate, get_datetime, now_datetime
 
 from butler_whatsapp.meta import (
 	CloudAPI,
@@ -26,6 +26,14 @@ SUPPORTED_DOCTYPES = ("Quotation", "Butler Quotation", "Sales Order", "Sales Inv
 
 # Where to look for the customer's mobile, in order
 MOBILE_FIELDS = ("contact_mobile", "mobile_no", "contact_phone", "phone")
+
+# WhatsApp Inbox Settings field holding the default template per doctype
+DEFAULT_TEMPLATE_FIELD = {
+	"Quotation": "quotation_template",
+	"Butler Quotation": "quotation_template",
+	"Sales Order": "order_template",
+	"Sales Invoice": "invoice_template",
+}
 
 DEFAULT_CAPTION = {
 	"Quotation": "عرض سعر رقم {name} من شركة باتلر",
@@ -82,15 +90,34 @@ def _print_formats(doctype: str) -> tuple[list[str], str | None]:
 
 
 def _document_templates(account_name: str) -> list[dict]:
-	rows = frappe.get_all(
-		"WhatsApp Templates",
-		filters={"status": "APPROVED", "header_type": "DOCUMENT", "whatsapp_account": account_name},
-		fields=["name", "actual_name", "language_code", "template", "category"],
-		order_by="actual_name asc",
-	)
+	from butler_whatsapp.compliance import template_is_enabled
+
+	rows = [
+		r for r in frappe.get_all(
+			"WhatsApp Templates",
+			filters={"status": "APPROVED", "header_type": "DOCUMENT", "whatsapp_account": ["in", [account_name, "", None]]},
+			fields=["name", "actual_name", "language_code", "template", "category", "butler_enabled"],
+			order_by="actual_name asc",
+		)
+		if template_is_enabled(r)
+	]
 	for row in rows:
-		row["variables"] = count_body_variables(row.pop("template"))
+		row["text"] = row.pop("template")
+		row["variables"] = count_body_variables(row["text"])
+		row.pop("butler_enabled", None)
 	return rows
+
+
+def _param_defaults(doc) -> list[str]:
+	"""Values for {{1}}..{{4}} of our document templates: name, number, amount, due date."""
+	amount = doc.get("rounded_total") or doc.get("grand_total")
+	due = doc.get("due_date") or doc.get("valid_till") or doc.get("delivery_date")
+	return [
+		doc.get("customer_name") or doc.get("party_name") or doc.get("title") or "",
+		doc.name,
+		fmt_money(amount, precision=2) if amount else "",
+		formatdate(due, "dd-MM-yyyy") if due else "",
+	]
 
 
 @frappe.whitelist()
@@ -103,6 +130,14 @@ def get_send_context(doctype: str, name: str, mobile: str | None = None) -> dict
 	msisdn = normalize_msisdn(mobile)
 	last_in = _last_incoming(msisdn) if msisdn else None
 	formats, default_format = _print_formats(doctype)
+	from butler_whatsapp import access
+	from butler_whatsapp.compliance import get_consent
+
+	templates = _document_templates(account.name)
+	field = DEFAULT_TEMPLATE_FIELD.get(doctype)
+	default_template = access.settings().get(field) if field else None
+	if default_template not in {t.name for t in templates}:
+		default_template = None
 	return {
 		"mobile": mobile,
 		"msisdn": msisdn,
@@ -111,7 +146,10 @@ def get_send_context(doctype: str, name: str, mobile: str | None = None) -> dict
 		"print_formats": formats,
 		"default_print_format": default_format,
 		"caption": DEFAULT_CAPTION.get(doctype, "{name}").format(name=name),
-		"templates": _document_templates(account.name),
+		"templates": templates,
+		"default_template": default_template,
+		"param_defaults": _param_defaults(doc),
+		"consent": get_consent(msisdn) if msisdn else None,
 		"customer_name": doc.get("customer_name") or doc.get("title") or "",
 		"grand_total": doc.get("rounded_total") or doc.get("grand_total"),
 		"currency": doc.get("currency"),
@@ -145,6 +183,9 @@ def send_document(
 		tpl = frappe.get_doc("WhatsApp Templates", template)
 		if tpl.status != "APPROVED" or tpl.header_type != "DOCUMENT":
 			frappe.throw(_("Template {0} must be approved and have a DOCUMENT header").format(template))
+		from butler_whatsapp.compliance import check_template_send
+
+		check_template_send(msisdn, tpl)
 	elif not in_window:
 		frappe.throw(
 			_("The customer has not messaged you in the last 24 hours. Choose an approved template, "

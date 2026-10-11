@@ -54,8 +54,29 @@ def ensure_whatsapp_inbox():
 				"read_only": 1,
 				"no_copy": 1,
 			},
+			{
+				"fieldname": "butler_error",
+				"fieldtype": "Small Text",
+				"label": "سبب فشل التسليم",
+				"insert_after": "butler_read_at",
+				"read_only": 1,
+				"no_copy": 1,
+			},
 		]
 	}
+	if frappe.db.exists("DocType", "WhatsApp Templates"):
+		fields["WhatsApp Templates"] = [
+			{
+				"fieldname": "butler_enabled",
+				"fieldtype": "Check",
+				"label": "مفعّل في صندوق باتلر",
+				"default": "1",
+				"insert_after": "status",
+				"in_list_view": 1,
+				"in_standard_filter": 1,
+				"description": "أطفئه لإخفاء القالب ومنع إرساله من النظام (لا يحذفه من Meta).",
+			},
+		]
 	if frappe.db.exists("DocType", "WhatsApp Contact"):
 		fields["WhatsApp Contact"] = [
 			{
@@ -94,6 +115,53 @@ def ensure_whatsapp_inbox():
 				"label": "Do not auto-link by phone",
 				"insert_after": "butler_status",
 			},
+			{
+				"fieldname": "butler_consent",
+				"fieldtype": "Select",
+				"options": "\nموافق\nأوقف الرسائل",
+				"label": "موافقة واتساب",
+				"insert_after": "butler_no_auto_link",
+				"in_list_view": 1,
+				"in_standard_filter": 1,
+			},
+			{
+				"fieldname": "butler_consent_source",
+				"fieldtype": "Data",
+				"label": "مصدر الموافقة",
+				"insert_after": "butler_consent",
+				"read_only": 1,
+			},
+			{
+				"fieldname": "butler_consent_at",
+				"fieldtype": "Datetime",
+				"label": "تاريخ الموافقة / الإيقاف",
+				"insert_after": "butler_consent_source",
+				"read_only": 1,
+			},
+			{
+				"fieldname": "butler_consent_by",
+				"fieldtype": "Link",
+				"options": "User",
+				"label": "سجّلها",
+				"insert_after": "butler_consent_at",
+				"read_only": 1,
+			},
+			{
+				"fieldname": "butler_last_auto_reply",
+				"fieldtype": "Datetime",
+				"label": "Last automatic reply",
+				"insert_after": "butler_consent_by",
+				"read_only": 1,
+				"hidden": 1,
+			},
+			{
+				"fieldname": "butler_sla_alerted",
+				"fieldtype": "Data",
+				"label": "SLA alert sent for",
+				"insert_after": "butler_last_auto_reply",
+				"read_only": 1,
+				"hidden": 1,
+			},
 		]
 	create_custom_fields(fields, ignore_validate=True)
 
@@ -104,8 +172,19 @@ def ensure_whatsapp_inbox():
 			WHERE type = 'Incoming' AND butler_read_at IS NULL"""
 		)
 
+	if frappe.db.has_column("WhatsApp Templates", "butler_enabled"):
+		# templates that existed before the switch are on
+		frappe.db.sql("UPDATE `tabWhatsApp Templates` SET butler_enabled = 1 WHERE butler_enabled IS NULL")
+
 	_ensure_agent_permissions()
 	_ensure_page_role()
+	_ensure_report_role()
+
+	from butler_whatsapp.butler_whatsapp.doctype.whatsapp_template_draft.whatsapp_template_draft import (
+		seed_drafts,
+	)
+
+	seed_drafts()
 
 	from butler_whatsapp.inbox import make_existing_attachments_private
 
@@ -137,3 +216,18 @@ def _ensure_page_role():
 		page.flags.ignore_permissions = True
 		page.db_update_all()  # avoid Page.validate (blocks edits outside developer mode)
 		frappe.clear_cache()
+
+
+def _ensure_report_role():
+	"""Performance report: supervisors are System Managers; agents see only their own row."""
+	name = "WhatsApp Inbox Performance"
+	if not frappe.db.exists("Report", name):
+		return
+	report = frappe.get_doc("Report", name)
+	have = {r.role for r in report.roles}
+	missing = [r for r in ("System Manager", WA_AGENT) if r not in have]
+	if missing:
+		for role in missing:
+			report.append("roles", {"role": role})
+		report.flags.ignore_permissions = True
+		report.db_update_all()

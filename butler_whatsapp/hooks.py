@@ -47,3 +47,15 @@ has_permission = {
 boot_session = "butler_whatsapp.access.boot_session"
 
 # "WhatsApp" button on Customer / Lead / Contact is added by the bundle (all Desk pages)
+
+# Meta webhook signature check (X-Hub-Signature-256), only for the webhook URL (compliance.py)
+before_request = ["butler_whatsapp.compliance.verify_webhook_signature"]
+
+scheduler_events = {
+	# phone quality, messaging limit and template statuses from Meta (+ alerts)
+	"hourly": ["butler_whatsapp.compliance.sync_health"],
+	"cron": {
+		# customers waiting too long for a reply
+		"*/10 * * * *": ["butler_whatsapp.automation.check_sla"],
+	},
+}
