@@ -1,0 +1,201 @@
+{
+ "actions": [],
+ "autoname": "field:template_name",
+ "creation": "2026-10-11 12:00:00.000000",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "help_html",
+  "title",
+  "template_name",
+  "category",
+  "language",
+  "usage",
+  "column_break_1",
+  "draft_status",
+  "whatsapp_template",
+  "meta_status",
+  "submit_error",
+  "content_section",
+  "header_type",
+  "header",
+  "header_sample",
+  "sample_file",
+  "body",
+  "body_samples",
+  "variables_help",
+  "footer",
+  "preview_html"
+ ],
+ "fields": [
+  {
+   "fieldname": "help_html",
+   "fieldtype": "HTML",
+   "label": "تعليمات",
+   "options": "<div dir=\"rtl\" style=\"line-height:1.9\" class=\"text-muted small\">\n<b>كيف تعمل المسودة:</b> عدّل النص ثم اضغط <b>«إرسال إلى Meta للاعتماد»</b>. بعد الإرسال تراجع Meta القالب (عادة من دقائق إلى 24 ساعة) ويظهر في الصندوق تلقائياً عند اعتماده.<br>\n<b>قواعد Meta:</b> المتغيرات {{1}} {{2}}… متتالية، ولا يبدأ النص أو ينتهي بمتغير، ولكل متغير مثال واقعي. القوالب <b>الخدمية (UTILITY)</b> لمعاملة قائمة مع العميل (عرض سعر طلبه، فاتورة، موعد)، وأي ترويج أو عروض = <b>تسويقي (MARKETING)</b>.\n</div>"
+  },
+  {
+   "fieldname": "title",
+   "fieldtype": "Data",
+   "label": "الاسم المعروض",
+   "reqd": 1,
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "template_name",
+   "fieldtype": "Data",
+   "label": "الاسم في Meta",
+   "reqd": 1,
+   "unique": 1,
+   "in_list_view": 1,
+   "description": "أحرف إنجليزية صغيرة وأرقام وشرطة سفلية فقط، مثل butler_quotation_v1"
+  },
+  {
+   "fieldname": "category",
+   "fieldtype": "Select",
+   "label": "الفئة",
+   "options": "UTILITY\nMARKETING",
+   "default": "UTILITY",
+   "reqd": 1,
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "language",
+   "fieldtype": "Link",
+   "label": "اللغة",
+   "options": "Language",
+   "default": "ar",
+   "reqd": 1
+  },
+  {
+   "fieldname": "usage",
+   "fieldtype": "Select",
+   "label": "الاستخدام",
+   "options": "\nعرض سعر\nأمر بيع\nفاتورة\nموعد\nعام",
+   "in_standard_filter": 1
+  },
+  {
+   "fieldname": "column_break_1",
+   "fieldtype": "Column Break",
+   "label": ""
+  },
+  {
+   "fieldname": "draft_status",
+   "fieldtype": "Select",
+   "label": "حالة المسودة",
+   "options": "مسودة\nأُرسل للاعتماد\nخطأ",
+   "default": "مسودة",
+   "read_only": 1,
+   "in_list_view": 1,
+   "in_standard_filter": 1
+  },
+  {
+   "fieldname": "whatsapp_template",
+   "fieldtype": "Link",
+   "label": "القالب في النظام",
+   "options": "WhatsApp Templates",
+   "read_only": 1
+  },
+  {
+   "fieldname": "meta_status",
+   "fieldtype": "Data",
+   "label": "حالة Meta",
+   "read_only": 1,
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "submit_error",
+   "fieldtype": "Small Text",
+   "label": "خطأ الإرسال",
+   "read_only": 1,
+   "depends_on": "eval:doc.submit_error"
+  },
+  {
+   "fieldname": "content_section",
+   "fieldtype": "Section Break",
+   "label": "المحتوى"
+  },
+  {
+   "fieldname": "header_type",
+   "fieldtype": "Select",
+   "label": "نوع العنوان",
+   "options": "\nTEXT\nDOCUMENT\nIMAGE",
+   "description": "DOCUMENT لإرفاق PDF (عرض سعر/فاتورة)."
+  },
+  {
+   "fieldname": "header",
+   "fieldtype": "Data",
+   "label": "نص العنوان",
+   "depends_on": "eval:doc.header_type=='TEXT'",
+   "length": 60
+  },
+  {
+   "fieldname": "header_sample",
+   "fieldtype": "Data",
+   "label": "مثال لمتغير العنوان",
+   "depends_on": "eval:doc.header_type=='TEXT'"
+  },
+  {
+   "fieldname": "sample_file",
+   "fieldtype": "Attach",
+   "label": "ملف مثال للعنوان",
+   "depends_on": "eval:doc.header_type=='DOCUMENT'||doc.header_type=='IMAGE'",
+   "description": "للـPDF يُنشأ ملف مثال تلقائياً إن تُرك فارغاً. للصورة أرفق صورة."
+  },
+  {
+   "fieldname": "body",
+   "fieldtype": "Small Text",
+   "label": "نص الرسالة",
+   "reqd": 1
+  },
+  {
+   "fieldname": "body_samples",
+   "fieldtype": "Small Text",
+   "label": "أمثلة المتغيرات (كل مثال في سطر بالترتيب)",
+   "description": "بدون فاصلة إنجليزية (,)."
+  },
+  {
+   "fieldname": "variables_help",
+   "fieldtype": "Small Text",
+   "label": "معنى المتغيرات",
+   "description": "للتوضيح فقط، مثل: 1 = اسم العميل"
+  },
+  {
+   "fieldname": "footer",
+   "fieldtype": "Data",
+   "label": "التذييل",
+   "length": 60
+  },
+  {
+   "fieldname": "preview_html",
+   "fieldtype": "HTML",
+   "label": "معاينة"
+  }
+ ],
+ "links": [],
+ "modified": "2026-10-11 12:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Butler WhatsApp",
+ "name": "WhatsApp Template Draft",
+ "naming_rule": "By fieldname",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": [],
+ "title_field": "title",
+ "track_changes": 1
+}
