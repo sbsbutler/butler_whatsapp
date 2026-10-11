@@ -3,7 +3,7 @@
  "creation": "2026-10-09 03:00:00.000000",
  "doctype": "DocType",
  "engine": "InnoDB",
- "modified": "2026-10-09 03:00:00.000000",
+ "modified": "2026-10-11 12:00:00.000000",
  "modified_by": "Administrator",
  "module": "Butler WhatsApp",
  "name": "WhatsApp Inbox Settings",
@@ -24,7 +24,55 @@
   "last_assigned",
   "reopen_on_incoming",
   "ui_section",
-  "show_launcher"
+  "show_launcher",
+  "compliance_section",
+  "require_opt_in",
+  "incoming_is_opt_in",
+  "opt_out_reply",
+  "compliance_col",
+  "opt_out_keywords",
+  "opt_in_keywords",
+  "opt_in_reply",
+  "documents_section",
+  "quotation_template",
+  "order_template",
+  "documents_col",
+  "invoice_template",
+  "hours_section",
+  "day_sun",
+  "day_mon",
+  "day_tue",
+  "day_wed",
+  "day_thu",
+  "day_fri",
+  "day_sat",
+  "hours_col",
+  "work_start",
+  "work_end",
+  "away_enabled",
+  "away_message",
+  "away_cooldown_hours",
+  "welcome_enabled",
+  "welcome_message",
+  "sla_section",
+  "sla_minutes",
+  "sla_business_hours_only",
+  "sla_col",
+  "sla_notify_supervisors",
+  "send_read_receipts",
+  "health_section",
+  "quality_rating",
+  "messaging_limit_tier",
+  "name_status",
+  "health_col",
+  "display_phone",
+  "health_checked_at",
+  "health_error",
+  "security_section",
+  "webhook_signature_mode",
+  "app_secret",
+  "security_col",
+  "signature_status"
  ],
  "fields": [
   {
@@ -88,6 +136,288 @@
    "label": "إظهار زر واتساب العائم",
    "default": "1",
    "description": "كل مستخدم يستطيع أيضاً سحب الزر لأي مكان أو إخفاءه من قائمة صفحة واتساب."
+  },
+  {
+   "fieldname": "compliance_section",
+   "fieldtype": "Section Break",
+   "label": "الالتزام بسياسة Meta (الموافقة والإيقاف)"
+  },
+  {
+   "fieldname": "require_opt_in",
+   "fieldtype": "Check",
+   "label": "منع إرسال القوالب لمن ليس لديه موافقة مسجلة",
+   "default": "1",
+   "description": "سياسة Meta: لا تبدأ مراسلة عميل بقالب إلا بعد موافقته الواضحة على تلقي رسائل باتلر. داخل نافذة الـ24 ساعة (العميل راسلكم) الرد مسموح دائماً."
+  },
+  {
+   "fieldname": "incoming_is_opt_in",
+   "fieldtype": "Check",
+   "label": "اعتبار مراسلة العميل لنا موافقة",
+   "default": "0",
+   "description": "غير مستحسن: Meta تشترط موافقة واضحة. فعّله فقط إذا كانت سياستكم أن من يراسلكم يوافق على المتابعة."
+  },
+  {
+   "fieldname": "opt_out_reply",
+   "fieldtype": "Small Text",
+   "label": "رد تأكيد الإيقاف",
+   "default": "تم إيقاف رسائل باتلر على هذا الرقم. للعودة أرسل كلمة: اشتراك"
+  },
+  {
+   "fieldname": "compliance_col",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "opt_out_keywords",
+   "fieldtype": "Small Text",
+   "label": "كلمات الإيقاف (كل كلمة في سطر)",
+   "default": "إيقاف\nايقاف\nإلغاء الاشتراك\nالغاء الاشتراك\nSTOP\nUNSUBSCRIBE",
+   "description": "تُطابق الرسالة كاملة فقط، فرسالة مثل «أبي إيقاف الطلب» لا تُعتبر إيقافاً."
+  },
+  {
+   "fieldname": "opt_in_keywords",
+   "fieldtype": "Small Text",
+   "label": "كلمات الاشتراك",
+   "default": "اشتراك\nSTART"
+  },
+  {
+   "fieldname": "opt_in_reply",
+   "fieldtype": "Small Text",
+   "label": "رد تأكيد الاشتراك",
+   "default": "تم تفعيل رسائل باتلر على هذا الرقم. شكراً لك."
+  },
+  {
+   "fieldname": "documents_section",
+   "fieldtype": "Section Break",
+   "label": "قوالب المستندات الافتراضية",
+   "description": "تُختار تلقائياً في نافذة «إرسال عبر واتساب» عندما يكون العميل خارج نافذة الـ24 ساعة. المتغيرات بالترتيب: 1 اسم العميل، 2 رقم المستند، 3 المبلغ، 4 تاريخ الاستحقاق."
+  },
+  {
+   "fieldname": "quotation_template",
+   "fieldtype": "Link",
+   "label": "قالب عرض السعر",
+   "options": "WhatsApp Templates"
+  },
+  {
+   "fieldname": "order_template",
+   "fieldtype": "Link",
+   "label": "قالب أمر البيع",
+   "options": "WhatsApp Templates"
+  },
+  {
+   "fieldname": "documents_col",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "invoice_template",
+   "fieldtype": "Link",
+   "label": "قالب الفاتورة",
+   "options": "WhatsApp Templates"
+  },
+  {
+   "fieldname": "hours_section",
+   "fieldtype": "Section Break",
+   "label": "أوقات الدوام والرد الآلي",
+   "collapsible": 1
+  },
+  {
+   "fieldname": "day_sun",
+   "fieldtype": "Check",
+   "label": "الأحد",
+   "default": "1"
+  },
+  {
+   "fieldname": "day_mon",
+   "fieldtype": "Check",
+   "label": "الاثنين",
+   "default": "1"
+  },
+  {
+   "fieldname": "day_tue",
+   "fieldtype": "Check",
+   "label": "الثلاثاء",
+   "default": "1"
+  },
+  {
+   "fieldname": "day_wed",
+   "fieldtype": "Check",
+   "label": "الأربعاء",
+   "default": "1"
+  },
+  {
+   "fieldname": "day_thu",
+   "fieldtype": "Check",
+   "label": "الخميس",
+   "default": "1"
+  },
+  {
+   "fieldname": "day_fri",
+   "fieldtype": "Check",
+   "label": "الجمعة",
+   "default": "0"
+  },
+  {
+   "fieldname": "day_sat",
+   "fieldtype": "Check",
+   "label": "السبت",
+   "default": "0"
+  },
+  {
+   "fieldname": "hours_col",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "work_start",
+   "fieldtype": "Time",
+   "label": "بداية الدوام",
+   "default": "08:00:00"
+  },
+  {
+   "fieldname": "work_end",
+   "fieldtype": "Time",
+   "label": "نهاية الدوام",
+   "default": "17:00:00"
+  },
+  {
+   "fieldname": "away_enabled",
+   "fieldtype": "Check",
+   "label": "رد آلي خارج الدوام",
+   "default": "0"
+  },
+  {
+   "fieldname": "away_message",
+   "fieldtype": "Small Text",
+   "label": "نص الرد خارج الدوام",
+   "depends_on": "eval:doc.away_enabled",
+   "default": "شكراً لتواصلك مع باتلر. نحن خارج أوقات الدوام الآن، وسيرد عليك فريقنا في أقرب وقت خلال الدوام."
+  },
+  {
+   "fieldname": "away_cooldown_hours",
+   "fieldtype": "Int",
+   "label": "لا يتكرر الرد الآلي لنفس العميل خلال (ساعات)",
+   "default": "12",
+   "depends_on": "eval:doc.away_enabled"
+  },
+  {
+   "fieldname": "welcome_enabled",
+   "fieldtype": "Check",
+   "label": "رسالة ترحيب لأول مراسلة من رقم جديد",
+   "default": "0"
+  },
+  {
+   "fieldname": "welcome_message",
+   "fieldtype": "Small Text",
+   "label": "نص الترحيب",
+   "depends_on": "eval:doc.welcome_enabled",
+   "default": "أهلاً بك في باتلر للأنظمة الذكية 👋 كيف نقدر نخدمك؟"
+  },
+  {
+   "fieldname": "sla_section",
+   "fieldtype": "Section Break",
+   "label": "متابعة سرعة الرد",
+   "collapsible": 1
+  },
+  {
+   "fieldname": "sla_minutes",
+   "fieldtype": "Int",
+   "label": "تنبيه إذا لم يُرد على العميل خلال (دقيقة)",
+   "default": "30",
+   "description": "0 = إيقاف التنبيه."
+  },
+  {
+   "fieldname": "sla_business_hours_only",
+   "fieldtype": "Check",
+   "label": "احتساب التأخير داخل الدوام فقط",
+   "default": "1"
+  },
+  {
+   "fieldname": "sla_col",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "sla_notify_supervisors",
+   "fieldtype": "Check",
+   "label": "تنبيه المشرفين أيضاً",
+   "default": "1"
+  },
+  {
+   "fieldname": "send_read_receipts",
+   "fieldtype": "Check",
+   "label": "إظهار «تمت القراءة» للعميل عند فتح المحادثة",
+   "default": "1"
+  },
+  {
+   "fieldname": "health_section",
+   "fieldtype": "Section Break",
+   "label": "جودة الرقم وحالة القوالب (تتحدث كل ساعة)",
+   "collapsible": 1
+  },
+  {
+   "fieldname": "quality_rating",
+   "fieldtype": "Data",
+   "label": "تقييم الجودة",
+   "read_only": 1
+  },
+  {
+   "fieldname": "messaging_limit_tier",
+   "fieldtype": "Data",
+   "label": "حد الرسائل اليومي",
+   "read_only": 1
+  },
+  {
+   "fieldname": "name_status",
+   "fieldtype": "Data",
+   "label": "حالة اسم العرض",
+   "read_only": 1
+  },
+  {
+   "fieldname": "health_col",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "display_phone",
+   "fieldtype": "Data",
+   "label": "الرقم",
+   "read_only": 1
+  },
+  {
+   "fieldname": "health_checked_at",
+   "fieldtype": "Datetime",
+   "label": "آخر تحديث",
+   "read_only": 1
+  },
+  {
+   "fieldname": "health_error",
+   "fieldtype": "Small Text",
+   "label": "آخر خطأ",
+   "read_only": 1
+  },
+  {
+   "fieldname": "security_section",
+   "fieldtype": "Section Break",
+   "label": "التحقق من مصدر الـWebhook (توقيع Meta)",
+   "collapsible": 1,
+   "description": "Meta توقّع كل طلب Webhook بالـApp Secret (من إعدادات تطبيق Meta ← الإعدادات الأساسية). ابدأ بـ«تسجيل فقط» وتأكد أن آخر فحص «صحيح» ثم اختر «رفض»."
+  },
+  {
+   "fieldname": "webhook_signature_mode",
+   "fieldtype": "Select",
+   "label": "الوضع",
+   "options": "معطّل\nتسجيل فقط\nرفض غير الموقّع",
+   "default": "معطّل"
+  },
+  {
+   "fieldname": "app_secret",
+   "fieldtype": "Password",
+   "label": "App Secret"
+  },
+  {
+   "fieldname": "security_col",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "signature_status",
+   "fieldtype": "HTML",
+   "label": "حالة آخر فحص"
   }
  ],
  "permissions": [
