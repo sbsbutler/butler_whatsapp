@@ -20,7 +20,7 @@ import frappe
 from frappe import _
 from frappe.utils import cint, get_datetime, get_fullname, now_datetime, strip_html
 
-from butler_whatsapp import access
+from butler_whatsapp import access, compliance
 from butler_whatsapp.api import _account, _client, _last_incoming
 from butler_whatsapp.meta import (
 	WhatsAppError,
@@ -387,13 +387,14 @@ def _message_row(m) -> dict:
 		"message_id": m.message_id,
 		"reference_doctype": m.reference_doctype,
 		"reference_name": m.reference_name,
+		"error": m.get("butler_error"),
 	}
 
 
 _FIELDS = [
 	"name", "type", "message", "content_type", "message_type", "template", "attach", "status", "owner",
 	"creation", "profile_name", "butler_read_by", "butler_read_at", "is_reply", "reply_to_message_id",
-	"message_id", "reference_doctype", "reference_name",
+	"message_id", "reference_doctype", "reference_name", "butler_error",
 ]
 
 
@@ -461,9 +462,10 @@ def _mark_read(num: str) -> dict | None:
 		frappe.db.set_value(CONTACT, contact, "is_read", 1, update_modified=False)
 	# Blue ticks for the customer, only if enabled on the WhatsApp Account
 	newest = unread[0]
-	if newest.whatsapp_account and frappe.db.get_value(
+	receipts = access.settings().get("send_read_receipts")
+	if (receipts is None or cint(receipts)) or (newest.whatsapp_account and frappe.db.get_value(
 		"WhatsApp Account", newest.whatsapp_account, "allow_auto_read_receipt"
-	):
+	)):
 		frappe.enqueue(
 			"butler_whatsapp.inbox.send_read_receipt", queue="short", enqueue_after_commit=True,
 			message=newest.name,
@@ -523,6 +525,7 @@ def get_conversation_info(number: str) -> dict:
 		"assigned_name": _user_name(contact.butler_assigned_to) if contact else None,
 		"status": (contact.butler_status if contact else None) or "Open",
 		"supervisor": access.is_supervisor(),
+		"consent": compliance.get_consent(num),
 	}
 
 
@@ -807,6 +810,8 @@ def on_message_update(doc, method=None):
 	num = normalize_msisdn(doc.get("from") if doc.type == "Incoming" else doc.to)
 	if not num:
 		return
+	if doc.has_value_changed("status") and (doc.get("status") or "").lower() == "failed":
+		compliance.explain_failure(doc)
 	if doc.has_value_changed("status") or doc.has_value_changed("attach"):
 		publish(num, "status" if doc.type == "Outgoing" else "media", doc.name)
 
@@ -908,8 +913,9 @@ def set_status(number: str, status: str) -> dict:
 	return get_conversation_info(num)
 
 
-def _contact_comment(num: str, text: str, comment_type: str = "Info"):
+def _contact_comment(num: str, text: str, comment_type: str = "Info", by: str | None = None):
 	contact = _contact_for_link(num)
+	by = by or frappe.session.user
 	frappe.get_doc(
 		{
 			"doctype": "Comment",
@@ -917,8 +923,8 @@ def _contact_comment(num: str, text: str, comment_type: str = "Info"):
 			"reference_doctype": CONTACT,
 			"reference_name": contact,
 			"content": text,
-			"comment_email": frappe.session.user,
-			"comment_by": _user_name(frappe.session.user),
+			"comment_email": by,
+			"comment_by": _sender(by),
 		}
 	).insert(ignore_permissions=True)
 
@@ -992,6 +998,14 @@ def on_incoming(doc):
 	if values:
 		frappe.db.set_value(CONTACT, contact, values, update_modified=False)
 	_enrich_message(doc)
+	try:
+		handled = compliance.handle_keywords(doc)
+		if not handled:
+			from butler_whatsapp import automation
+
+			automation.on_incoming(doc)
+	except Exception:
+		frappe.log_error(title="WhatsApp automatic handling failed", message=frappe.get_traceback())
 
 
 def _enrich_message(doc):
@@ -1039,6 +1053,8 @@ def get_inbox_context() -> dict:
 		"agents": access.agents(),
 		"quick_replies": replies,
 		"can_settings": bool(frappe.has_permission(access.SETTINGS, "write")),
+		"sla_minutes": cint(access.settings().get("sla_minutes")),
+		"consent_sources": list(compliance.CONSENT_SOURCES),
 	}
 
 
@@ -1094,20 +1110,37 @@ def start_conversation(number: str, doctype: str | None = None, name: str | None
 # ----------------------------------------------------------------- templates
 
 
+def _url_buttons(template: str) -> list[dict]:
+	"""Dynamic URL buttons of a template: [{index, label, url}] (index = position in Meta)."""
+	if not frappe.db.exists("DocType", "WhatsApp Button"):
+		return []
+	buttons = frappe.get_all(
+		"WhatsApp Button", filters={"parent": template, "parenttype": "WhatsApp Templates"},
+		fields=["button_type", "button_label", "website_url", "url_type", "idx"],
+		order_by="idx asc",
+	)
+	return [
+		{"index": i, "label": b.button_label, "url": b.website_url}
+		for i, b in enumerate(buttons)
+		if b.button_type == "Visit Website" and (b.url_type == "Dynamic" or "{{" in (b.website_url or ""))
+	]
+
+
 def _template_rows(account_name: str) -> list[dict]:
 	rows = [
 		r for r in frappe.get_all(
 			"WhatsApp Templates",
 			filters={"status": "APPROVED"},
 			fields=["name", "actual_name", "template_name", "language_code", "template", "header_type", "header",
-				"footer", "sample", "category", "whatsapp_account"],
+				"footer", "sample", "category", "whatsapp_account", "butler_enabled"],
 			order_by="actual_name asc",
 		)
-		if not r.whatsapp_account or r.whatsapp_account == account_name
+		if (not r.whatsapp_account or r.whatsapp_account == account_name) and compliance.template_is_enabled(r)
 	]
 	for r in rows:
 		r["body_vars"] = count_body_variables(r.get("template"))
 		r["header_vars"] = count_body_variables(r.get("header")) if r.get("header_type") == "TEXT" else 0
+		r["url_buttons"] = _url_buttons(r.name)
 	return rows
 
 
@@ -1116,10 +1149,23 @@ def get_templates(number: str | None = None) -> dict:
 	_require()
 	account = _account()
 	defaults = {}
+	consent = None
+	in_window = None
 	if number:
 		num = _require_number(number)
 		defaults["name"] = _conversation_title(num)
-	return {"templates": _template_rows(account.name), "defaults": defaults}
+		consent = compliance.get_consent(num)
+		in_window = within_service_window(_last_incoming(num), now_datetime())
+	s = access.settings()
+	require = s.get("require_opt_in")
+	return {
+		"templates": _template_rows(account.name),
+		"defaults": defaults,
+		"consent": consent,
+		"in_window": in_window,
+		"require_opt_in": 1 if require is None else cint(require),
+		"consent_sources": list(compliance.CONSENT_SOURCES),
+	}
 
 
 @frappe.whitelist(methods=["POST"])
@@ -1129,6 +1175,7 @@ def send_template(
 	body_params: str | list | None = None,
 	header_params: str | list | None = None,
 	header_file_url: str | None = None,
+	button_params: str | list | None = None,
 ) -> dict:
 	"""Send an approved template (works outside the 24-hour window)."""
 	_require("create")
@@ -1143,6 +1190,11 @@ def send_template(
 	head = frappe.parse_json(header_params) if isinstance(header_params, str) else (header_params or [])
 	if len(body) != count_body_variables(tpl.template):
 		frappe.throw(_("Template needs {0} value(s)").format(count_body_variables(tpl.template)))
+	compliance.check_template_send(num, tpl)
+	url_buttons = _url_buttons(tpl.name)
+	buttons = frappe.parse_json(button_params) if isinstance(button_params, str) else (button_params or [])
+	if len(buttons) < len(url_buttons) or any(not str(v or "").strip() for v in buttons[: len(url_buttons)]):
+		frappe.throw(_("Fill the link value of every button"))
 
 	account = _account()
 	api = _client(account)
@@ -1172,7 +1224,13 @@ def send_template(
 			kind = tpl.header_type.lower()
 			header = {"type": kind, kind: {"id": media_id, **({"filename": file_doc.file_name} if kind == "document" else {})}}
 			attach = file_doc.file_url
-		message_id = api.send(template_message(num, tpl.actual_name or tpl.template_name, tpl.language_code, body, header))
+		payload = template_message(num, tpl.actual_name or tpl.template_name, tpl.language_code, body, header)
+		for b, value in zip(url_buttons, buttons):
+			payload["template"].setdefault("components", []).append({
+				"type": "button", "sub_type": "url", "index": str(b["index"]),
+				"parameters": [{"type": "text", "text": str(value).strip()}],
+			})
+		message_id = api.send(payload)
 	except WhatsAppError as e:
 		frappe.throw(_("WhatsApp error: {0}").format(str(e)))
 
