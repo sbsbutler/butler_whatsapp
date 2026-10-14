@@ -126,16 +126,17 @@ def contact_query(user: str | None = None) -> str:
 
 
 def message_has_permission(doc, ptype=None, user=None, **kwargs):
+	# Frappe >= 16.51 treats a None from a has_permission hook as a denial: return True to allow.
 	if not _scoped(user):
-		return None
+		return True
 	num = doc.get("from") if doc.get("type") == "Incoming" else doc.get("to")
-	return None if can_access(num, user or frappe.session.user) else False
+	return True if can_access(num, user or frappe.session.user) else False
 
 
 def contact_has_permission(doc, ptype=None, user=None, **kwargs):
 	if not _scoped(user):
-		return None
-	return None if doc.get("butler_assigned_to") == (user or frappe.session.user) else False
+		return True
+	return True if doc.get("butler_assigned_to") == (user or frappe.session.user) else False
 
 
 def boot_session(bootinfo):
