@@ -35,12 +35,39 @@ DEFAULT_TEMPLATE_FIELD = {
 	"Sales Invoice": "invoice_template",
 }
 
+# Customer-facing captions, in the customer's language (not the user's)
 DEFAULT_CAPTION = {
-	"Quotation": "عرض سعر رقم {name} من شركة باتلر",
-	"Butler Quotation": "عرض سعر رقم {name} من شركة باتلر",
-	"Sales Order": "أمر بيع رقم {name} من شركة باتلر",
-	"Sales Invoice": "فاتورة رقم {name} من شركة باتلر",
+	"ar": {
+		"Quotation": "عرض سعر رقم {name} من شركة باتلر",
+		"Butler Quotation": "عرض سعر رقم {name} من شركة باتلر",
+		"Sales Order": "أمر بيع رقم {name} من شركة باتلر",
+		"Sales Invoice": "فاتورة رقم {name} من شركة باتلر",
+	},
+	"en": {
+		"Quotation": "Quotation {name} from Butler",
+		"Butler Quotation": "Quotation {name} from Butler",
+		"Sales Order": "Sales order {name} from Butler",
+		"Sales Invoice": "Invoice {name} from Butler",
+	},
 }
+
+
+def document_language(doc, msisdn: str | None = None) -> str:
+	"""'ar' / 'en': the document's print language, else the customer's."""
+	lang = (doc.get("language") or "").lower()
+	if not lang:
+		party = doc.get("customer") or (doc.get("party_name") if doc.get("quotation_to") == "Customer" else None)
+		if party:
+			lang = (frappe.db.get_value("Customer", party, "language") or "").lower()
+		elif doc.get("quotation_to") == "Lead" and doc.get("party_name"):
+			lang = (frappe.db.get_value("Lead", doc.party_name, "language") or "").lower()
+	if lang:
+		return "ar" if lang.startswith("ar") else "en"
+	if msisdn:
+		from butler_whatsapp.compliance import customer_language
+
+		return customer_language(msisdn)
+	return "ar"
 
 
 def _check_access(doctype: str, name: str):
@@ -135,7 +162,10 @@ def get_send_context(doctype: str, name: str, mobile: str | None = None) -> dict
 
 	templates = _document_templates(account.name)
 	field = DEFAULT_TEMPLATE_FIELD.get(doctype)
-	default_template = access.settings().get(field) if field else None
+	lang = document_language(doc, msisdn)
+	from butler_whatsapp.templates import localized
+
+	default_template = localized(access.settings().get(field), lang) if field else None
 	if default_template not in {t.name for t in templates}:
 		default_template = None
 	return {
@@ -145,7 +175,8 @@ def get_send_context(doctype: str, name: str, mobile: str | None = None) -> dict
 		"last_incoming": str(last_in) if last_in else None,
 		"print_formats": formats,
 		"default_print_format": default_format,
-		"caption": DEFAULT_CAPTION.get(doctype, "{name}").format(name=name),
+		"caption": DEFAULT_CAPTION[lang].get(doctype, "{name}").format(name=name),
+		"customer_language": lang,
 		"templates": templates,
 		"default_template": default_template,
 		"param_defaults": _param_defaults(doc),

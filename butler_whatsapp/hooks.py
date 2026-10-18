@@ -10,7 +10,7 @@ required_apps = ["erpnext", "frappe_whatsapp"]
 add_to_apps_screen = [
 	{
 		"name": "butler_whatsapp",
-		"title": "واتساب",
+		"title": "WhatsApp",
 		"route": "/desk/whatsapp-inbox",
 		"logo": "/assets/butler_whatsapp/images/whatsapp-app.svg",
 		"has_permission": "butler_whatsapp.permissions.has_app_permission",
@@ -31,16 +31,30 @@ doc_events = {
 		# incoming media -> private file; delivery ticks in the inbox (inbox.py)
 		"on_update": "butler_whatsapp.inbox.on_message_update",
 	},
+	# WhatsApp confirmation of showroom visits (appointments.py)
+	"Appointment": {
+		"on_update": "butler_whatsapp.appointments.on_update",
+	},
 }
 
-# Supervisors see every conversation, everybody else only the ones assigned to them (access.py)
+# "Send WhatsApp confirmation" button on the Appointment form
+doctype_js = {"Appointment": "public/js/appointment.js"}
+
+# online booking page (/book_appointment): "the confirmation comes on WhatsApp" note
+web_include_js = ["/assets/butler_whatsapp/js/book_appointment.js"]
+
+# Supervisors see every conversation, everybody else their own, their teams' and the ones they
+# were added to (access.py, teams.py)
 permission_query_conditions = {
 	"WhatsApp Message": "butler_whatsapp.access.message_query",
 	"WhatsApp Contact": "butler_whatsapp.access.contact_query",
+	# internal staff chat: only the members of a team chat / the two people of a direct chat
+	"WhatsApp Staff Message": "butler_whatsapp.staff_chat.staff_message_query",
 }
 has_permission = {
 	"WhatsApp Message": "butler_whatsapp.access.message_has_permission",
 	"WhatsApp Contact": "butler_whatsapp.access.contact_has_permission",
+	"WhatsApp Staff Message": "butler_whatsapp.staff_chat.staff_message_has_permission",
 }
 
 # launcher visibility + supervisor flag for the Desk bundle
@@ -53,7 +67,11 @@ before_request = ["butler_whatsapp.compliance.verify_webhook_signature"]
 
 scheduler_events = {
 	# phone quality, messaging limit and template statuses from Meta (+ alerts)
-	"hourly": ["butler_whatsapp.compliance.sync_health"],
+	"hourly": [
+		"butler_whatsapp.compliance.sync_health",
+		# showroom visit reminders (appointments.py)
+		"butler_whatsapp.appointments.send_reminders",
+	],
 	"cron": {
 		# customers waiting too long for a reply
 		"*/10 * * * *": ["butler_whatsapp.automation.check_sla"],

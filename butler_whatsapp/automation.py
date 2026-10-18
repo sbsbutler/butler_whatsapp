@@ -43,7 +43,7 @@ def is_open_now(s=None) -> bool:
 
 def on_incoming(doc):
 	"""Welcome message for a brand-new number, "we're closed" outside business hours."""
-	from butler_whatsapp.compliance import enqueue_auto_text
+	from butler_whatsapp.compliance import customer_text, enqueue_auto_text
 
 	s = access.settings()
 	if not (cint(s.get("welcome_enabled")) or cint(s.get("away_enabled"))):
@@ -54,13 +54,16 @@ def on_incoming(doc):
 	if not num:
 		return
 	parts = []
-	if cint(s.get("welcome_enabled")) and (s.get("welcome_message") or "").strip():
+	text = doc.get("message") if (doc.get("content_type") or "text") == "text" else None
+	if cint(s.get("welcome_enabled")):
 		count = frappe.db.count(MSG, {"type": "Incoming", "from": ["in", [num, "+" + num]]})
-		if count <= 1:
-			parts.append(s.welcome_message.strip())
-	if cint(s.get("away_enabled")) and (s.get("away_message") or "").strip() and not is_open_now(s):
-		if _cooldown_passed(num, cint(s.get("away_cooldown_hours")) or 12):
-			parts.append(s.away_message.strip())
+		welcome = customer_text(num, "welcome_message", text) if count <= 1 else ""
+		if welcome:
+			parts.append(welcome)
+	if cint(s.get("away_enabled")) and not is_open_now(s):
+		away = customer_text(num, "away_message", text)
+		if away and _cooldown_passed(num, cint(s.get("away_cooldown_hours")) or 12):
+			parts.append(away)
 	if parts:
 		enqueue_auto_text(num, "\n\n".join(parts))
 
@@ -134,12 +137,13 @@ def waiting_conversations(since):
 		from butler_whatsapp.inbox import _contact
 
 		contact = _contact(r.num)
-		c = frappe.db.get_value(CONTACT, contact, ["butler_status", "butler_assigned_to"], as_dict=True) \
+		c = frappe.db.get_value(CONTACT, contact, ["butler_status", "butler_assigned_to", "butler_team"], as_dict=True) \
 			if contact else None
 		if c and c.butler_status == "Closed":
 			continue
 		out.append(frappe._dict(
 			num=r.num, contact=contact, assigned_to=c.butler_assigned_to if c else None,
+			team=c.butler_team if c else None,
 			first_message=first[0].name, waiting_since=get_datetime(first[0].creation),
 		))
 	return out
@@ -149,11 +153,15 @@ def _alert(row, minutes: int, notify_supervisors: bool):
 	from butler_whatsapp.compliance import notify_users
 	from butler_whatsapp.inbox import _conversation_title
 
+	from butler_whatsapp import teams
+
 	title = _conversation_title(row.num)
 	users = set()
 	if row.assigned_to:
 		users.add(row.assigned_to)
-	if notify_supervisors or not row.assigned_to:
+	elif row.get("team"):
+		users |= set(teams.members(row.team))
+	if notify_supervisors or not users:
 		users |= set(access.supervisors())
-	notify_users(users, f"⏰ {title} ينتظر الرد منذ {minutes} دقيقة", f"/desk/whatsapp-inbox?number={row.num}",
-		document=(CONTACT, row.contact) if row.contact else None)
+	notify_users(users, "⏰ {0} has been waiting for a reply for {1} minutes", f"/desk/whatsapp-inbox?number={row.num}",
+		document=(CONTACT, row.contact) if row.contact else None, args=(title, minutes))
