@@ -174,6 +174,26 @@ FOOTER = {"ar": "باتلر للأنظمة الذكية", "en": "Butler Smart Sy
 DRAFTS = {
 	"ar": [
 		{
+			"title": "تهنئة بمناسبة (حملة)",
+			"template_name": "butler_greeting_v1",
+			"category": "MARKETING",
+			"usage": "General",
+			"body": "مرحباً {{1}}، كل عام وأنتم بخير 🌙\nتتمنى لكم باتلر للأنظمة الذكية أياماً سعيدة وبيتاً أذكى وأكثر راحة.",
+			"body_samples": "أحمد",
+			"footer": "لإيقاف الرسائل أرسل: إيقاف",
+			"variables_help": "1 = اسم العميل (في الحملة اكتب {name})",
+		},
+		{
+			"title": "عرض خاص (حملة)",
+			"template_name": "butler_offer_v1",
+			"category": "MARKETING",
+			"usage": "General",
+			"body": "مرحباً {{1}}،\nلدى باتلر للأنظمة الذكية عرض خاص لك: {{2}}\nللاستفسار أو الحجز يكفي الرد على هذه الرسالة.",
+			"body_samples": "أحمد\nخصم 15% على أنظمة الستائر الذكية حتى نهاية الشهر",
+			"footer": "لإيقاف الرسائل أرسل: إيقاف",
+			"variables_help": "1 = اسم العميل (في الحملة اكتب {name})\n2 = تفاصيل العرض",
+		},
+		{
 			"title": "إرسال عرض سعر (PDF)",
 			"template_name": "butler_quotation_v1",
 			"usage": "Quotation",
@@ -250,6 +270,26 @@ DRAFTS = {
 		},
 	],
 	"en": [
+		{
+			"title": "Season's greetings (campaign)",
+			"template_name": "butler_greeting_v1",
+			"category": "MARKETING",
+			"usage": "General",
+			"body": "Hello {{1}}, warm wishes for the season 🌙\nButler Smart Systems wishes you happy days and a smarter, more comfortable home.",
+			"body_samples": "Ahmed",
+			"footer": "To stop these messages send: STOP",
+			"variables_help": "1 = customer name (in a campaign write {name})",
+		},
+		{
+			"title": "Special offer (campaign)",
+			"template_name": "butler_offer_v1",
+			"category": "MARKETING",
+			"usage": "General",
+			"body": "Hello {{1}},\nButler Smart Systems has a special offer for you: {{2}}\nTo ask or book, simply reply to this message.",
+			"body_samples": "Ahmed\n15% off smart curtain systems until the end of the month",
+			"footer": "To stop these messages send: STOP",
+			"variables_help": "1 = customer name (in a campaign write {name})\n2 = offer details",
+		},
 		{
 			"title": "Send quotation (PDF)",
 			"template_name": "butler_quotation_v1",
@@ -340,5 +380,5 @@ def seed_drafts():
 			if frappe.db.exists("WhatsApp Template Draft", {"template_name": d["template_name"], "language": language}):
 				continue
 			doc = frappe.get_doc({"doctype": "WhatsApp Template Draft", "category": "UTILITY", "language": language,
-				"footer": FOOTER[language], "draft_status": DRAFT, **d})
+				"footer": FOOTER[language], "draft_status": DRAFT, **d})  # a draft may set its own category / footer
 			doc.insert(ignore_permissions=True)
