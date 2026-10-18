@@ -853,6 +853,10 @@ def on_message_update(doc, method=None):
 		return
 	if doc.has_value_changed("status") and (doc.get("status") or "").lower() == "failed":
 		compliance.explain_failure(doc)
+	if doc.has_value_changed("status") and doc.get("reference_doctype") == "WhatsApp Campaign":
+		from butler_whatsapp import campaigns
+
+		campaigns.on_message_status(doc)
 	if doc.has_value_changed("status") or doc.has_value_changed("attach"):
 		publish(num, "status" if doc.type == "Outgoing" else "media", doc.name)
 

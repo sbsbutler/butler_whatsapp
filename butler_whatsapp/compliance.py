@@ -42,6 +42,11 @@ CONSENT_SOURCES = (
 	"Verbal or phone request",
 	"Appointment booking",
 	"Other",
+	"Paper form",
+	"Email confirmation",
+	"Consent buttons in WhatsApp",
+	"Showroom visit",
+	"Customer or lead form",
 )
 SOURCE_KEYWORD = "Customer request via WhatsApp"
 
@@ -145,20 +150,22 @@ def check_template_send(num: str, tpl, booking: bool = False) -> None:
 	)
 
 
-def _record_consent(num: str, state: str, source: str | None, by: str, note: str | None = None):
+def _record_consent(num: str, state: str, source: str | None, by: str, note: str | None = None,
+	evidence: str | None = None):
+	"""Store consent / opt-out on the WhatsApp Contact + a line in its history.
+	evidence: where the proof is (document, form, file), kept for Meta audits."""
 	from butler_whatsapp.inbox import _contact_comment, _contact_for_link, publish
 
 	contact = _contact_for_link(num)
-	frappe.db.set_value(
-		CONTACT, contact,
-		{
-			"butler_consent": state,
-			"butler_consent_source": source or "",
-			"butler_consent_at": now_datetime(),
-			"butler_consent_by": by,
-		},
-		update_modified=True,
-	)
+	values = {
+		"butler_consent": state,
+		"butler_consent_source": source or "",
+		"butler_consent_at": now_datetime(),
+		"butler_consent_by": by,
+	}
+	if frappe.db.has_column(CONTACT, "butler_consent_ref"):
+		values["butler_consent_ref"] = (evidence or note or "")[:140]
+	frappe.db.set_value(CONTACT, contact, values, update_modified=True)
 	text = (_("Customer consent to receive messages recorded") if state == OPTED_IN else
 		_("Customer opted out of messages") if state == OPTED_OUT else _("Consent cleared"))
 	if source:
@@ -179,6 +186,8 @@ def set_consent(number: str, state: str, source: str | None = None, note: str | 
 		frappe.throw(_("Invalid consent state"))
 	if state == OPTED_IN and source not in CONSENT_SOURCES:
 		frappe.throw(_("Choose the source of the consent."))
+	if state == OPTED_IN and source in ("Verbal or phone request", "Other") and not (note or "").strip():
+		frappe.throw(_("Write who agreed, when and how (Meta may ask for the proof)."))
 	if state == "" and not access.is_supervisor():
 		frappe.throw(_("Only supervisors can clear consent"), frappe.PermissionError)
 	_record_consent(num, state, source if state == OPTED_IN else (source or ""), frappe.session.user, note)
@@ -192,11 +201,15 @@ def consent_sources() -> list[str]:
 
 def handle_keywords(doc) -> bool:
 	"""Opt-out / opt-in by the customer's own message. Returns True if handled."""
-	if (doc.get("content_type") or "text") not in ("text", "button"):
+	if (doc.get("content_type") or "text") not in ("text", "button", "interactive"):
 		return False
 	num = normalize_msisdn(doc.get("from"))
 	if not num:
 		return False
+	from butler_whatsapp import optin
+
+	if optin.handle_button_reply(doc, num):
+		return True
 	s = _settings()
 	text = doc.get("message")
 	if matches_keyword(text, keyword_list(s.get("opt_out_keywords"))):
