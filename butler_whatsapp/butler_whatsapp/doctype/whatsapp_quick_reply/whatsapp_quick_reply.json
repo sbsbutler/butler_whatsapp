@@ -3,7 +3,7 @@
  "creation": "2026-10-09 03:00:00.000000",
  "doctype": "DocType",
  "engine": "InnoDB",
- "modified": "2026-10-09 03:00:00.000000",
+ "modified": "2026-10-12 09:00:00.000000",
  "modified_by": "Administrator",
  "module": "Butler WhatsApp",
  "name": "WhatsApp Quick Reply",
@@ -25,24 +25,24 @@
   {
    "fieldname": "title",
    "fieldtype": "Data",
-   "label": "العنوان",
+   "label": "Title",
    "reqd": 1,
    "in_list_view": 1
   },
   {
    "fieldname": "shortcut",
    "fieldtype": "Data",
-   "label": "الاختصار",
+   "label": "Shortcut",
    "in_list_view": 1,
    "unique": 1,
-   "description": "اكتب / ثم الاختصار في صندوق الكتابة، مثلاً /سعر"
+   "description": "Type / and the shortcut in the message box, e.g. /price"
   },
   {
    "fieldname": "message",
    "fieldtype": "Small Text",
-   "label": "نص الرد",
+   "label": "Reply Text",
    "reqd": 1,
-   "description": "يمكن استخدام {name} لاسم العميل"
+   "description": "Use {name} for the customer's name"
   }
  ],
  "permissions": [
