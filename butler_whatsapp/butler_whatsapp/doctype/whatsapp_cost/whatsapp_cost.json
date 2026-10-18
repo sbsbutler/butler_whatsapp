@@ -1,0 +1,80 @@
+{
+ "actions": [],
+ "creation": "2026-10-18 20:00:00.000000",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "modified": "2026-10-18 20:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Butler WhatsApp",
+ "name": "WhatsApp Cost",
+ "owner": "Administrator",
+ "links": [],
+ "sort_field": "date",
+ "sort_order": "DESC",
+ "states": [],
+ "field_order": [
+  "date",
+  "pricing_category",
+  "pricing_type",
+  "column_break_1",
+  "volume",
+  "cost",
+  "currency"
+ ],
+ "fields": [
+  {
+   "fieldname": "date",
+   "fieldtype": "Date",
+   "label": "Date",
+   "reqd": 1,
+   "in_list_view": 1,
+   "search_index": 1
+  },
+  {
+   "fieldname": "pricing_category",
+   "fieldtype": "Data",
+   "label": "Category",
+   "in_list_view": 1,
+   "in_standard_filter": 1
+  },
+  {
+   "fieldname": "pricing_type",
+   "fieldtype": "Data",
+   "label": "Pricing Type",
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "column_break_1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "volume",
+   "fieldtype": "Int",
+   "label": "Messages",
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "cost",
+   "fieldtype": "Float",
+   "label": "Cost",
+   "in_list_view": 1,
+   "precision": "4"
+  },
+  {
+   "fieldname": "currency",
+   "fieldtype": "Data",
+   "label": "Currency"
+  }
+ ],
+ "permissions": [
+  {
+   "read": 1,
+   "report": 1,
+   "export": 1,
+   "role": "System Manager"
+  }
+ ],
+ "autoname": "hash",
+ "in_create": 1,
+ "description": "What Meta charges for WhatsApp messages, per day and category (synced daily from Meta)."
+}
