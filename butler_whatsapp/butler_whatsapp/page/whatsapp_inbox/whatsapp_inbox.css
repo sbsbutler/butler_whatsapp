@@ -19,8 +19,7 @@
 	border-radius: 10px;
 	overflow: hidden;
 	background: var(--card-bg, #fff);
-	direction: rtl;
-	text-align: right;
+	text-align: start; /* direction follows the user's language (html dir) */
 }
 .bwa * { box-sizing: border-box; }
 [data-theme="dark"] .bwa {
@@ -40,7 +39,7 @@
 .bwa-list {
 	width: 360px;
 	min-width: 280px;
-	border-left: 1px solid var(--bwa-border);
+	border-inline-end: 1px solid var(--bwa-border);
 	display: flex;
 	flex-direction: column;
 }
@@ -224,7 +223,7 @@
 	text-decoration: none !important;
 }
 .bwa-file-icon { font-size: 26px; }
-.bwa-file-name { font-weight: 600; font-size: 12.5px; direction: ltr; text-align: left; word-break: break-all; }
+.bwa-file-name { font-weight: 600; font-size: 12.5px; direction: ltr; text-align: start; word-break: break-all; unicode-bidi: plaintext; }
 .bwa-file-sub { font-size: 11px; color: var(--bwa-muted); }
 .bwa-ref { font-size: 11.5px; margin-top: 3px; }
 .bwa-tpl { font-size: 11px; color: var(--bwa-muted); margin-bottom: 2px; }
@@ -270,7 +269,7 @@
 }
 /* single-pane layout for phones and narrow windows (desk sidebar eats width) */
 @media (max-width: 991px) {
-	.bwa-list { width: 100%; min-width: 0; border-left: 0; }
+	.bwa-list { width: 100%; min-width: 0; border-inline-end: 0; }
 	.bwa-chat { display: none; }
 	.bwa.chat-open .bwa-list { display: none; }
 	.bwa.chat-open .bwa-chat { display: flex; }
@@ -433,3 +432,26 @@
 	line-height: 1.6;
 }
 [data-theme="dark"] .bwa-error { color: #fda29b; background: rgba(240, 68, 56, .15); }
+
+/* ---------- phase 4: modes, teams, staff chat */
+.bwa-modes { display: flex; border-bottom: 1px solid var(--bwa-border); }
+.bwa-modes button {
+	flex: 1; border: 0; background: transparent; padding: 9px 6px; font-size: 13px; color: var(--bwa-muted);
+	border-bottom: 2px solid transparent; display: flex; align-items: center; justify-content: center; gap: 6px;
+}
+.bwa-modes button.active { color: var(--bwa-text); border-bottom-color: var(--bwa-green); font-weight: 600; }
+.bwa-modes .bwa-count { position: static; }
+.bwa-pane-customers, .bwa-pane-staff { display: flex; flex-direction: column; flex: 1; min-height: 0; }
+.bwa-pane-staff[style*="none"], .bwa-pane-customers[style*="none"] { display: none !important; }
+.bwa-channels { flex: 1; overflow-y: auto; }
+.bwa-new-dm { width: 100%; }
+.bwa-views .bwa-team-filter { height: 26px; padding: 0 6px; font-size: 12px; width: auto; max-width: 150px; }
+.bwa-team-chip { color: #6b4fbb; }
+[data-theme="dark"] .bwa-team-chip { color: #b8a4f0; }
+.bwa-avatar.team { background: #ece5ff; font-size: 18px; }
+[data-theme="dark"] .bwa-avatar.team { background: #3a3157; }
+.bwa-owner { max-width: 260px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.bwa-ltr { direction: ltr; unicode-bidi: embed; text-align: start; }
+.bwa-staff-msgs .bwa-sender { font-size: 12px; font-weight: 600; color: #6b4fbb; margin-bottom: 2px; }
+.bwa-ref-open { display: block; margin-top: 4px; }
+.bwa-head-sub { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
