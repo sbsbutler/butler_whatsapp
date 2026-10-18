@@ -8,12 +8,26 @@ A template with an image header needs a sample image.,القالب بعنوان 
 A template with an image header needs a sample image.,القالب بعنوان صورة يحتاج صورة مثال.,WhatsApp
 "A template with the same name and language exists. Change the ""Name at Meta"".",يوجد قالب بنفس الاسم واللغة. غيّر «الاسم في Meta».
 "A template with the same name and language exists. Change the ""Name at Meta"".",يوجد قالب بنفس الاسم واللغة. غيّر «الاسم في Meta».,WhatsApp
+AUTHENTICATION,رموز تحقق
+AUTHENTICATION,رموز تحقق,WhatsApp
+AUTHENTICATION_INTERNATIONAL,رموز تحقق دولية
+AUTHENTICATION_INTERNATIONAL,رموز تحقق دولية,WhatsApp
 Access and Assignment,الصلاحيات وتوزيع المحادثات
 Access and Assignment,الصلاحيات وتوزيع المحادثات,WhatsApp
 Accounts,الحسابات,WhatsApp
+Add,إضافة,WhatsApp
+Add members,إضافة أعضاء
+Add members,إضافة أعضاء,WhatsApp
+Add members to {0},إضافة أعضاء إلى {0}
+Add members to {0},إضافة أعضاء إلى {0},WhatsApp
+Added,أُضيف,WhatsApp
 Added By,أضافه,WhatsApp
 Added to the conversation: {0},أُضيف إلى المحادثة: {0}
 Added to the conversation: {0},أُضيف إلى المحادثة: {0},WhatsApp
+Added: {0},أُضيف: {0}
+Added: {0},أُضيف: {0},WhatsApp
+Agreed in writing,وافق كتابياً
+Agreed in writing,وافق كتابياً,WhatsApp
 Agreed to messages,موافق على الرسائل
 Agreed to messages,موافق على الرسائل,WhatsApp
 Alert when a customer has not been answered within (minutes),تنبيه إذا لم يُرد على العميل خلال (دقيقة)
@@ -23,8 +37,16 @@ All Messages,كل الرسائل
 All Messages,كل الرسائل,WhatsApp
 All WhatsApp Messages,كل رسائل واتساب
 All WhatsApp Messages,كل رسائل واتساب,WhatsApp
+All staff are already in this team.,كل الموظفين أعضاء في هذا الفريق مسبقاً.
+All staff are already in this team.,كل الموظفين أعضاء في هذا الفريق مسبقاً.,WhatsApp
 All teams,كل الفرق
 All teams,كل الفرق,WhatsApp
+Already answered,أجاب مسبقاً
+Already answered,أجاب مسبقاً,WhatsApp
+Already up to date,محدّث مسبقاً
+Already up to date,محدّث مسبقاً,WhatsApp
+Already up to date: {0},محدّث مسبقاً: {0}
+Already up to date: {0},محدّث مسبقاً: {0},WhatsApp
 Also alert supervisors,تنبيه المشرفين أيضاً
 Also alert supervisors,تنبيه المشرفين أيضاً,WhatsApp
 Also following:,يتابعها أيضاً:
@@ -42,6 +64,14 @@ Appointment booking,حجز موعد
 Appointment booking,حجز موعد,WhatsApp
 Appointment {0},الموعد {0}
 Appointment {0},الموعد {0},WhatsApp
+Approximate amounts from Meta; the final invoice is in Meta Business Manager.,مبالغ تقريبية من ميتا؛ الفاتورة النهائية في مدير أعمال ميتا (Business Manager).
+Approximate amounts from Meta; the final invoice is in Meta Business Manager.,مبالغ تقريبية من ميتا؛ الفاتورة النهائية في مدير أعمال ميتا (Business Manager).,WhatsApp
+Ask for WhatsApp consent by e-mail,طلب موافقة واتساب بالبريد الإلكتروني
+Ask for WhatsApp consent by e-mail,طلب موافقة واتساب بالبريد الإلكتروني,WhatsApp
+Ask the customer on WhatsApp,اسأل العميل عبر واتساب
+Ask the customer on WhatsApp,اسأل العميل عبر واتساب,WhatsApp
+Asked to stop messages,طلب إيقاف الرسائل
+Asked to stop messages,طلب إيقاف الرسائل,WhatsApp
 Assign or transfer,إسناد أو تحويل
 Assign or transfer,إسناد أو تحويل,WhatsApp
 Assign or transfer the conversation,إسناد المحادثة أو تحويلها
@@ -54,6 +84,12 @@ Assigned to {0},إسناد المحادثة إلى {0}
 Assigned to {0},إسناد المحادثة إلى {0},WhatsApp
 Attach a file,إرفاق ملف
 Attach a file,إرفاق ملف,WhatsApp
+"Attach the Excel / CSV file, then check the column names and save.",أرفق ملف إكسل أو CSV، ثم تأكد من أسماء الأعمدة واحفظ.
+"Attach the Excel / CSV file, then check the column names and save.",أرفق ملف إكسل أو CSV، ثم تأكد من أسماء الأعمدة واحفظ.,WhatsApp
+Attach the file again,أرفق الملف مرة أخرى
+Attach the file again,أرفق الملف مرة أخرى,WhatsApp
+Attach the file and choose the number column,أرفق الملف واختر عمود الأرقام
+Attach the file and choose the number column,أرفق الملف واختر عمود الأرقام,WhatsApp
 Attachment,مرفق,WhatsApp
 Automatic Routing,التحويل التلقائي
 Automatic Routing,التحويل التلقائي,WhatsApp
@@ -66,6 +102,8 @@ Average first reply (minutes),متوسط أول رد (دقيقة),WhatsApp
 Back,رجوع,WhatsApp
 Block templates to customers without recorded consent,منع إرسال القوالب لمن ليس لديه موافقة مسجلة
 Block templates to customers without recorded consent,منع إرسال القوالب لمن ليس لديه موافقة مسجلة,WhatsApp
+"Brings mobile numbers into WhatsApp from ERPNext (staff, customers, contacts, leads) or from an Excel / CSV file.",يجلب أرقام الجوال إلى واتساب من النظام (الموظفين والعملاء وجهات الاتصال والعملاء المحتملين) أو من ملف إكسل / CSV.
+"Brings mobile numbers into WhatsApp from ERPNext (staff, customers, contacts, leads) or from an Excel / CSV file.",يجلب أرقام الجوال إلى واتساب من النظام (الموظفين والعملاء وجهات الاتصال والعملاء المحتملين) أو من ملف إكسل / CSV.,WhatsApp
 Business Hours and Automatic Replies,أوقات الدوام والرد الآلي
 Business Hours and Automatic Replies,أوقات الدوام والرد الآلي,WhatsApp
 Butler - WhatsApp,باتلر - واتساب
@@ -76,13 +114,34 @@ Button Text,نص الزر
 Button Text,نص الزر,WhatsApp
 Button Type,نوع الزر
 Button Type,نوع الزر,WhatsApp
+"Button reply, message {0}",رد بالأزرار، الرسالة {0}
+"Button reply, message {0}",رد بالأزرار، الرسالة {0},WhatsApp
 By name or mobile number,بالاسم أو رقم الجوال
 By name or mobile number,بالاسم أو رقم الجوال,WhatsApp
 Call Phone,اتصال هاتفي
 Call Phone,اتصال هاتفي,WhatsApp
+Campaign name,اسم الحملة
+Campaign name,اسم الحملة,WhatsApp
+Campaign rules,قواعد الحملات
+Campaign rules,قواعد الحملات,WhatsApp
+Campaign to these numbers,حملة لهذه الأرقام
+Campaign to these numbers,حملة لهذه الأرقام,WhatsApp
+Campaigns,الحملات
+Campaigns,الحملات,WhatsApp
+Campaigns can only use MARKETING templates (greetings and offers are marketing for Meta).,الحملات تستخدم قوالب تسويقية (MARKETING) فقط، فالتهاني والعروض تُعتبر تسويقاً عند ميتا.
+Campaigns can only use MARKETING templates (greetings and offers are marketing for Meta).,الحملات تستخدم قوالب تسويقية (MARKETING) فقط، فالتهاني والعروض تُعتبر تسويقاً عند ميتا.,WhatsApp
 Cancel,إلغاء,WhatsApp
+Cancel campaign,إلغاء الحملة
+Cancel campaign,إلغاء الحملة,WhatsApp
+Cancel this campaign? Messages already sent stay sent.,إلغاء هذه الحملة؟ الرسائل المرسلة تبقى مرسلة.
+Cancel this campaign? Messages already sent stay sent.,إلغاء هذه الحملة؟ الرسائل المرسلة تبقى مرسلة.,WhatsApp
+Cancelled,ملغاة,WhatsApp
 Category,الفئة,WhatsApp
 Channel,القناة,WhatsApp
+Charged messages only,الرسائل المدفوعة فقط
+Charged messages only,الرسائل المدفوعة فقط,WhatsApp
+Checking the numbers...,جارٍ فحص الأرقام...
+Checking the numbers...,جارٍ فحص الأرقام...,WhatsApp
 Choose a colleague,اختر زميلاً
 Choose a colleague,اختر زميلاً,WhatsApp
 Choose a conversation from the list,اختر محادثة من القائمة
@@ -91,10 +150,14 @@ Choose a file,اختيار ملف
 Choose a file,اختيار ملف,WhatsApp
 Choose a file for the template header,اختر ملفاً لعنوان القالب
 Choose a file for the template header,اختر ملفاً لعنوان القالب,WhatsApp
+Choose how these people agreed,اختر طريقة موافقة هؤلاء الأشخاص
+Choose how these people agreed,اختر طريقة موافقة هؤلاء الأشخاص,WhatsApp
 Choose the appointment templates in WhatsApp Inbox Settings,اختر قوالب المواعيد من إعدادات صندوق واتساب
 Choose the appointment templates in WhatsApp Inbox Settings,اختر قوالب المواعيد من إعدادات صندوق واتساب,WhatsApp
 Choose the source of the consent.,اختر مصدر الموافقة.
 Choose the source of the consent.,اختر مصدر الموافقة.,WhatsApp
+"Choose the template and who receives it, save, then press ""Find recipients"".",اختر القالب ومن يستلمه، احفظ، ثم اضغط «إيجاد المستلمين».
+"Choose the template and who receives it, save, then press ""Find recipients"".",اختر القالب ومن يستلمه، احفظ، ثم اضغط «إيجاد المستلمين».,WhatsApp
 "Chosen automatically in the ""Send via WhatsApp"" dialog when the customer is outside the 24-hour window, in the customer's language when an approved version exists. Variables in order: 1 customer name, 2 document number, 3 amount, 4 due date.",تُختار تلقائياً في نافذة «إرسال عبر واتساب» عندما يكون العميل خارج نافذة الـ24 ساعة، وبلغة العميل إذا وُجدت نسخة معتمدة بها. المتغيرات بالترتيب: 1 اسم العميل، 2 رقم المستند، 3 المبلغ، 4 تاريخ الاستحقاق.
 "Chosen automatically in the ""Send via WhatsApp"" dialog when the customer is outside the 24-hour window, in the customer's language when an approved version exists. Variables in order: 1 customer name, 2 document number, 3 amount, 4 due date.",تُختار تلقائياً في نافذة «إرسال عبر واتساب» عندما يكون العميل خارج نافذة الـ24 ساعة، وبلغة العميل إذا وُجدت نسخة معتمدة بها. المتغيرات بالترتيب: 1 اسم العميل، 2 رقم المستند، 3 المبلغ، 4 تاريخ الاستحقاق.,WhatsApp
 Clear the status,مسح الحالة
@@ -105,24 +168,60 @@ Colleague,الزميل
 Colleague,الزميل,WhatsApp
 Colleagues added to a WhatsApp conversation (e.g. by an @mention).,زملاء أُضيفوا إلى محادثة واتساب (مثلاً بالإشارة @).
 Colleagues added to a WhatsApp conversation (e.g. by an @mention).,زملاء أُضيفوا إلى محادثة واتساب (مثلاً بالإشارة @).,WhatsApp
+Collecting Consent,جمع الموافقات
+Collecting Consent,جمع الموافقات,WhatsApp
+Column {0} is not in the file,العمود {0} غير موجود في الملف
+Column {0} is not in the file,العمود {0} غير موجود في الملف,WhatsApp
+Columns in the file,أعمدة الملف
+Columns in the file,أعمدة الملف,WhatsApp
 Company,شركة,WhatsApp
 Company name (optional),اسم الشركة (اختياري)
 Company name (optional),اسم الشركة (اختياري),WhatsApp
+Completed,مكتملة,WhatsApp
 Confirmation template,قالب التأكيد
 Confirmation template,قالب التأكيد,WhatsApp
 Consecutive failures,مرات الفشل المتتالية
 Consecutive failures,مرات الفشل المتتالية,WhatsApp
 Consent / Opt-out Date,تاريخ الموافقة / الإيقاف
 Consent / Opt-out Date,تاريخ الموافقة / الإيقاف,WhatsApp
+Consent Proof,إثبات الموافقة
+Consent Proof,إثبات الموافقة,WhatsApp
 Consent Source,مصدر الموافقة
 Consent Source,مصدر الموافقة,WhatsApp
+Consent buttons in WhatsApp,أزرار الموافقة في واتساب
+Consent buttons in WhatsApp,أزرار الموافقة في واتساب,WhatsApp
+Consent clause for quotations and contracts,بند الموافقة لعروض الأسعار والعقود
+Consent clause for quotations and contracts,بند الموافقة لعروض الأسعار والعقود,WhatsApp
 Consent cleared,مسح حالة الموافقة
 Consent cleared,مسح حالة الموافقة,WhatsApp
+Consent column,عمود الموافقة
+Consent column,عمود الموافقة,WhatsApp
+Consent date,تاريخ الموافقة
+Consent date,تاريخ الموافقة,WhatsApp
+Consent date column,عمود تاريخ الموافقة
+Consent date column,عمود تاريخ الموافقة,WhatsApp
+Consent date: {0},تاريخ الموافقة: {0}
+Consent date: {0},تاريخ الموافقة: {0},WhatsApp
+Consent from the file,الموافقة من الملف
+Consent from the file,الموافقة من الملف,WhatsApp
+Consent in the file (optional),الموافقة في الملف (اختياري)
+Consent in the file (optional),الموافقة في الملف (اختياري),WhatsApp
+Consent is checked again right before each message.,يُعاد التحقق من الموافقة قبل كل رسالة مباشرة.
+Consent is checked again right before each message.,يُعاد التحقق من الموافقة قبل كل رسالة مباشرة.,WhatsApp
+Consent link token,رمز رابط الموافقة
+Consent link token,رمز رابط الموافقة,WhatsApp
+Consent links,روابط الموافقة
+Consent links,روابط الموافقة,WhatsApp
 Consent required,الموافقة مطلوبة
 Consent required,الموافقة مطلوبة,WhatsApp
+Consents recorded,الموافقات المسجلة
+Consents recorded,الموافقات المسجلة,WhatsApp
+Consents recorded: {0},الموافقات المسجلة: {0}
+Consents recorded: {0},الموافقات المسجلة: {0},WhatsApp
 Contact,جهة اتصال,WhatsApp
 Contacting Meta...,جارٍ الاتصال بـMeta...
 Contacting Meta...,جارٍ الاتصال بـMeta...,WhatsApp
+Contacts,جهات الاتصال,WhatsApp
 Content,المحتوى,WhatsApp
 Conversation Status,حالة المحادثة
 Conversation Status,حالة المحادثة,WhatsApp
@@ -144,6 +243,16 @@ Convert to Customer,تحويل إلى عميل
 Convert to Customer,تحويل إلى عميل,WhatsApp
 Convert to Lead,تحويل إلى عميل محتمل
 Convert to Lead,تحويل إلى عميل محتمل,WhatsApp
+Copy,نسخ,WhatsApp
+"Correct the number (with country code, e.g. 9665XXXXXXXX) then choose Add, or Ignore.",صحّح الرقم (مع رمز الدولة، مثل 9665XXXXXXXX) ثم اختر إضافة، أو تجاهل.
+"Correct the number (with country code, e.g. 9665XXXXXXXX) then choose Add, or Ignore.",صحّح الرقم (مع رمز الدولة، مثل 9665XXXXXXXX) ثم اختر إضافة، أو تجاهل.,WhatsApp
+"Correct the number first (with the country code, e.g. 9665XXXXXXXX).",صحّح الرقم أولاً (مع رمز الدولة، مثل 9665XXXXXXXX).
+"Correct the number first (with the country code, e.g. 9665XXXXXXXX).",صحّح الرقم أولاً (مع رمز الدولة، مثل 9665XXXXXXXX).,WhatsApp
+Cost,التكلفة,WhatsApp
+Costs,التكاليف
+Costs,التكاليف,WhatsApp
+Costs report,تقرير التكاليف
+Costs report,تقرير التكاليف,WhatsApp
 Could not convert the recording: {0},تعذّر تحويل التسجيل: {0}
 Could not convert the recording: {0},تعذّر تحويل التسجيل: {0},WhatsApp
 Could not download the media sent by the customer.,تعذّر تنزيل الوسائط المرسلة من العميل.
@@ -159,10 +268,13 @@ Create a Customer from the conversation,إنشاء عميل من المحادث�
 Create a Customer from the conversation,إنشاء عميل من المحادثة,WhatsApp
 Create the same Name at Meta once per language. Customers get the version in their language automatically.,أنشئ نفس «الاسم في Meta» مرة لكل لغة، ويصل العميل النسخة بلغته تلقائياً.
 Create the same Name at Meta once per language. Customers get the version in their language automatically.,أنشئ نفس «الاسم في Meta» مرة لكل لغة، ويصل العميل النسخة بلغته تلقائياً.,WhatsApp
+Currency,العملة,WhatsApp
 Customer,عميل,WhatsApp
 Customer Conversation,محادثة العميل
 Customer Conversation,محادثة العميل,WhatsApp
 Customer Name,اسم العميل,WhatsApp
+Customer agreed in writing to receive WhatsApp messages from Butler,وافق العميل كتابياً على استقبال رسائل باتلر عبر واتساب
+Customer agreed in writing to receive WhatsApp messages from Butler,وافق العميل كتابياً على استقبال رسائل باتلر عبر واتساب,WhatsApp
 Customer agreed to receive WhatsApp messages,العميل وافق على تلقي رسائل واتساب
 Customer agreed to receive WhatsApp messages,العميل وافق على تلقي رسائل واتساب,WhatsApp
 Customer consent to WhatsApp messages,موافقة العميل على رسائل واتساب
@@ -179,6 +291,8 @@ Customer opted out,العميل أوقف الرسائل
 Customer opted out,العميل أوقف الرسائل,WhatsApp
 Customer opted out of messages,العميل أوقف الرسائل
 Customer opted out of messages,العميل أوقف الرسائل,WhatsApp
+Customer or lead form,بطاقة العميل أو العميل المحتمل
+Customer or lead form,بطاقة العميل أو العميل المحتمل,WhatsApp
 Customer request via WhatsApp,طلب العميل عبر واتساب
 Customer request via WhatsApp,طلب العميل عبر واتساب,WhatsApp
 Customer wrote within 24h — you can send the PDF directly.,راسلك العميل خلال 24 ساعة — يمكنك إرسال الـPDF مباشرة.
@@ -193,6 +307,15 @@ DOCUMENT to attach a PDF (quotation / invoice).,DOCUMENT لإرفاق PDF (عر�
 DOCUMENT to attach a PDF (quotation / invoice).,DOCUMENT لإرفاق PDF (عرض سعر/فاتورة).,WhatsApp
 Daily messaging limit,حد الرسائل اليومي
 Daily messaging limit,حد الرسائل اليومي,WhatsApp
+Date,التاريخ,WhatsApp
+Day,يوم,WhatsApp
+Decide,القرار
+Decide,القرار,WhatsApp
+Decided At,تاريخ القرار
+Decided At,تاريخ القرار,WhatsApp
+Decided By,صاحب القرار
+Decided By,صاحب القرار,WhatsApp
+Decision,القرار,WhatsApp
 Default Document Templates,قوالب المستندات الافتراضية
 Default Document Templates,قوالب المستندات الافتراضية,WhatsApp
 Delivered,وصلت
@@ -224,14 +347,21 @@ Do not repeat the automatic reply to the same customer within (hours),لا يت�
 Document,مستند,WhatsApp
 Document file,ملف المستند
 Document file,ملف المستند,WhatsApp
+Done,تم,WhatsApp
 Draft,مسودة,WhatsApp
 Draft Status,حالة المسودة
 Draft Status,حالة المسودة,WhatsApp
+ERPNext,النظام (ERPNext)
+ERPNext,النظام (ERPNext),WhatsApp
 "Edit the text, then press ""Submit to Meta for approval"". Meta reviews the template (usually minutes to 24 hours) and it appears in the inbox automatically once approved.",عدّل النص ثم اضغط «إرسال إلى Meta للاعتماد». تراجع Meta القالب (عادة من دقائق إلى 24 ساعة) ويظهر في الصندوق تلقائياً عند اعتماده.
 "Edit the text, then press ""Submit to Meta for approval"". Meta reviews the template (usually minutes to 24 hours) and it appears in the inbox automatically once approved.",عدّل النص ثم اضغط «إرسال إلى Meta للاعتماد». تراجع Meta القالب (عادة من دقائق إلى 24 ساعة) ويظهر في الصندوق تلقائياً عند اعتماده.,WhatsApp
+Email confirmation,تأكيد بالبريد الإلكتروني
+Email confirmation,تأكيد بالبريد الإلكتروني,WhatsApp
 Emoji,إيموجي
 Emoji,إيموجي,WhatsApp
 Employee,الموظف,WhatsApp
+Empty = start now when you press Start.,فارغ = يبدأ فور الضغط على «بدء».
+Empty = start now when you press Start.,فارغ = يبدأ فور الضغط على «بدء».,WhatsApp
 Enable notifications,تفعيل الإشعارات
 Enable notifications,تفعيل الإشعارات,WhatsApp
 Enable notifications on this device,تفعيل الإشعارات على هذا الجهاز
@@ -248,12 +378,29 @@ Enter the button text.,أدخل نص الزر.,WhatsApp
 "Enter the phone number with the country code, e.g. +966920012813",أدخل رقم الهاتف مع رمز الدولة، مثل +966920012813
 "Enter the phone number with the country code, e.g. +966920012813",أدخل رقم الهاتف مع رمز الدولة، مثل +966920012813,WhatsApp
 Error,خطأ,WhatsApp
+Estimated cost,التكلفة التقديرية
+Estimated cost,التكلفة التقديرية,WhatsApp
 Every user can also drag the button anywhere or hide it from the WhatsApp page menu.,كل مستخدم يستطيع أيضاً سحب الزر لأي مكان أو إخفاءه من قائمة صفحة واتساب.
 Every user can also drag the button anywhere or hide it from the WhatsApp page menu.,كل مستخدم يستطيع أيضاً سحب الزر لأي مكان أو إخفاءه من قائمة صفحة واتساب.,WhatsApp
 Example: 05xxxxxxxx or +9665xxxxxxxx,مثال: 05xxxxxxxx أو +9665xxxxxxxx
 Example: 05xxxxxxxx or +9665xxxxxxxx,مثال: 05xxxxxxxx أو +9665xxxxxxxx,WhatsApp
+Excel,إكسل,WhatsApp
+Excel / CSV File,ملف إكسل / CSV
+Excel / CSV File,ملف إكسل / CSV,WhatsApp
+Excluded,مستبعد,WhatsApp
+Existing WhatsApp number,رقم واتساب الموجود
+Existing WhatsApp number,رقم واتساب الموجود,WhatsApp
+Existing name,الاسم الموجود
+Existing name,الاسم الموجود,WhatsApp
+FREE_CUSTOMER_SERVICE,مجانية (خدمة عملاء)
+FREE_CUSTOMER_SERVICE,مجانية (خدمة عملاء),WhatsApp
+FREE_ENTRY_POINT,مجانية (من إعلان أو صفحة)
+FREE_ENTRY_POINT,مجانية (من إعلان أو صفحة),WhatsApp
+Failed,فشل,WhatsApp
 Failed to send,فشل الإرسال
 Failed to send,فشل الإرسال,WhatsApp
+File (.xlsx or .csv),الملف (‎.xlsx أو ‎.csv)
+File (.xlsx or .csv),الملف (‎.xlsx أو ‎.csv),WhatsApp
 File not found,الملف غير موجود
 File not found,الملف غير موجود,WhatsApp
 File sent,تم إرسال الملف
@@ -264,6 +411,8 @@ Fill in the showroom location link in WhatsApp Inbox Settings,أدخل رابط 
 Fill in the showroom location link in WhatsApp Inbox Settings,أدخل رابط موقع المعرض في إعدادات صندوق واتساب,WhatsApp
 Fill the link value of every button,أكمل قيمة رابط كل زر
 Fill the link value of every button,أكمل قيمة رابط كل زر,WhatsApp
+Find recipients,إيجاد المستلمين
+Find recipients,إيجاد المستلمين,WhatsApp
 Fix before sending to Meta:,ملاحظات قبل الإرسال لـMeta:
 Fix before sending to Meta:,ملاحظات قبل الإرسال لـMeta:,WhatsApp
 Follows Meta's basic rules,يطابق قواعد Meta الأساسية
@@ -273,6 +422,8 @@ For a PDF a sample file is created automatically if left empty. For an image att
 For a PDF a sample file is created automatically if left empty. For an image attach one.,للـPDF يُنشأ ملف مثال تلقائياً إن تُرك فارغاً. للصورة أرفق صورة.,WhatsApp
 "For reference only, e.g. 1 = customer name",للتوضيح فقط، مثل: 1 = اسم العميل
 "For reference only, e.g. 1 = customer name",للتوضيح فقط، مثل: 1 = اسم العميل,WhatsApp
+Free messages,رسائل مجانية
+Free messages,رسائل مجانية,WhatsApp
 Friday,الجمعة,WhatsApp
 From Date,من تاريخ,WhatsApp
 Full Name,الاسم الكامل,WhatsApp
@@ -281,12 +432,18 @@ General,عام,WhatsApp
 "Generic WhatsApp error, try again later.",خطأ عام من واتساب، حاول لاحقاً.,WhatsApp
 Google Maps link sent as variable 4.,رابط خرائط Google يُرسل كمتغير رقم 4.
 Google Maps link sent as variable 4.,رابط خرائط Google يُرسل كمتغير رقم 4.,WhatsApp
+Got a campaign recently,وصلته حملة مؤخراً
+Got a campaign recently,وصلته حملة مؤخراً,WhatsApp
 Got it,فهمت
 Got it,فهمت,WhatsApp
+Group by,التجميع حسب
+Group by,التجميع حسب,WhatsApp
 Header Text,نص العنوان
 Header Text,نص العنوان,WhatsApp
 Header Type,نوع العنوان
 Header Type,نوع العنوان,WhatsApp
+Header image / file,صورة / ملف العنوان
+Header image / file,صورة / ملف العنوان,WhatsApp
 Header sample file,ملف مثال للعنوان
 Header sample file,ملف مثال للعنوان,WhatsApp
 Header variable,متغير العنوان
@@ -297,7 +454,24 @@ Help,تعليمات,WhatsApp
 High,عالية,WhatsApp
 How a draft works:,كيف تعمل المسودة:
 How a draft works:,كيف تعمل المسودة:,WhatsApp
+How they agreed,طريقة الموافقة
+How they agreed,طريقة الموافقة,WhatsApp
+"I confirm these people agreed in writing to receive WhatsApp messages from Butler, and the proof is kept",أؤكد أن هؤلاء وافقوا كتابياً على استقبال رسائل باتلر عبر واتساب، وأن الإثبات محفوظ
+"I confirm these people agreed in writing to receive WhatsApp messages from Butler, and the proof is kept",أؤكد أن هؤلاء وافقوا كتابياً على استقبال رسائل باتلر عبر واتساب، وأن الإثبات محفوظ,WhatsApp
+Ignore,تجاهل
+Ignore,تجاهل,WhatsApp
 Image,صورة,WhatsApp
+Import,الاستيراد,WhatsApp
+Import Numbers,استيراد الأرقام
+Import Numbers,استيراد الأرقام,WhatsApp
+Import again,استيراد مرة أخرى
+Import again,استيراد مرة أخرى,WhatsApp
+Import numbers,استيراد الأرقام
+Import numbers,استيراد الأرقام,WhatsApp
+Import {0},استيراد {0}
+Import {0},استيراد {0},WhatsApp
+Importing in the background... this page refreshes by itself.,جارٍ الاستيراد في الخلفية... تتحدث الصفحة تلقائياً.
+Importing in the background... this page refreshes by itself.,جارٍ الاستيراد في الخلفية... تتحدث الصفحة تلقائياً.,WhatsApp
 Inbox Performance,تقرير الأداء
 Inbox Performance,تقرير الأداء,WhatsApp
 Individual,فرد,WhatsApp
@@ -317,8 +491,12 @@ Invalid channel,قناة غير صحيحة
 Invalid channel,قناة غير صحيحة,WhatsApp
 Invalid consent state,حالة موافقة غير صحيحة
 Invalid consent state,حالة موافقة غير صحيحة,WhatsApp
+Invalid decision,قرار غير صالح
+Invalid decision,قرار غير صالح,WhatsApp
 Invalid mobile number: {0},رقم جوال غير صحيح: {0}
 Invalid mobile number: {0},رقم جوال غير صحيح: {0},WhatsApp
+Invalid number,رقم غير صالح
+Invalid number,رقم غير صالح,WhatsApp
 Invalid push subscription,اشتراك إشعارات غير صحيح
 Invalid push subscription,اشتراك إشعارات غير صحيح,WhatsApp
 Invalid status,حالة غير صحيحة
@@ -326,6 +504,11 @@ Invalid status,حالة غير صحيحة,WhatsApp
 Invoice,فاتورة,WhatsApp
 Invoice template,قالب الفاتورة
 Invoice template,قالب الفاتورة,WhatsApp
+Issue,المشكلة,WhatsApp
+"It is saved as Terms and Conditions ""WhatsApp Consent"". Tick ""Customer agreed in writing"" on the signed document to record the consent.",محفوظ في الشروط والأحكام باسم «WhatsApp Consent». ضع علامة «وافق العميل كتابياً» على المستند الموقَّع لتسجيل الموافقة.
+"It is saved as Terms and Conditions ""WhatsApp Consent"". Tick ""Customer agreed in writing"" on the signed document to record the consent.",محفوظ في الشروط والأحكام باسم «WhatsApp Consent». ضع علامة «وافق العميل كتابياً» على المستند الموقَّع لتسجيل الموافقة.,WhatsApp
+Keep existing,إبقاء الموجود
+Keep existing,إبقاء الموجود,WhatsApp
 Keywords,الكلمات المفتاحية
 Keywords,الكلمات المفتاحية,WhatsApp
 Language,اللغة,WhatsApp
@@ -333,6 +516,10 @@ Languages:,اللغات:
 Languages:,اللغات:,WhatsApp
 Last Assigned,آخر من أُسند إليه
 Last Assigned,آخر من أُسند إليه,WhatsApp
+Last Campaign,آخر حملة
+Last Campaign,آخر حملة,WhatsApp
+Last Import,آخر استيراد
+Last Import,آخر استيراد,WhatsApp
 Last Read,آخر قراءة
 Last Read,آخر قراءة,WhatsApp
 Last assigned to,آخر من أُسند إليه
@@ -345,13 +532,20 @@ Last delivered,آخر تسليم
 Last delivered,آخر تسليم,WhatsApp
 Last error,آخر خطأ
 Last error,آخر خطأ,WhatsApp
+Last month,الشهر الماضي
+Last month,الشهر الماضي,WhatsApp
+Last sync from Meta failed: {0},فشل آخر تحديث من ميتا: {0}
+Last sync from Meta failed: {0},فشل آخر تحديث من ميتا: {0},WhatsApp
 Last time a user read an internal chat.,آخر وقت قرأ فيه المستخدم دردشة داخلية.
 Last time a user read an internal chat.,آخر وقت قرأ فيه المستخدم دردشة داخلية.,WhatsApp
+Last update from Meta,آخر تحديث من ميتا
+Last update from Meta,آخر تحديث من ميتا,WhatsApp
 Last updated,آخر تحديث
 Last updated,آخر تحديث,WhatsApp
 Lead,عميل محتمل,WhatsApp
 Lead {0} created,تم إنشاء العميل المحتمل {0}
 Lead {0} created,تم إنشاء العميل المحتمل {0},WhatsApp
+Leads,العملاء المحتملون,WhatsApp
 Link,ربط,WhatsApp
 "Link of the button ""{0}""",رابط الزر «{0}»
 "Link of the button ""{0}""",رابط الزر «{0}»,WhatsApp
@@ -364,6 +558,7 @@ Load older messages,تحميل الرسائل الأقدم
 Load older messages,تحميل الرسائل الأقدم,WhatsApp
 Loading...,جارِ التحميل...,WhatsApp
 Location,موقع,WhatsApp
+Log,السجل,WhatsApp
 Log only,تسجيل فقط
 Log only,تسجيل فقط,WhatsApp
 Longest current wait (minutes),أطول انتظار حالي (دقيقة)
@@ -371,7 +566,12 @@ Longest current wait (minutes),أطول انتظار حالي (دقيقة),Whats
 Low,منخفضة,WhatsApp
 "Lower-case English letters, digits and underscore only, e.g. butler_quotation_v1",أحرف إنجليزية صغيرة وأرقام وشرطة سفلية فقط، مثل butler_quotation_v1
 "Lower-case English letters, digits and underscore only, e.g. butler_quotation_v1",أحرف إنجليزية صغيرة وأرقام وشرطة سفلية فقط، مثل butler_quotation_v1,WhatsApp
+MARKETING,تسويق
+MARKETING,تسويق,WhatsApp
+MARKETING_LITE,تسويق (Lite)
+MARKETING_LITE,تسويق (Lite),WhatsApp
 Maintenance,الصيانة,WhatsApp
+Marketing,التسويق,WhatsApp
 "Matches the whole message only, so a message like ""I want to stop the order"" is not an opt-out.",تُطابق الرسالة كاملة فقط، فرسالة مثل «أبي إيقاف الطلب» لا تُعتبر إيقافاً.
 "Matches the whole message only, so a message like ""I want to stop the order"" is not an opt-out.",تُطابق الرسالة كاملة فقط، فرسالة مثل «أبي إيقاف الطلب» لا تُعتبر إيقافاً.,WhatsApp
 Meaning of the variables,معنى المتغيرات
@@ -393,14 +593,23 @@ Message not found,الرسالة غير موجودة
 Message not found,الرسالة غير موجودة,WhatsApp
 Message your colleagues (not sent to customers)...,اكتب لزملائك (لا تُرسل للعملاء)...
 Message your colleagues (not sent to customers)...,اكتب لزملائك (لا تُرسل للعملاء)...,WhatsApp
+Messages,الرسائل,WhatsApp
+Messages per minute,رسائل في الدقيقة
+Messages per minute,رسائل في الدقيقة,WhatsApp
 Messages sent,رسائل مرسلة
 Messages sent,رسائل مرسلة,WhatsApp
+Meta Costs,تكاليف ميتا
+Meta Costs,تكاليف ميتا,WhatsApp
 Meta Policy (Consent and Opt-out),الالتزام بسياسة Meta (الموافقة والإيقاف)
 Meta Policy (Consent and Opt-out),الالتزام بسياسة Meta (الموافقة والإيقاف),WhatsApp
 Meta Status,حالة Meta
 Meta Status,حالة Meta,WhatsApp
+"Meta allows marketing messages only to people who agreed to receive messages from Butler. Share these links / QR codes (website, social media, showroom, invoices) so customers can agree.",تسمح ميتا بالرسائل التسويقية فقط لمن وافق على استقبال رسائل باتلر. شارك هذه الروابط ورموز QR (الموقع، وسائل التواصل، المعرض، الفواتير) ليتمكن العملاء من الموافقة.
+"Meta allows marketing messages only to people who agreed to receive messages from Butler. Share these links / QR codes (website, social media, showroom, invoices) so customers can agree.",تسمح ميتا بالرسائل التسويقية فقط لمن وافق على استقبال رسائل باتلر. شارك هذه الروابط ورموز QR (الموقع، وسائل التواصل، المعرض، الفواتير) ليتمكن العملاء من الموافقة.,WhatsApp
 "Meta changed the category of template ""{0}"" to {1}.",Meta غيّرت فئة القالب «{0}» إلى {1}.
 "Meta changed the category of template ""{0}"" to {1}.",Meta غيّرت فئة القالب «{0}» إلى {1}.,WhatsApp
+Meta error,خطأ من ميتا
+Meta error,خطأ من ميتا,WhatsApp
 Meta policy: do not start a conversation with a template until the customer clearly agreed to receive Butler's messages. Inside the 24-hour window (the customer wrote to you) replying is always allowed.,سياسة Meta: لا تبدأ مراسلة عميل بقالب إلا بعد موافقته الواضحة على تلقي رسائل باتلر. داخل نافذة الـ24 ساعة (العميل راسلكم) الرد مسموح دائماً.
 Meta policy: do not start a conversation with a template until the customer clearly agreed to receive Butler's messages. Inside the 24-hour window (the customer wrote to you) replying is always allowed.,سياسة Meta: لا تبدأ مراسلة عميل بقالب إلا بعد موافقته الواضحة على تلقي رسائل باتلر. داخل نافذة الـ24 ساعة (العميل راسلكم) الرد مسموح دائماً.,WhatsApp
 Meta policy: do not start a conversation with a template until the customer clearly agreed to receive Butler's messages. Record here how they agreed (or that they asked to stop); it is saved in the conversation history.,سياسة Meta: لا تُبدأ مراسلة العميل بقالب إلا بعد موافقته الواضحة على تلقي رسائل باتلر. سجّل هنا كيف وافق (أو أنه طلب الإيقاف)، ويُحفظ ذلك في سجل المحادثة.
@@ -420,6 +629,8 @@ Mobile Number,رقم الجوال,WhatsApp
 Mode,الوضع
 Mode,الوضع,WhatsApp
 Monday,الاثنين,WhatsApp
+Month,الشهر,WhatsApp
+More,المزيد,WhatsApp
 More than 24 hours have passed since the customer's last message (or they have not written yet). WhatsApp only allows approved templates.,مرت أكثر من 24 ساعة على آخر رسالة من العميل (أو لم يراسلك بعد). واتساب يسمح فقط بالقوالب المعتمدة.
 More than 24 hours have passed since the customer's last message (or they have not written yet). WhatsApp only allows approved templates.,مرت أكثر من 24 ساعة على آخر رسالة من العميل (أو لم يراسلك بعد). واتساب يسمح فقط بالقوالب المعتمدة.,WhatsApp
 Move the floating button back,إعادة الزر العائم لمكانه
@@ -433,6 +644,14 @@ Name at Meta,الاسم في Meta
 Name at Meta,الاسم في Meta,WhatsApp
 "Name at Meta: lower-case English letters, digits and underscore only.",الاسم في Meta: أحرف إنجليزية صغيرة وأرقام وشرطة سفلية فقط.
 "Name at Meta: lower-case English letters, digits and underscore only.",الاسم في Meta: أحرف إنجليزية صغيرة وأرقام وشرطة سفلية فقط.,WhatsApp
+Name column,عمود الاسم
+Name column,عمود الاسم,WhatsApp
+Name of this number,اسم هذا الرقم
+Name of this number,اسم هذا الرقم,WhatsApp
+Never send campaigns,لا تُرسل له حملات أبداً
+Never send campaigns,لا تُرسل له حملات أبداً,WhatsApp
+Never send to selected numbers,عدم الإرسال للأرقام المحددة نهائياً
+Never send to selected numbers,عدم الإرسال للأرقام المحددة نهائياً,WhatsApp
 New Conversation,محادثة جديدة
 New Conversation,محادثة جديدة,WhatsApp
 New WhatsApp conversation for {0}: {1},محادثة واتساب جديدة لفريق {0}: {1}
@@ -447,10 +666,16 @@ No active default outgoing WhatsApp Account,لا يوجد حساب واتساب 
 "No comma (,).","بدون فاصلة إنجليزية (,).",WhatsApp
 No consent,لا توجد موافقة
 No consent,لا توجد موافقة,WhatsApp
+No consent recorded,لا توجد موافقة مسجلة
+No consent recorded,لا توجد موافقة مسجلة,WhatsApp
 No conversations,لا توجد محادثات
 No conversations,لا توجد محادثات,WhatsApp
 No conversations for you or your teams,لا توجد محادثات لك أو لفرقك
 No conversations for you or your teams,لا توجد محادثات لك أو لفرقك,WhatsApp
+No country code,بدون رمز الدولة
+No country code,بدون رمز الدولة,WhatsApp
+"No data yet. Press ""Refresh from Meta"". If the cost stays empty, the account may be billed through a partner (Meta does not return the cost then).",لا توجد بيانات بعد. اضغط «تحديث من ميتا». إن بقيت التكلفة فارغة فقد يكون الحساب يُفوتر عبر شريك (ميتا لا تُرجع التكلفة حينها).
+"No data yet. Press ""Refresh from Meta"". If the cost stays empty, the account may be billed through a partner (Meta does not return the cost then).",لا توجد بيانات بعد. اضغط «تحديث من ميتا». إن بقيت التكلفة فارغة فقد يكون الحساب يُفوتر عبر شريك (ميتا لا تُرجع التكلفة حينها).,WhatsApp
 No matching quick replies,لا توجد ردود جاهزة مطابقة
 No matching quick replies,لا توجد ردود جاهزة مطابقة,WhatsApp
 No message from this number in the last 24h and no approved document template yet. Ask the customer to send any message first.,لم تصل رسالة من هذا الرقم خلال 24 ساعة ولا يوجد قالب مستند معتمد بعد. اطلب من العميل إرسال أي رسالة أولاً.
@@ -477,6 +702,10 @@ No webhook request has arrived since the check was enabled (or the check is off)
 No webhook request has arrived since the check was enabled (or the check is off).,لم يصل طلب Webhook منذ تفعيل الفحص (أو الفحص معطّل).,WhatsApp
 Nobody,لا أحد
 Nobody,لا أحد,WhatsApp
+Nobody has a recorded consent yet. Collect consents first (WhatsApp Inbox Settings → Collecting Consent).,لا أحد لديه موافقة مسجلة بعد. اجمع الموافقات أولاً (إعدادات واتساب ← جمع الموافقات).
+Nobody has a recorded consent yet. Collect consents first (WhatsApp Inbox Settings → Collecting Consent).,لا أحد لديه موافقة مسجلة بعد. اجمع الموافقات أولاً (إعدادات واتساب ← جمع الموافقات).,WhatsApp
+"Nobody to send to. Press ""Find recipients"" first.",لا يوجد من يُرسل له. اضغط «إيجاد المستلمين» أولاً.
+"Nobody to send to. Press ""Find recipients"" first.",لا يوجد من يُرسل له. اضغط «إيجاد المستلمين» أولاً.,WhatsApp
 Not available,غير متاح
 Not available,غير متاح,WhatsApp
 Not delivered: Meta is temporarily limiting marketing messages to this customer. Do not resend now.,لم تُسلَّم: Meta حدّت عدد الرسائل التسويقية لهذا العميل مؤقتاً. لا تُعِد الإرسال الآن.
@@ -490,6 +719,8 @@ Not recommended: Meta requires clear consent. Enable only if your policy is that
 Note,ملاحظة,WhatsApp
 Note (optional),ملاحظة (اختياري)
 Note (optional),ملاحظة (اختياري),WhatsApp
+"Note (who agreed, when and how)",ملاحظة (من وافق ومتى وكيف)
+"Note (who agreed, when and how)",ملاحظة (من وافق ومتى وكيف),WhatsApp
 Note for the history (optional),ملاحظة للسجل (اختياري)
 Note for the history (optional),ملاحظة للسجل (اختياري),WhatsApp
 Note is empty,الملاحظة فارغة
@@ -509,19 +740,67 @@ Notify members of new conversations,تنبيه الأعضاء بالمحادثا
 Number,الرقم,WhatsApp
 Number Quality and Template Status (updated hourly),جودة الرقم وحالة القوالب (تتحدث كل ساعة)
 Number Quality and Template Status (updated hourly),جودة الرقم وحالة القوالب (تتحدث كل ساعة),WhatsApp
+Number Source,مصدر الرقم
+Number Source,مصدر الرقم,WhatsApp
+Number as written,الرقم كما كُتب
+Number as written,الرقم كما كُتب,WhatsApp
+Number column,عمود الرقم
+Number column,عمود الرقم,WhatsApp
+Number exists with another name,الرقم موجود باسم آخر
+Number exists with another name,الرقم موجود باسم آخر,WhatsApp
+Number review,مراجعة الأرقام
+Number review,مراجعة الأرقام,WhatsApp
+Numbers found,الأرقام الموجودة
+Numbers found,الأرقام الموجودة,WhatsApp
+Numbers from ERPNext,أرقام من النظام
+Numbers from ERPNext,أرقام من النظام,WhatsApp
+Numbers from a file,أرقام من ملف
+Numbers from a file,أرقام من ملف,WhatsApp
+Numbers read,الأرقام المقروءة
+Numbers read,الأرقام المقروءة,WhatsApp
+Numbers read: {0},الأرقام المقروءة: {0}
+Numbers read: {0},الأرقام المقروءة: {0},WhatsApp
+"Numbers that are not linked to a customer, lead or staff member.",أرقام غير مرتبطة بعميل أو عميل محتمل أو موظف.
+"Numbers that are not linked to a customer, lead or staff member.",أرقام غير مرتبطة بعميل أو عميل محتمل أو موظف.,WhatsApp
+Numbers the import could not add on its own: you decide what to do with each one.,أرقام لم يستطع الاستيراد إضافتها وحده: أنت تقرر ماذا تفعل بكل رقم.
+Numbers the import could not add on its own: you decide what to do with each one.,أرقام لم يستطع الاستيراد إضافتها وحده: أنت تقرر ماذا تفعل بكل رقم.,WhatsApp
+Numbers to Review,أرقام للمراجعة
+Numbers to Review,أرقام للمراجعة,WhatsApp
+Numbers to review,أرقام للمراجعة
+Numbers to review,أرقام للمراجعة,WhatsApp
 Off,معطّل,WhatsApp
 "On iPhone, notifications only work when the system is opened as an app from the home screen:",على الآيفون تعمل الإشعارات فقط عند فتح النظام كتطبيق من الشاشة الرئيسية:
 "On iPhone, notifications only work when the system is opened as an app from the home screen:",على الآيفون تعمل الإشعارات فقط عند فتح النظام كتطبيق من الشاشة الرئيسية:,WhatsApp
+On the never-send list,في قائمة عدم الإرسال
+On the never-send list,في قائمة عدم الإرسال,WhatsApp
 One keyword or phrase per line. A new conversation whose message contains one of them goes to this team (Arabic prefixes like ال and و are ignored).,كلمة أو عبارة في كل سطر. المحادثة الجديدة التي تحتوي رسالتها إحداها تُحوَّل لهذا الفريق (تُتجاهل البادئات مثل ال و و).
 One keyword or phrase per line. A new conversation whose message contains one of them goes to this team (Arabic prefixes like ال and و are ignored).,كلمة أو عبارة في كل سطر. المحادثة الجديدة التي تحتوي رسالتها إحداها تُحوَّل لهذا الفريق (تُتجاهل البادئات مثل ال و و).,WhatsApp
+"One line per {{1}}, {{2}} ... of the template. Write {name} to use the customer's name.",سطر لكل متغير {{1}}، {{2}} ... في القالب. اكتب {name} لاستخدام اسم العميل.
+"One line per {{1}}, {{2}} ... of the template. Write {name} to use the customer's name.",سطر لكل متغير {{1}}، {{2}} ... في القالب. اكتب {name} لاستخدام اسم العميل.,WhatsApp
 One of the samples is empty.,يوجد مثال فارغ.
 One of the samples is empty.,يوجد مثال فارغ.,WhatsApp
 Only Customer or Lead can be linked,يمكن الربط بعميل أو عميل محتمل فقط
 Only Customer or Lead can be linked,يمكن الربط بعميل أو عميل محتمل فقط,WhatsApp
 Only Customer or Lead can be unlinked,يمكن فك الربط عن عميل أو عميل محتمل فقط
 Only Customer or Lead can be unlinked,يمكن فك الربط عن عميل أو عميل محتمل فقط,WhatsApp
+Only approved MARKETING templates that tell the customer how to stop the messages.,فقط القوالب التسويقية المعتمدة التي تخبر العميل كيف يوقف الرسائل.
+Only approved MARKETING templates that tell the customer how to stop the messages.,فقط القوالب التسويقية المعتمدة التي تخبر العميل كيف يوقف الرسائل.,WhatsApp
+Only approved MARKETING templates that tell the customer how to stop.,فقط القوالب التسويقية المعتمدة التي تخبر العميل كيف يوقف الرسائل.
+Only approved MARKETING templates that tell the customer how to stop.,فقط القوالب التسويقية المعتمدة التي تخبر العميل كيف يوقف الرسائل.,WhatsApp
+Only conversations of team,محادثات فريق محدد فقط
+Only conversations of team,محادثات فريق محدد فقط,WhatsApp
+Only customers and leads,العملاء والعملاء المحتملون فقط
+Only customers and leads,العملاء والعملاء المحتملون فقط,WhatsApp
+"Only fill this if the file records people who agreed in writing (paper form, website, contract) to receive WhatsApp messages from Butler. Meta asks for proof of every consent.",املأ هذا القسم فقط إذا كان الملف يسجل أشخاصاً وافقوا كتابياً (نموذج ورقي، الموقع، عقد) على استقبال رسائل باتلر عبر واتساب. ميتا تطلب إثباتاً لكل موافقة.
+"Only fill this if the file records people who agreed in writing (paper form, website, contract) to receive WhatsApp messages from Butler. Meta asks for proof of every consent.",املأ هذا القسم فقط إذا كان الملف يسجل أشخاصاً وافقوا كتابياً (نموذج ورقي، الموقع، عقد) على استقبال رسائل باتلر عبر واتساب. ميتا تطلب إثباتاً لكل موافقة.,WhatsApp
+Only for templates with an image or document header.,فقط للقوالب التي عنوانها صورة أو ملف.
+Only for templates with an image or document header.,فقط للقوالب التي عنوانها صورة أو ملف.,WhatsApp
 Only for the messages of that appointment (never marketing); a customer who opted out gets nothing. The booking page tells the customer the confirmation comes on WhatsApp.,لرسائل ذلك الموعد فقط (لا تسويق)، ومن أوقف الرسائل لا يصله شيء. صفحة الحجز تُبلغ العميل أن التأكيد يصله على واتساب.
 Only for the messages of that appointment (never marketing); a customer who opted out gets nothing. The booking page tells the customer the confirmation comes on WhatsApp.,لرسائل ذلك الموعد فقط (لا تسويق)، ومن أوقف الرسائل لا يصله شيء. صفحة الحجز تُبلغ العميل أن التأكيد يصله على واتساب.,WhatsApp
+Only numbers of import,أرقام استيراد محدد فقط
+Only numbers of import,أرقام استيراد محدد فقط,WhatsApp
+Only numbers with a recorded consent; opted-out numbers and the never-send list are excluded.,فقط الأرقام التي لها موافقة مسجلة؛ ويُستبعد من أوقف الرسائل ومن في قائمة عدم الإرسال.
+Only numbers with a recorded consent; opted-out numbers and the never-send list are excluded.,فقط الأرقام التي لها موافقة مسجلة؛ ويُستبعد من أوقف الرسائل ومن في قائمة عدم الإرسال.,WhatsApp
 Only supervisors can clear consent,مسح الموافقة للمشرفين فقط
 Only supervisors can clear consent,مسح الموافقة للمشرفين فقط,WhatsApp
 Open,مفتوحة,WhatsApp
@@ -537,6 +816,8 @@ Open the template,فتح القالب
 Open the template,فتح القالب,WhatsApp
 Open this page in Safari.,افتح هذه الصفحة في Safari.
 Open this page in Safari.,افتح هذه الصفحة في Safari.,WhatsApp
+Opens WhatsApp with the word ready; sending it records the consent.,يفتح واتساب والكلمة جاهزة؛ بإرسالها تُسجَّل الموافقة.
+Opens WhatsApp with the word ready; sending it records the consent.,يفتح واتساب والكلمة جاهزة؛ بإرسالها تُسجَّل الموافقة.,WhatsApp
 Opt-in confirmation reply (Arabic),رد تأكيد الاشتراك (عربي)
 Opt-in confirmation reply (Arabic),رد تأكيد الاشتراك (عربي),WhatsApp
 Opt-in confirmation reply (English),رد تأكيد الاشتراك (إنجليزي)
@@ -555,9 +836,13 @@ Opted Out,أوقف الرسائل
 Opted Out,أوقف الرسائل,WhatsApp
 Opted out,أوقف الرسائل
 Opted out,أوقف الرسائل,WhatsApp
+Optional: sent automatically when somebody agrees on the website or by e-mail. Leave empty to send nothing.,اختياري: يُرسل تلقائياً عندما يوافق شخص عبر الموقع أو البريد. اتركه فارغاً لعدم الإرسال.
+Optional: sent automatically when somebody agrees on the website or by e-mail. Leave empty to send nothing.,اختياري: يُرسل تلقائياً عندما يوافق شخص عبر الموقع أو البريد. اتركه فارغاً لعدم الإرسال.,WhatsApp
 Or type a number,أو اكتب رقماً
 Or type a number,أو اكتب رقماً,WhatsApp
 Other,أخرى,WhatsApp
+Other numbers,أرقام أخرى
+Other numbers,أرقام أخرى,WhatsApp
 "Other staff see only the conversations assigned to them, their teams' conversations and the ones they were added to. When the list is empty everybody sees everything.",باقي الموظفين يرون فقط المحادثات المسندة لهم ومحادثات فرقهم وما أُضيفوا إليه. إذا كانت القائمة فارغة يرى الجميع كل المحادثات.
 "Other staff see only the conversations assigned to them, their teams' conversations and the ones they were added to. When the list is empty everybody sees everything.",باقي الموظفين يرون فقط المحادثات المسندة لهم ومحادثات فرقهم وما أُضيفوا إليه. إذا كانت القائمة فارغة يرى الجميع كل المحادثات.,WhatsApp
 Outside the 24-hour window,خارج نافذة الـ24 ساعة
@@ -568,19 +853,45 @@ Outside-hours reply (English),نص الرد خارج الدوام (إنجليز�
 Outside-hours reply (English),نص الرد خارج الدوام (إنجليزي),WhatsApp
 PDF file,ملف PDF
 PDF file,ملف PDF,WhatsApp
+Paper form,نموذج ورقي
+Paper form,نموذج ورقي,WhatsApp
+Pause,إيقاف مؤقت,WhatsApp
+Pause the campaign before changing its template,أوقف الحملة مؤقتاً قبل تغيير قالبها
+Pause the campaign before changing its template,أوقف الحملة مؤقتاً قبل تغيير قالبها,WhatsApp
+Pause the campaign first,أوقف الحملة مؤقتاً أولاً
+Pause the campaign first,أوقف الحملة مؤقتاً أولاً,WhatsApp
+Paused,متوقفة مؤقتاً,WhatsApp
+Paused automatically: the quality rating of the number turned red.,توقفت تلقائياً: تقييم جودة الرقم أصبح أحمر.
+Paused automatically: the quality rating of the number turned red.,توقفت تلقائياً: تقييم جودة الرقم أصبح أحمر.,WhatsApp
+Pending,قيد الانتظار,WhatsApp
 Person,الموظف
 Person,الموظف,WhatsApp
 Phone Number,رقم الهاتف,WhatsApp
+Please tick the consent box,يرجى وضع علامة الموافقة
+Please tick the consent box,يرجى وضع علامة الموافقة,WhatsApp
 Preview,معاينة,WhatsApp
+Pricing Type,نوع التسعير
+Pricing Type,نوع التسعير,WhatsApp
 Print Format,صيغة الطباعة,WhatsApp
+Print it; record the signed forms from the conversation or import them from Excel.,اطبعه؛ وسجّل النماذج الموقعة من المحادثة أو استوردها من إكسل.
+Print it; record the signed forms from the conversation or import them from Excel.,اطبعه؛ وسجّل النماذج الموقعة من المحادثة أو استوردها من إكسل.,WhatsApp
+Printable paper form (showroom),نموذج ورقي للطباعة (المعرض)
+Printable paper form (showroom),نموذج ورقي للطباعة (المعرض),WhatsApp
 Priority,الأولوية,WhatsApp
+Proof kept at: {0},الإثبات محفوظ في: {0}
+Proof kept at: {0},الإثبات محفوظ في: {0},WhatsApp
 Quality rating,تقييم الجودة
 Quality rating,تقييم الجودة,WhatsApp
+Queued,في الانتظار,WhatsApp
 Quick Replies,الردود الجاهزة
 Quick Replies,الردود الجاهزة,WhatsApp
 Quotation,عرض سعر,WhatsApp
 Quotation template,قالب عرض السعر
 Quotation template,قالب عرض السعر,WhatsApp
+REFERRAL_CONVERSION,تحويل من إعلان
+REFERRAL_CONVERSION,تحويل من إعلان,WhatsApp
+REGULAR,مدفوعة
+REGULAR,مدفوعة,WhatsApp
 Reaction,تفاعل
 Reaction,تفاعل,WhatsApp
 Read,قُرئت,WhatsApp
@@ -590,6 +901,8 @@ Read By,قرأها
 Read By,قرأها,WhatsApp
 Read by,قرأها
 Read by,قرأها,WhatsApp
+Reason,السبب,WhatsApp
+Recipients,المستلمون,WhatsApp
 Recognised automatically from the mobile number,تم التعرّف عليه تلقائياً من رقم الجوال
 Recognised automatically from the mobile number,تم التعرّف عليه تلقائياً من رقم الجوال,WhatsApp
 Record,السجل
@@ -599,6 +912,8 @@ Recorded By,سجّلها,WhatsApp
 Records the customer's general consent to WhatsApp messages (Meta policy). The appointment confirmation and reminder do not need it.,يسجّل موافقة العميل العامة على رسائل واتساب (سياسة Meta). تأكيد الموعد وتذكيره لا يحتاجانها.
 Records the customer's general consent to WhatsApp messages (Meta policy). The appointment confirmation and reminder do not need it.,يسجّل موافقة العميل العامة على رسائل واتساب (سياسة Meta). تأكيد الموعد وتذكيره لا يحتاجانها.,WhatsApp
 Refresh,تحديث,WhatsApp
+Refresh from Meta,تحديث من ميتا
+Refresh from Meta,تحديث من ميتا,WhatsApp
 Refresh number quality and templates now,تحديث جودة الرقم والقوالب الآن
 Refresh number quality and templates now,تحديث جودة الرقم والقوالب الآن,WhatsApp
 Registered,مسجّل
@@ -608,14 +923,22 @@ Reject unsigned,رفض غير الموقّع,WhatsApp
 Reminder template,قالب التذكير
 Reminder template,قالب التذكير,WhatsApp
 Remove,إزالة,WhatsApp
+Remove selected numbers,حذف الأرقام المحددة من الحملة
+Remove selected numbers,حذف الأرقام المحددة من الحملة,WhatsApp
+Removed,محذوف,WhatsApp
 Removed from team,إخراج من الفريق
 Removed from team,إخراج من الفريق,WhatsApp
 Removed from the conversation: {0},أُزيل من المحادثة: {0}
 Removed from the conversation: {0},أُزيل من المحادثة: {0},WhatsApp
+Removed from this campaign,حُذف من هذه الحملة
+Removed from this campaign,حُذف من هذه الحملة,WhatsApp
+Rename,تسمية,WhatsApp
 Reopen,إعادة فتح
 Reopen,إعادة فتح,WhatsApp
 Reopen a closed conversation when a new message arrives,إعادة فتح المحادثة المغلقة عند وصول رسالة جديدة
 Reopen a closed conversation when a new message arrives,إعادة فتح المحادثة المغلقة عند وصول رسالة جديدة,WhatsApp
+Repeated in the import,مكرر في الاستيراد
+Repeated in the import,مكرر في الاستيراد,WhatsApp
 Reply Text,نص الرد
 Reply Text,نص الرد,WhatsApp
 Reply to this message,رد على هذه الرسالة
@@ -630,6 +953,8 @@ Resend WhatsApp confirmation,إعادة إرسال تأكيد واتساب
 Resend WhatsApp confirmation,إعادة إرسال تأكيد واتساب,WhatsApp
 Response Time,متابعة سرعة الرد
 Response Time,متابعة سرعة الرد,WhatsApp
+Result,النتيجة,WhatsApp
+Resume,استئناف,WhatsApp
 Round Robin,بالتناوب
 Round Robin,بالتناوب,WhatsApp
 Round Robin: every new conversation that no team keyword matched goes to the next person in the list below.,بالتناوب: كل محادثة جديدة لم تطابق كلمات أي فريق تُسند للموظف التالي في القائمة أدناه.
@@ -638,12 +963,20 @@ Route new conversations to teams by keywords,تحويل المحادثات ال�
 Route new conversations to teams by keywords,تحويل المحادثات الجديدة للفرق حسب الكلمات المفتاحية,WhatsApp
 Routed automatically to team {0} (keyword: {1}),تحويل تلقائي إلى فريق {0} (الكلمة: {1})
 Routed automatically to team {0} (keyword: {1}),تحويل تلقائي إلى فريق {0} (الكلمة: {1}),WhatsApp
+Rules applied to every campaign (Meta policy):,قواعد تُطبَّق على كل حملة (سياسة ميتا):
+Rules applied to every campaign (Meta policy):,قواعد تُطبَّق على كل حملة (سياسة ميتا):,WhatsApp
+SERVICE,خدمة عملاء
+SERVICE,خدمة عملاء,WhatsApp
 SLA alert sent for,أُرسل تنبيه التأخر عن
 SLA alert sent for,أُرسل تنبيه التأخر عن,WhatsApp
 Sales,المبيعات,WhatsApp
 Sales Order,أمر بيع,WhatsApp
 Sales order template,قالب أمر البيع
 Sales order template,قالب أمر البيع,WhatsApp
+Same number also appears as,الرقم نفسه يظهر أيضاً باسم
+Same number also appears as,الرقم نفسه يظهر أيضاً باسم,WhatsApp
+Same number twice,الرقم مكرر
+Same number twice,الرقم مكرر,WhatsApp
 "Samples must not contain a comma (,).","الأمثلة يجب ألا تحتوي فاصلة إنجليزية (,)."
 "Samples must not contain a comma (,).","الأمثلة يجب ألا تحتوي فاصلة إنجليزية (,).",WhatsApp
 Saturday,السبت,WhatsApp
@@ -651,10 +984,15 @@ Saudi numbers like 05xxxxxxxx are converted automatically,الأرقام الس�
 Saudi numbers like 05xxxxxxxx are converted automatically,الأرقام السعودية مثل 05xxxxxxxx تُحوَّل تلقائياً,WhatsApp
 Save,حفظ,WhatsApp
 Saved,تم الحفظ,WhatsApp
+Scheduled,مجدولة,WhatsApp
+Scheduled for {0},مجدولة في {0}
+Scheduled for {0},مجدولة في {0},WhatsApp
 "Search by name, number or customer...",بحث بالاسم أو الرقم أو العميل...
 "Search by name, number or customer...",بحث بالاسم أو الرقم أو العميل...,WhatsApp
 Search for a customer / lead / contact,ابحث عن عميل / عميل محتمل / جهة اتصال
 Search for a customer / lead / contact,ابحث عن عميل / عميل محتمل / جهة اتصال,WhatsApp
+Select the records first.,حدد السجلات أولاً.
+Select the records first.,حدد السجلات أولاً.,WhatsApp
 Send,إرسال,WhatsApp
 Send WhatsApp confirmation,إرسال تأكيد واتساب
 Send WhatsApp confirmation,إرسال تأكيد واتساب,WhatsApp
@@ -668,14 +1006,23 @@ Send a template,إرسال قالب
 Send a template,إرسال قالب,WhatsApp
 Send an approved template,إرسال قالب معتمد
 Send an approved template,إرسال قالب معتمد,WhatsApp
+Send at,وقت الإرسال
+Send at,وقت الإرسال,WhatsApp
+Send the campaign to {0} number(s) {1}?,إرسال الحملة إلى {0} رقم {1}؟
+Send the campaign to {0} number(s) {1}?,إرسال الحملة إلى {0} رقم {1}؟,WhatsApp
 Send the confirmation automatically when an appointment is created or confirmed,إرسال التأكيد تلقائياً عند إنشاء الموعد أو تأكيده
 Send the confirmation automatically when an appointment is created or confirmed,إرسال التأكيد تلقائياً عند إنشاء الموعد أو تأكيده,WhatsApp
 Send the reminder before the visit (hours),إرسال التذكير قبل الزيارة بـ (ساعات)
 Send the reminder before the visit (hours),إرسال التذكير قبل الزيارة بـ (ساعات),WhatsApp
 Send via WhatsApp,إرسال عبر واتساب
 Send via WhatsApp,إرسال عبر واتساب,WhatsApp
+Send {0} e-mail(s) with a link to agree to Butler's WhatsApp messages? Records that already agreed or asked to stop are skipped.,إرسال {0} رسالة بريد برابط للموافقة على رسائل باتلر عبر واتساب؟ يُستثنى من وافق مسبقاً أو طلب الإيقاف.
+Send {0} e-mail(s) with a link to agree to Butler's WhatsApp messages? Records that already agreed or asked to stop are skipped.,إرسال {0} رسالة بريد برابط للموافقة على رسائل باتلر عبر واتساب؟ يُستثنى من وافق مسبقاً أو طلب الإيقاف.,WhatsApp
+Sending,جارٍ الإرسال,WhatsApp
 Sending PDF over WhatsApp...,جارٍ إرسال الـPDF عبر واتساب...
 Sending PDF over WhatsApp...,جارٍ إرسال الـPDF عبر واتساب...,WhatsApp
+Sending slowly protects the quality rating of the number.,الإرسال التدريجي يحمي تقييم جودة الرقم.
+Sending slowly protects the quality rating of the number.,الإرسال التدريجي يحمي تقييم جودة الرقم.,WhatsApp
 Sending the file...,جارِ إرسال الملف...
 Sending the file...,جارِ إرسال الملف...,WhatsApp
 Sending the voice message...,جارِ إرسال الرسالة الصوتية...
@@ -686,9 +1033,19 @@ Sending was limited because customers reported or blocked the number. Send less 
 Sending was limited because customers reported or blocked the number. Send less and check the number's quality.,تم تقييد الإرسال بسبب بلاغات أو حظر من العملاء. خفّف الإرسال وراجع جودة الرقم.,WhatsApp
 Sending...,جارٍ الإرسال...
 Sending...,جارٍ الإرسال...,WhatsApp
+Sending... the numbers update by themselves.,جارٍ الإرسال... تتحدث الأرقام تلقائياً.
+Sending... the numbers update by themselves.,جارٍ الإرسال... تتحدث الأرقام تلقائياً.,WhatsApp
+"Sends an approved marketing template to many customers, only to those who agreed to receive Butler's messages.",ترسل قالباً تسويقياً معتمداً لعدد من العملاء، فقط لمن وافق على استقبال رسائل باتلر.
+"Sends an approved marketing template to many customers, only to those who agreed to receive Butler's messages.",ترسل قالباً تسويقياً معتمداً لعدد من العملاء، فقط لمن وافق على استقبال رسائل باتلر.,WhatsApp
 Sent,أُرسلت,WhatsApp
+Sent At,وقت الإرسال
+Sent At,وقت الإرسال,WhatsApp
 Sent to +{0},أُرسل إلى +{0}
 Sent to +{0},أُرسل إلى +{0},WhatsApp
+Sent to review,أُرسل للمراجعة
+Sent to review,أُرسل للمراجعة,WhatsApp
+Sent to review: {0},أُرسل للمراجعة: {0}
+Sent to review: {0},أُرسل للمراجعة: {0},WhatsApp
 Sent to the team chat,أُرسل إلى دردشة الفريق
 Sent to the team chat,أُرسل إلى دردشة الفريق,WhatsApp
 Sent via WhatsApp to {0},أُرسل عبر واتساب إلى {0}
@@ -706,16 +1063,33 @@ Showroom Appointments,مواعيد زيارة المعرض
 Showroom Appointments,مواعيد زيارة المعرض,WhatsApp
 Showroom location link,رابط موقع المعرض
 Showroom location link,رابط موقع المعرض,WhatsApp
+Showroom visit,زيارة المعرض
+Showroom visit,زيارة المعرض,WhatsApp
 Signed contract or quotation,عقد أو عرض سعر موقّع
 Signed contract or quotation,عقد أو عرض سعر موقّع,WhatsApp
+Skip numbers that got a campaign in the last (days),استبعاد من وصلته حملة خلال آخر (يوم)
+Skip numbers that got a campaign in the last (days),استبعاد من وصلته حملة خلال آخر (يوم),WhatsApp
+"Slow sending, the daily messaging limit of the number is respected, and sending pauses if the quality rating turns red.",إرسال تدريجي، مع احترام حد الرسائل اليومي للرقم، وإيقاف الإرسال إذا أصبح تقييم الجودة أحمر.
+"Slow sending, the daily messaging limit of the number is respected, and sending pauses if the quality rating turns red.",إرسال تدريجي، مع احترام حد الرسائل اليومي للرقم، وإيقاف الإرسال إذا أصبح تقييم الجودة أحمر.,WhatsApp
 Slowest first reply (minutes),أبطأ أول رد (دقيقة)
 Slowest first reply (minutes),أبطأ أول رد (دقيقة),WhatsApp
+Source,المصدر,WhatsApp
 Source of the consent,مصدر الموافقة
 Source of the consent,مصدر الموافقة,WhatsApp
+Source record,السجل المصدر
+Source record,السجل المصدر,WhatsApp
 Source: {0},المصدر: {0}
 Source: {0},المصدر: {0},WhatsApp
+Staff,الموظفون,WhatsApp
+Staff (users),الموظفون (المستخدمون)
+Staff (users),الموظفون (المستخدمون),WhatsApp
+Staff Member,الموظف
+Staff Member,الموظف,WhatsApp
 Staff for automatic assignment,موظفو التوزيع التلقائي
 Staff for automatic assignment,موظفو التوزيع التلقائي,WhatsApp
+Start,بدء,WhatsApp
+Start import,بدء الاستيراد
+Start import,بدء الاستيراد,WhatsApp
 Status,الحالة,WhatsApp
 Submission Error,خطأ الإرسال
 Submission Error,خطأ الإرسال,WhatsApp
@@ -725,6 +1099,9 @@ Submitted,أُرسل للاعتماد,WhatsApp
 Submitted for approval ({0}),أُرسل للاعتماد ({0})
 Submitted for approval ({0}),أُرسل للاعتماد ({0}),WhatsApp
 Subscription,الاشتراك,WhatsApp
+Subscription page,صفحة الاشتراك
+Subscription page,صفحة الاشتراك,WhatsApp
+Summary,الملخص,WhatsApp
 Sunday,الأحد,WhatsApp
 Supervisor,مشرف
 Supervisor,مشرف,WhatsApp
@@ -765,8 +1142,12 @@ Template sent,تم إرسال القالب
 Template sent,تم إرسال القالب,WhatsApp
 Template switched off,القالب موقوف
 Template switched off,القالب موقوف,WhatsApp
+Template values,قيم القالب
+Template values,قيم القالب,WhatsApp
 Template {0} is not approved,القالب {0} غير معتمد
 Template {0} is not approved,القالب {0} غير معتمد,WhatsApp
+Template {0} is not approved by Meta,القالب {0} غير معتمد من ميتا
+Template {0} is not approved by Meta,القالب {0} غير معتمد من ميتا,WhatsApp
 Template {0} is switched off,القالب {0} موقوف
 Template {0} is switched off,القالب {0} موقوف,WhatsApp
 Template {0} must be approved and have a DOCUMENT header,القالب {0} يجب أن يكون معتمداً وبعنوان DOCUMENT
@@ -778,6 +1159,8 @@ Template: {0},قالب: {0},WhatsApp
 Templates,القوالب,WhatsApp
 "The 24-hour window has expired - a free-form message cannot be sent, use an approved template.",انتهت نافذة الـ24 ساعة — لا يمكن إرسال رسالة حرة، استخدم قالباً معتمداً.
 "The 24-hour window has expired - a free-form message cannot be sent, use an approved template.",انتهت نافذة الـ24 ساعة — لا يمكن إرسال رسالة حرة، استخدم قالباً معتمداً.,WhatsApp
+The WhatsApp number is not known yet (refresh the number quality).,رقم واتساب غير معروف بعد (حدّث جودة الرقم).
+The WhatsApp number is not known yet (refresh the number quality).,رقم واتساب غير معروف بعد (حدّث جودة الرقم).,WhatsApp
 The access token has expired or is invalid.,رمز الوصول (Token) منتهي أو غير صالح.
 The access token has expired or is invalid.,رمز الوصول (Token) منتهي أو غير صالح.,WhatsApp
 The account is locked by Meta - check Meta Business Manager.,الحساب مقفل من Meta — راجع مدير أعمال Meta.
@@ -792,10 +1175,34 @@ The business number is not registered with the Cloud API.,رقم الشركة غ
 The business number is not registered with the Cloud API.,رقم الشركة غير مسجل في Cloud API.,WhatsApp
 The button text is longer than 25 characters.,نص الزر أطول من 25 حرفاً.
 The button text is longer than 25 characters.,نص الزر أطول من 25 حرفاً.,WhatsApp
+The campaign is {0},الحملة {0}
+The campaign is {0},الحملة {0},WhatsApp
+The conversation shows the name of the linked customer / lead; this name is kept on the number.,المحادثة تعرض اسم العميل أو العميل المحتمل المرتبط؛ وهذا الاسم يُحفظ على الرقم.
+The conversation shows the name of the linked customer / lead; this name is kept on the number.,المحادثة تعرض اسم العميل أو العميل المحتمل المرتبط؛ وهذا الاسم يُحفظ على الرقم.,WhatsApp
+The customer already agreed,العميل موافق مسبقاً
+The customer already agreed,العميل موافق مسبقاً,WhatsApp
+The customer declined to receive marketing messages,رفض العميل استقبال الرسائل التسويقية
+The customer declined to receive marketing messages,رفض العميل استقبال الرسائل التسويقية,WhatsApp
 "The customer has not messaged you in the last 24 hours. Choose an approved template, or ask the customer to send any message first.",لم يراسلك العميل خلال آخر 24 ساعة. اختر قالباً معتمداً، أو اطلب من العميل إرسال أي رسالة أولاً.
 "The customer has not messaged you in the last 24 hours. Choose an approved template, or ask the customer to send any message first.",لم يراسلك العميل خلال آخر 24 ساعة. اختر قالباً معتمداً، أو اطلب من العميل إرسال أي رسالة أولاً.,WhatsApp
 The customer has not messaged you in the last 24 hours. WhatsApp only allows approved templates outside this window.,لم يراسلك العميل خلال آخر 24 ساعة. واتساب يسمح فقط بالقوالب المعتمدة خارج هذه النافذة.
 The customer has not messaged you in the last 24 hours. WhatsApp only allows approved templates outside this window.,لم يراسلك العميل خلال آخر 24 ساعة. واتساب يسمح فقط بالقوالب المعتمدة خارج هذه النافذة.,WhatsApp
+"The customer has not written in the last 24 hours, so the question cannot be sent now. Use another way to get the consent (link, QR code, paper form).",لم يراسلك العميل خلال آخر 24 ساعة، فلا يمكن إرسال السؤال الآن. استخدم طريقة أخرى للموافقة (رابط، رمز QR، نموذج ورقي).
+"The customer has not written in the last 24 hours, so the question cannot be sent now. Use another way to get the consent (link, QR code, paper form).",لم يراسلك العميل خلال آخر 24 ساعة، فلا يمكن إرسال السؤال الآن. استخدم طريقة أخرى للموافقة (رابط، رمز QR، نموذج ورقي).,WhatsApp
+The customer pressed: {0},ضغط العميل: {0}
+The customer pressed: {0},ضغط العميل: {0},WhatsApp
+The customer ticked: {0},وضع العميل علامة على: {0}
+The customer ticked: {0},وضع العميل علامة على: {0},WhatsApp
+The customer writes the number and ticks the consent box.,يكتب العميل رقمه ويضع علامة الموافقة.
+The customer writes the number and ticks the consent box.,يكتب العميل رقمه ويضع علامة الموافقة.,WhatsApp
+The customer wrote in the last 24 hours: you can send them the consent question with two buttons. Their answer is recorded by itself.,راسلك العميل خلال آخر 24 ساعة: يمكنك إرسال سؤال الموافقة بزرين، وتُسجَّل إجابته تلقائياً.
+The customer wrote in the last 24 hours: you can send them the consent question with two buttons. Their answer is recorded by itself.,راسلك العميل خلال آخر 24 ساعة: يمكنك إرسال سؤال الموافقة بزرين، وتُسجَّل إجابته تلقائياً.,WhatsApp
+The daily messaging limit of the number is reached; sending continues automatically later.,وصل الرقم إلى حد الرسائل اليومي؛ سيستمر الإرسال تلقائياً لاحقاً.
+The daily messaging limit of the number is reached; sending continues automatically later.,وصل الرقم إلى حد الرسائل اليومي؛ سيستمر الإرسال تلقائياً لاحقاً.,WhatsApp
+The file is empty,الملف فارغ
+The file is empty,الملف فارغ,WhatsApp
+The first row must contain the column titles.,يجب أن يحتوي الصف الأول على عناوين الأعمدة.
+The first row must contain the column titles.,يجب أن يحتوي الصف الأول على عناوين الأعمدة.,WhatsApp
 The floating button is hidden on this device - you can show it again from the WhatsApp page menu,أُخفي الزر العائم على هذا الجهاز — يمكنك إظهاره من قائمة صفحة واتساب
 The floating button is hidden on this device - you can show it again from the WhatsApp page menu,أُخفي الزر العائم على هذا الجهاز — يمكنك إظهاره من قائمة صفحة واتساب,WhatsApp
 The floating button is switched off in WhatsApp Inbox Settings.,الزر العائم معطّل من إعدادات صندوق واتساب.
@@ -816,14 +1223,26 @@ The number of samples ({0}) does not match the number of variables ({1}).,عدد
 The number of samples ({0}) does not match the number of variables ({1}).,عدد الأمثلة ({0}) لا يساوي عدد المتغيرات ({1}).,WhatsApp
 The number of template variables does not match the approved template.,عدد متغيرات القالب لا يطابق القالب المعتمد.
 The number of template variables does not match the approved template.,عدد متغيرات القالب لا يطابق القالب المعتمد.,WhatsApp
+The quality rating of the WhatsApp number is red. Wait until it improves before sending a campaign.,تقييم جودة رقم واتساب أحمر. انتظر حتى يتحسن قبل إرسال حملة.
+The quality rating of the WhatsApp number is red. Wait until it improves before sending a campaign.,تقييم جودة رقم واتساب أحمر. انتظر حتى يتحسن قبل إرسال حملة.,WhatsApp
+The question was sent; the answer is recorded by itself.,أُرسل السؤال؛ وستُسجَّل الإجابة تلقائياً.
+The question was sent; the answer is recorded by itself.,أُرسل السؤال؛ وستُسجَّل الإجابة تلقائياً.,WhatsApp
+The same number is written more than once with different names. Choose the right name (Use this name) or Ignore.,الرقم نفسه مكتوب أكثر من مرة بأسماء مختلفة. اختر الاسم الصحيح (استخدام هذا الاسم) أو تجاهل.
+The same number is written more than once with different names. Choose the right name (Use this name) or Ignore.,الرقم نفسه مكتوب أكثر من مرة بأسماء مختلفة. اختر الاسم الصحيح (استخدام هذا الاسم) أو تجاهل.,WhatsApp
 The template does not exist or its language is wrong.,القالب غير موجود أو لغته غير صحيحة.
 The template does not exist or its language is wrong.,القالب غير موجود أو لغته غير صحيحة.,WhatsApp
 The template does not follow Meta's rules,القالب لا يطابق قواعد Meta
 The template does not follow Meta's rules,القالب لا يطابق قواعد Meta,WhatsApp
+The template has {0} value(s): write one per line below.,في القالب {0} متغير: اكتب قيمة في كل سطر بالأسفل.
+The template has {0} value(s): write one per line below.,في القالب {0} متغير: اكتب قيمة في كل سطر بالأسفل.,WhatsApp
 The template is paused by Meta because of low quality.,القالب موقوف مؤقتاً من Meta بسبب انخفاض جودته.
 The template is paused by Meta because of low quality.,القالب موقوف مؤقتاً من Meta بسبب انخفاض جودته.,WhatsApp
 The template is permanently disabled by Meta because of repeated low quality.,القالب معطّل نهائياً من Meta بسبب تكرار انخفاض جودته.
 The template is permanently disabled by Meta because of repeated low quality.,القالب معطّل نهائياً من Meta بسبب تكرار انخفاض جودته.,WhatsApp
+"The template must tell the customer how to stop the messages, e.g. in the footer: ""لإيقاف الرسائل أرسل: إيقاف"". Create a new version of the template with this line.",يجب أن يخبر القالب العميل كيف يوقف الرسائل، مثلاً في التذييل: «لإيقاف الرسائل أرسل: إيقاف». أنشئ نسخة جديدة من القالب بهذا السطر.
+"The template must tell the customer how to stop the messages, e.g. in the footer: ""لإيقاف الرسائل أرسل: إيقاف"". Create a new version of the template with this line.",يجب أن يخبر القالب العميل كيف يوقف الرسائل، مثلاً في التذييل: «لإيقاف الرسائل أرسل: إيقاف». أنشئ نسخة جديدة من القالب بهذا السطر.,WhatsApp
+The template needs {0} value(s),القالب يحتاج {0} قيمة
+The template needs {0} value(s),القالب يحتاج {0} قيمة,WhatsApp
 The template text is empty.,نص القالب فارغ.
 The template text is empty.,نص القالب فارغ.,WhatsApp
 The template text is longer than 1024 characters.,نص القالب أطول من 1024 حرفاً.
@@ -838,6 +1257,8 @@ The text is too long after filling in the variables.,النص بعد تعبئة 
 The text is too long after filling in the variables.,النص بعد تعبئة المتغيرات أطول من المسموح.,WhatsApp
 The text may not start or end with a variable.,لا يُسمح أن يبدأ النص أو ينتهي بمتغير.
 The text may not start or end with a variable.,لا يُسمح أن يبدأ النص أو ينتهي بمتغير.,WhatsApp
+The title of the column that has the mobile numbers.,عنوان العمود الذي فيه أرقام الجوال.
+The title of the column that has the mobile numbers.,عنوان العمود الذي فيه أرقام الجوال.,WhatsApp
 The value that replaces {{1}} in:,القيمة التي تحل محل {{1}} في:
 The value that replaces {{1}} in:,القيمة التي تحل محل {{1}} في:,WhatsApp
 The variable content violates Meta's policy.,محتوى المتغيرات يخالف سياسة Meta.
@@ -870,20 +1291,44 @@ This customer asked to stop Butler's messages - a template cannot be sent.,هذ�
 "This customer asked to stop Butler's messages, so no template can be sent. If they ask to come back, record a new consent.",طلب هذا العميل إيقاف رسائل باتلر، فلا يُرسل له أي قالب. إذا طلب العودة سجّل موافقة جديدة.,WhatsApp
 "This customer asked to stop Butler's messages, so no template can be sent. You can only reply if they write to you within 24 hours, or record a new consent if they ask to come back.",هذا العميل طلب إيقاف رسائل باتلر، فلا يُرسل له أي قالب. يمكنك الرد عليه فقط إذا راسلكم هو خلال 24 ساعة، أو تسجيل موافقة جديدة إذا طلب العودة.
 "This customer asked to stop Butler's messages, so no template can be sent. You can only reply if they write to you within 24 hours, or record a new consent if they ask to come back.",هذا العميل طلب إيقاف رسائل باتلر، فلا يُرسل له أي قالب. يمكنك الرد عليه فقط إذا راسلكم هو خلال 24 ساعة، أو تسجيل موافقة جديدة إذا طلب العودة.,WhatsApp
+"This customer had asked to stop WhatsApp messages. Ask them to send ""اشتراك"" on WhatsApp, or record the new consent from the conversation.",هذا العميل طلب سابقاً إيقاف رسائل واتساب. اطلب منه إرسال «اشتراك» عبر واتساب، أو سجّل موافقته الجديدة من المحادثة.
+"This customer had asked to stop WhatsApp messages. Ask them to send ""اشتراك"" on WhatsApp, or record the new consent from the conversation.",هذا العميل طلب سابقاً إيقاف رسائل واتساب. اطلب منه إرسال «اشتراك» عبر واتساب، أو سجّل موافقته الجديدة من المحادثة.,WhatsApp
 "This draft was already sent to Meta. To change the approved template open it from Templates, or create a draft with a new name (e.g. _v2).",أُرسلت هذه المسودة إلى Meta. لتعديل القالب المعتمد افتحه من «القوالب»، أو أنشئ مسودة باسم جديد (مثل _v2).
 "This draft was already sent to Meta. To change the approved template open it from Templates, or create a draft with a new name (e.g. _v2).",أُرسلت هذه المسودة إلى Meta. لتعديل القالب المعتمد افتحه من «القوالب»، أو أنشئ مسودة باسم جديد (مثل _v2).,WhatsApp
 This draft was already sent.,أُرسلت هذه المسودة من قبل.
 This draft was already sent.,أُرسلت هذه المسودة من قبل.,WhatsApp
+This import is already running,هذا الاستيراد قيد التشغيل
+This import is already running,هذا الاستيراد قيد التشغيل,WhatsApp
+This month,هذا الشهر
+This month,هذا الشهر,WhatsApp
+This month (approximate),هذا الشهر (تقريبي)
+This month (approximate),هذا الشهر (تقريبي),WhatsApp
+"This number already exists ({0}). Choose ""Use this name"" or ""Keep existing"".",هذا الرقم موجود مسبقاً ({0}). اختر «استخدام هذا الاسم» أو «إبقاء الموجود».
+"This number already exists ({0}). Choose ""Use this name"" or ""Keep existing"".",هذا الرقم موجود مسبقاً ({0}). اختر «استخدام هذا الاسم» أو «إبقاء الموجود».,WhatsApp
+"This number is already saved with another name. Use this name to rename it, or Keep existing.",هذا الرقم محفوظ باسم آخر. اختر «استخدام هذا الاسم» لتغييره، أو «إبقاء الموجود».
+"This number is already saved with another name. Use this name to rename it, or Keep existing.",هذا الرقم محفوظ باسم آخر. اختر «استخدام هذا الاسم» لتغييره، أو «إبقاء الموجود».,WhatsApp
 This number is also registered as:,هذا الرقم مسجّل أيضاً:
 This number is also registered as:,هذا الرقم مسجّل أيضاً:,WhatsApp
+"This number never gets a campaign, whatever its consent.",هذا الرقم لا تصله أي حملة مهما كانت موافقته.
+"This number never gets a campaign, whatever its consent.",هذا الرقم لا تصله أي حملة مهما كانت موافقته.,WhatsApp
 This template has no variables,هذا القالب بلا متغيرات
 This template has no variables,هذا القالب بلا متغيرات,WhatsApp
 This template needs a file in its header,هذا القالب يحتاج ملفاً في عنوانه
 This template needs a file in its header,هذا القالب يحتاج ملفاً في عنوانه,WhatsApp
+This template needs an image / file in its header,هذا القالب يحتاج صورة / ملفاً في العنوان
+This template needs an image / file in its header,هذا القالب يحتاج صورة / ملفاً في العنوان,WhatsApp
 Thursday,الخميس,WhatsApp
+"Tick only if the customer signed the WhatsApp consent clause (Terms and Conditions ""WhatsApp Consent"") or agreed in writing. It records the consent of the document's mobile number.",ضع العلامة فقط إذا وقّع العميل بند موافقة واتساب (الشروط والأحكام «WhatsApp Consent») أو وافق كتابياً. تُسجَّل الموافقة لرقم الجوال في المستند.
+"Tick only if the customer signed the WhatsApp consent clause (Terms and Conditions ""WhatsApp Consent"") or agreed in writing. It records the consent of the document's mobile number.",ضع العلامة فقط إذا وقّع العميل بند موافقة واتساب (الشروط والأحكام «WhatsApp Consent») أو وافق كتابياً. تُسجَّل الموافقة لرقم الجوال في المستند.,WhatsApp
+Tick the numbers in the table first.,حدد الأرقام في الجدول أولاً.
+Tick the numbers in the table first.,حدد الأرقام في الجدول أولاً.,WhatsApp
+Ticked on {0} {1},عُلِّمت في {0} {1}
+Ticked on {0} {1},عُلِّمت في {0} {1},WhatsApp
 Title,العنوان,WhatsApp
 To Date,إلى تاريخ,WhatsApp
 Today,اليوم,WhatsApp
+Too many marketing messages make customers block or report the number.,كثرة الرسائل التسويقية تجعل العملاء يحظرون الرقم أو يبلغون عنه.
+Too many marketing messages make customers block or report the number.,كثرة الرسائل التسويقية تجعل العملاء يحظرون الرقم أو يبلغون عنه.,WhatsApp
 Too many messages to the same number in a short time. Wait a little before retrying.,رسائل كثيرة لنفس الرقم خلال وقت قصير. انتظر قليلاً قبل الإعادة.
 Too many messages to the same number in a short time. Wait a little before retrying.,رسائل كثيرة لنفس الرقم خلال وقت قصير. انتظر قليلاً قبل الإعادة.,WhatsApp
 Treat a customer's message to us as consent,اعتبار مراسلة العميل لنا موافقة
@@ -896,6 +1341,8 @@ Type,النوع,WhatsApp
 "Type / and the shortcut in the message box, e.g. /price",اكتب / ثم الاختصار في صندوق الكتابة، مثلاً /سعر,WhatsApp
 Type a message... ( / for quick replies ),اكتب رسالة... ( / للردود الجاهزة )
 Type a message... ( / for quick replies ),اكتب رسالة... ( / للردود الجاهزة ),WhatsApp
+UTILITY,خدمات وتحديثات
+UTILITY,خدمات وتحديثات,WhatsApp
 Unassigned,غير مسندة
 Unassigned,غير مسندة,WhatsApp
 Unknown,غير معروف,WhatsApp
@@ -912,10 +1359,19 @@ Unsupported push service,خدمة إشعارات غير مدعومة
 Unsupported push service,خدمة إشعارات غير مدعومة,WhatsApp
 Up to 25 characters.,حتى 25 حرفاً.
 Up to 25 characters.,حتى 25 حرفاً.,WhatsApp
+Updated,حُدّث,WhatsApp
+Updated from Meta,تم التحديث من ميتا
+Updated from Meta,تم التحديث من ميتا,WhatsApp
+Updated: {0},حُدّث: {0}
+Updated: {0},حُدّث: {0},WhatsApp
 Us,نحن
 Us,نحن,WhatsApp
 Usage,الاستخدام
 Usage,الاستخدام,WhatsApp
+Use an .xlsx or .csv file (save the Excel file as .xlsx).,استخدم ملف ‎.xlsx أو ‎.csv (احفظ ملف إكسل بصيغة ‎.xlsx).
+Use an .xlsx or .csv file (save the Excel file as .xlsx).,استخدم ملف ‎.xlsx أو ‎.csv (احفظ ملف إكسل بصيغة ‎.xlsx).,WhatsApp
+Use this name,استخدام هذا الاسم
+Use this name,استخدام هذا الاسم,WhatsApp
 Use {name} for the customer's name,يمكن استخدام {name} لاسم العميل
 Use {name} for the customer's name,يمكن استخدام {name} لاسم العميل,WhatsApp
 User,المستخدم,WhatsApp
@@ -960,12 +1416,20 @@ Welcome message (English),نص الترحيب (إنجليزي)
 Welcome message (English),نص الترحيب (إنجليزي),WhatsApp
 Welcome message for the first message from a new number,رسالة ترحيب لأول مراسلة من رقم جديد
 Welcome message for the first message from a new number,رسالة ترحيب لأول مراسلة من رقم جديد,WhatsApp
+Welcome template after a new consent,قالب ترحيب بعد موافقة جديدة
+Welcome template after a new consent,قالب ترحيب بعد موافقة جديدة,WhatsApp
+"What Meta charges for WhatsApp messages, per day and category (synced daily from Meta).",ما تحتسبه ميتا على رسائل واتساب يومياً وحسب الفئة (يتحدث يومياً من ميتا).
+"What Meta charges for WhatsApp messages, per day and category (synced daily from Meta).",ما تحتسبه ميتا على رسائل واتساب يومياً وحسب الفئة (يتحدث يومياً من ميتا).,WhatsApp
 WhatsApp,واتساب
 WhatsApp,واتساب,WhatsApp
 WhatsApp - drag to move,واتساب — اسحبه لتغيير مكانه
 WhatsApp - drag to move,واتساب — اسحبه لتغيير مكانه,WhatsApp
 WhatsApp Account (Meta),حساب واتساب (Meta)
 WhatsApp Account (Meta),حساب واتساب (Meta),WhatsApp
+WhatsApp Campaign,حملة واتساب
+WhatsApp Campaign,حملة واتساب,WhatsApp
+WhatsApp Campaign Recipient,مستلم حملة واتساب
+WhatsApp Campaign Recipient,مستلم حملة واتساب,WhatsApp
 WhatsApp Confirmation Sent,أُرسل تأكيد واتساب
 WhatsApp Confirmation Sent,أُرسل تأكيد واتساب,WhatsApp
 WhatsApp Consent,موافقة واتساب
@@ -976,6 +1440,10 @@ WhatsApp Contacts,جهات واتساب
 WhatsApp Contacts,جهات واتساب,WhatsApp
 WhatsApp Conversation Participant,مشارك في محادثة واتساب
 WhatsApp Conversation Participant,مشارك في محادثة واتساب,WhatsApp
+WhatsApp Cost,تكلفة واتساب
+WhatsApp Cost,تكلفة واتساب,WhatsApp
+WhatsApp Costs,تكاليف واتساب
+WhatsApp Costs,تكاليف واتساب,WhatsApp
 WhatsApp Error,خطأ واتساب
 WhatsApp Error,خطأ واتساب,WhatsApp
 WhatsApp Inbox Performance,أداء صندوق واتساب
@@ -984,6 +1452,10 @@ WhatsApp Inbox Settings,إعدادات صندوق واتساب
 WhatsApp Inbox Settings,إعدادات صندوق واتساب,WhatsApp
 WhatsApp Inbox User,مستخدم صندوق واتساب
 WhatsApp Inbox User,مستخدم صندوق واتساب,WhatsApp
+WhatsApp Number Import,استيراد أرقام واتساب
+WhatsApp Number Import,استيراد أرقام واتساب,WhatsApp
+WhatsApp Number Review,مراجعة أرقام واتساب
+WhatsApp Number Review,مراجعة أرقام واتساب,WhatsApp
 WhatsApp Push Subscription,اشتراك إشعارات واتساب
 WhatsApp Push Subscription,اشتراك إشعارات واتساب,WhatsApp
 WhatsApp Quick Reply,رد واتساب جاهز
@@ -998,6 +1470,10 @@ WhatsApp Team,فريق واتساب
 WhatsApp Team,فريق واتساب,WhatsApp
 WhatsApp Team Member,عضو فريق واتساب
 WhatsApp Team Member,عضو فريق واتساب,WhatsApp
+WhatsApp Teams,فرق واتساب
+WhatsApp Teams,فرق واتساب,WhatsApp
+WhatsApp Teams of {0},فرق واتساب لـ {0}
+WhatsApp Teams of {0},فرق واتساب لـ {0},WhatsApp
 WhatsApp Template Draft,مسودة قالب واتساب
 WhatsApp Template Draft,مسودة قالب واتساب,WhatsApp
 "WhatsApp confirmation and reminder for ERPNext Appointments. Variables: 1 customer name, 2 day and date, 3 time, 4 showroom location link. The template in the customer's language is used when an approved version exists.",تأكيد وتذكير واتساب لمواعيد ERPNext. المتغيرات: 1 اسم العميل، 2 اليوم والتاريخ، 3 الوقت، 4 رابط موقع المعرض. يُستخدم القالب بلغة العميل إذا وُجدت نسخة معتمدة بها.
@@ -1006,12 +1482,20 @@ WhatsApp confirmation sent,تم إرسال تأكيد واتساب
 WhatsApp confirmation sent,تم إرسال تأكيد واتساب,WhatsApp
 WhatsApp confirmation sent to {0},أُرسل تأكيد الموعد عبر واتساب إلى {0}
 WhatsApp confirmation sent to {0},أُرسل تأكيد الموعد عبر واتساب إلى {0},WhatsApp
+WhatsApp consent,موافقة واتساب
+WhatsApp consent,موافقة واتساب,WhatsApp
+WhatsApp consent recorded for +{0},سُجّلت موافقة واتساب للرقم +{0}
+WhatsApp consent recorded for +{0},سُجّلت موافقة واتساب للرقم +{0},WhatsApp
+"WhatsApp consent was ticked, but there is no valid mobile number on this document.",تم تعليم موافقة واتساب، لكن لا يوجد رقم جوال صالح في هذا المستند.
+"WhatsApp consent was ticked, but there is no valid mobile number on this document.",تم تعليم موافقة واتساب، لكن لا يوجد رقم جوال صالح في هذا المستند.,WhatsApp
 WhatsApp conversation assigned to you: {0},أُسندت إليك محادثة واتساب: {0}
 WhatsApp conversation assigned to you: {0},أُسندت إليك محادثة واتساب: {0},WhatsApp
 WhatsApp error,خطأ من واتساب
 WhatsApp error,خطأ من واتساب,WhatsApp
 WhatsApp error: {0},خطأ من واتساب: {0}
 WhatsApp error: {0},خطأ من واتساب: {0},WhatsApp
+"WhatsApp link (customer sends ""اشتراك"")",رابط واتساب (يرسل العميل «اشتراك»)
+"WhatsApp link (customer sends ""اشتراك"")",رابط واتساب (يرسل العميل «اشتراك»),WhatsApp
 WhatsApp notifications on this device,إشعارات واتساب على هذا الجهاز
 WhatsApp notifications on this device,إشعارات واتساب على هذا الجهاز,WhatsApp
 WhatsApp reminder sent to {0},أُرسل تذكير الموعد عبر واتساب إلى {0}
@@ -1024,16 +1508,44 @@ WhatsApp sending is not enabled for {0},الإرسال عبر واتساب غي�
 "WhatsApp template ""{0}"" was approved by Meta ✅",تم اعتماد قالب واتساب «{0}» من Meta ✅,WhatsApp
 "When a message matches the keywords of several teams, the lowest number wins.",إذا طابقت الرسالة كلمات أكثر من فريق، يُختار الفريق صاحب الرقم الأصغر.
 "When a message matches the keywords of several teams, the lowest number wins.",إذا طابقت الرسالة كلمات أكثر من فريق، يُختار الفريق صاحب الرقم الأصغر.,WhatsApp
+When the name is unknown write,عند عدم معرفة الاسم اكتب
+When the name is unknown write,عند عدم معرفة الاسم اكتب,WhatsApp
+Where the proof is kept,مكان حفظ الإثبات
+Where the proof is kept,مكان حفظ الإثبات,WhatsApp
+"Where the proof of the consent is (document, form, file).",مكان إثبات الموافقة (مستند، نموذج، ملف).
+"Where the proof of the consent is (document, form, file).",مكان إثبات الموافقة (مستند، نموذج، ملف).,WhatsApp
+Who receives it,من يستلمها
+Who receives it,من يستلمها,WhatsApp
 Whole Team,الفريق كاملاً
 Whole Team,الفريق كاملاً,WhatsApp
 Whole Team: the conversation stays with the team and the first member who replies takes it. Round Robin: it goes to the next member.,الفريق كاملاً: تبقى المحادثة للفريق ويأخذها أول عضو يرد. بالتناوب: تُسند للعضو التالي.
 Whole Team: the conversation stays with the team and the first member who replies takes it. Round Robin: it goes to the next member.,الفريق كاملاً: تبقى المحادثة للفريق ويأخذها أول عضو يرد. بالتناوب: تُسند للعضو التالي.,WhatsApp
+Will receive,سيستلمها
+Will receive,سيستلمها,WhatsApp
 "With country code, e.g. +966920012813",مع رمز الدولة، مثل +966920012813
 "With country code, e.g. +966920012813",مع رمز الدولة، مثل +966920012813,WhatsApp
+Without e-mail,بدون بريد إلكتروني
+Without e-mail,بدون بريد إلكتروني,WhatsApp
+Without mobile number,بدون رقم جوال
+Without mobile number,بدون رقم جوال,WhatsApp
+Without this the consent column is ignored.,بدون هذه العلامة يُتجاهل عمود الموافقة.
+Without this the consent column is ignored.,بدون هذه العلامة يُتجاهل عمود الموافقة.,WhatsApp
 Work ends,نهاية الدوام
 Work ends,نهاية الدوام,WhatsApp
 Work starts,بداية الدوام
 Work starts,بداية الدوام,WhatsApp
+Write a name,اكتب اسماً
+Write a name,اكتب اسماً,WhatsApp
+"Write a valid mobile number, e.g. 05XXXXXXXX",اكتب رقم جوال صالحاً، مثل 05XXXXXXXX
+"Write a valid mobile number, e.g. 05XXXXXXXX",اكتب رقم جوال صالحاً، مثل 05XXXXXXXX,WhatsApp
+"Write the number with its country code (e.g. 9665XXXXXXXX for Saudi Arabia) then choose Add, or Ignore.",اكتب الرقم مع رمز الدولة (مثل 9665XXXXXXXX للسعودية) ثم اختر إضافة، أو تجاهل.
+"Write the number with its country code (e.g. 9665XXXXXXXX for Saudi Arabia) then choose Add, or Ignore.",اكتب الرقم مع رمز الدولة (مثل 9665XXXXXXXX للسعودية) ثم اختر إضافة، أو تجاهل.,WhatsApp
+Write where the proof of the consents is kept,اكتب أين تُحفظ إثباتات الموافقات
+Write where the proof of the consents is kept,اكتب أين تُحفظ إثباتات الموافقات,WhatsApp
+"Write who agreed, when and how (Meta may ask for the proof).",اكتب من وافق ومتى وكيف (قد تطلب ميتا الإثبات).
+"Write who agreed, when and how (Meta may ask for the proof).",اكتب من وافق ومتى وكيف (قد تطلب ميتا الإثبات).,WhatsApp
+Yes / نعم / 1 = agreed. Anything else = no consent.,نعم / Yes / 1 = موافق. غير ذلك = لا توجد موافقة.
+Yes / نعم / 1 = agreed. Anything else = no consent.,نعم / Yes / 1 = موافق. غير ذلك = لا توجد موافقة.,WhatsApp
 Yesterday,أمس,WhatsApp
 You are not a member of this chat,لست عضواً في هذه الدردشة
 You are not a member of this chat,لست عضواً في هذه الدردشة,WhatsApp
@@ -1043,14 +1555,22 @@ You cannot open this conversation,لا يمكنك فتح هذه المحادثة
 You cannot open this conversation,لا يمكنك فتح هذه المحادثة,WhatsApp
 You cannot share a conversation you cannot open,لا يمكنك مشاركة محادثة لا تستطيع فتحها
 You cannot share a conversation you cannot open,لا يمكنك مشاركة محادثة لا تستطيع فتحها,WhatsApp
+at {0},في {0}
+at {0},في {0},WhatsApp
 audio,صوت
 audio,صوت,WhatsApp
 document,مستند
 document,مستند,WhatsApp
+"e.g. ""Showroom forms file 2026""",مثل «ملف نماذج المعرض 2026»
+"e.g. ""Showroom forms file 2026""",مثل «ملف نماذج المعرض 2026»,WhatsApp
+e.g. the Excel list you imported for this campaign.,مثل قائمة الإكسل التي استوردتها لهذه الحملة.
+e.g. the Excel list you imported for this campaign.,مثل قائمة الإكسل التي استوردتها لهذه الحملة.,WhatsApp
+file,ملف,WhatsApp
 image,صورة
 image,صورة,WhatsApp
 no members yet,لا أعضاء بعد
 no members yet,لا أعضاء بعد,WhatsApp
+now,الآن,WhatsApp
 the file is not available yet,الملف غير متوفر بعد
 the file is not available yet,الملف غير متوفر بعد,WhatsApp
 video,فيديو
@@ -1067,10 +1587,14 @@ video,فيديو,WhatsApp
 {0} in {1}: {2},{0} في {1}: {2},WhatsApp
 {0} is not a system user and cannot work in the WhatsApp inbox,{0} ليس مستخدم نظام ولا يستطيع العمل في صندوق واتساب
 {0} is not a system user and cannot work in the WhatsApp inbox,{0} ليس مستخدم نظام ولا يستطيع العمل في صندوق واتساب,WhatsApp
+{0} member(s) added,أُضيف {0} عضو
+{0} member(s) added,أُضيف {0} عضو,WhatsApp
 {0} mentioned you in the WhatsApp conversation {1}: {2},{0} أشار إليك في محادثة واتساب {1}: {2}
 {0} mentioned you in the WhatsApp conversation {1}: {2},{0} أشار إليك في محادثة واتساب {1}: {2},WhatsApp
 {0} min,{0} د
 {0} min,{0} د,WhatsApp
+{0} number(s) done,تم {0} رقم
+{0} number(s) done,تم {0} رقم,WhatsApp
 {0} was given the WhatsApp Agent role,أُعطي {0} دور WhatsApp Agent
 {0} was given the WhatsApp Agent role,أُعطي {0} دور WhatsApp Agent,WhatsApp
 ⏰ {0} has been waiting for a reply for {1} minutes,⏰ {0} ينتظر الرد منذ {1} دقيقة
