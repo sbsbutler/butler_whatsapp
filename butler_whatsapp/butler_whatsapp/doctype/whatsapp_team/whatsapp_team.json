@@ -1,0 +1,128 @@
+{
+ "actions": [],
+ "creation": "2026-10-12 09:00:00.000000",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "modified": "2026-10-12 09:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Butler WhatsApp",
+ "name": "WhatsApp Team",
+ "owner": "Administrator",
+ "links": [],
+ "sort_field": "priority",
+ "sort_order": "ASC",
+ "states": [],
+ "field_order": [
+  "team_name",
+  "enabled",
+  "priority",
+  "column_break_1",
+  "distribution",
+  "notify_members",
+  "last_assigned",
+  "routing_section",
+  "keywords",
+  "description",
+  "members_section",
+  "members"
+ ],
+ "fields": [
+  {
+   "fieldname": "team_name",
+   "fieldtype": "Data",
+   "label": "Team Name",
+   "reqd": 1,
+   "unique": 1,
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "enabled",
+   "fieldtype": "Check",
+   "label": "Enabled",
+   "default": "1",
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "priority",
+   "fieldtype": "Int",
+   "label": "Priority",
+   "default": "10",
+   "in_list_view": 1,
+   "description": "When a message matches the keywords of several teams, the lowest number wins."
+  },
+  {
+   "fieldname": "column_break_1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "distribution",
+   "fieldtype": "Select",
+   "label": "Distribution",
+   "options": "Whole Team\nRound Robin",
+   "default": "Whole Team",
+   "in_list_view": 1,
+   "description": "Whole Team: the conversation stays with the team and the first member who replies takes it. Round Robin: it goes to the next member."
+  },
+  {
+   "fieldname": "notify_members",
+   "fieldtype": "Check",
+   "label": "Notify members of new conversations",
+   "default": "1"
+  },
+  {
+   "fieldname": "last_assigned",
+   "fieldtype": "Link",
+   "options": "User",
+   "label": "Last Assigned",
+   "read_only": 1,
+   "hidden": 1,
+   "no_copy": 1
+  },
+  {
+   "fieldname": "routing_section",
+   "fieldtype": "Section Break",
+   "label": "Automatic Routing"
+  },
+  {
+   "fieldname": "keywords",
+   "fieldtype": "Small Text",
+   "label": "Keywords",
+   "description": "One keyword or phrase per line. A new conversation whose message contains one of them goes to this team (Arabic prefixes like ال and و are ignored)."
+  },
+  {
+   "fieldname": "description",
+   "fieldtype": "Small Text",
+   "label": "Description"
+  },
+  {
+   "fieldname": "members_section",
+   "fieldtype": "Section Break",
+   "label": "Members"
+  },
+  {
+   "fieldname": "members",
+   "fieldtype": "Table",
+   "label": "Members",
+   "options": "WhatsApp Team Member"
+  }
+ ],
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "read": 1,
+   "write": 1,
+   "export": 1,
+   "report": 1,
+   "share": 1,
+   "role": "System Manager"
+  },
+  {
+   "read": 1,
+   "role": "WhatsApp Agent"
+  }
+ ],
+ "autoname": "field:team_name",
+ "title_field": "team_name",
+ "description": "A group of staff (e.g. Sales, Maintenance) that WhatsApp conversations are routed to."
+}
