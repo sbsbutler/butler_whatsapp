@@ -3,7 +3,7 @@
  "creation": "2026-10-09 03:00:00.000000",
  "doctype": "DocType",
  "engine": "InnoDB",
- "modified": "2026-10-11 12:00:00.000000",
+ "modified": "2026-10-12 09:00:00.000000",
  "modified_by": "Administrator",
  "module": "Butler WhatsApp",
  "name": "WhatsApp Inbox Settings",
@@ -23,6 +23,8 @@
   "assign_pool",
   "last_assigned",
   "reopen_on_incoming",
+  "teams_section",
+  "team_routing",
   "ui_section",
   "show_launcher",
   "compliance_section",
@@ -33,6 +35,9 @@
   "opt_out_keywords",
   "opt_in_keywords",
   "opt_in_reply",
+  "english_texts_col",
+  "opt_out_reply_en",
+  "opt_in_reply_en",
   "documents_section",
   "quotation_template",
   "order_template",
@@ -51,15 +56,25 @@
   "work_end",
   "away_enabled",
   "away_message",
+  "away_message_en",
   "away_cooldown_hours",
   "welcome_enabled",
   "welcome_message",
+  "welcome_message_en",
   "sla_section",
   "sla_minutes",
   "sla_business_hours_only",
   "sla_col",
   "sla_notify_supervisors",
   "send_read_receipts",
+  "appointments_section",
+  "appointment_confirm_template",
+  "appointment_auto_confirm",
+  "appointment_booking_is_consent",
+  "showroom_location_url",
+  "appointments_col",
+  "appointment_reminder_template",
+  "appointment_reminder_hours",
   "health_section",
   "quality_rating",
   "messaging_limit_tier",
@@ -78,19 +93,19 @@
   {
    "fieldname": "access_section",
    "fieldtype": "Section Break",
-   "label": "الصلاحيات وتوزيع المحادثات"
+   "label": "Access and Assignment"
   },
   {
    "fieldname": "supervisors",
    "fieldtype": "Table MultiSelect",
-   "label": "المشرفون (يرون كل المحادثات)",
+   "label": "Supervisors (see every conversation)",
    "options": "WhatsApp Inbox User",
-   "description": "باقي الموظفين يرون فقط المحادثات المسندة لهم. إذا كانت القائمة فارغة يرى الجميع كل المحادثات."
+   "description": "Other staff see only the conversations assigned to them, their teams' conversations and the ones they were added to. When the list is empty everybody sees everything."
   },
   {
    "fieldname": "notify_supervisors",
    "fieldtype": "Check",
-   "label": "تنبيه المشرفين برسائل المحادثات المسندة أيضاً",
+   "label": "Also notify supervisors about assigned conversations",
    "default": "0"
   },
   {
@@ -100,66 +115,78 @@
   {
    "fieldname": "auto_assign",
    "fieldtype": "Select",
-   "label": "الإسناد التلقائي للمحادثات الجديدة",
-   "options": "\nبالتناوب",
+   "label": "Automatic assignment of new conversations",
+   "options": "\nRound Robin",
    "default": "",
-   "description": "بالتناوب: كل محادثة جديدة غير مسندة تُسند للموظف التالي في القائمة أدناه."
+   "description": "Round Robin: every new conversation that no team keyword matched goes to the next person in the list below."
   },
   {
    "fieldname": "assign_pool",
    "fieldtype": "Table MultiSelect",
-   "label": "موظفو التوزيع التلقائي",
+   "label": "Staff for automatic assignment",
    "options": "WhatsApp Inbox User",
    "depends_on": "eval:doc.auto_assign"
   },
   {
    "fieldname": "last_assigned",
    "fieldtype": "Data",
-   "label": "آخر من أُسند إليه",
+   "label": "Last assigned to",
    "read_only": 1,
    "hidden": 1
   },
   {
    "fieldname": "reopen_on_incoming",
    "fieldtype": "Check",
-   "label": "إعادة فتح المحادثة المغلقة عند وصول رسالة جديدة",
+   "label": "Reopen a closed conversation when a new message arrives",
    "default": "1"
+  },
+  {
+   "fieldname": "teams_section",
+   "fieldtype": "Section Break",
+   "label": "Teams and Routing",
+   "description": "Teams (Sales, Maintenance, Installations, Accounts...) are managed in WhatsApp Team: members, keywords and how conversations are shared."
+  },
+  {
+   "fieldname": "team_routing",
+   "fieldtype": "Check",
+   "default": "1",
+   "label": "Route new conversations to teams by keywords"
   },
   {
    "fieldname": "ui_section",
    "fieldtype": "Section Break",
-   "label": "الواجهة"
+   "label": "Interface"
   },
   {
    "fieldname": "show_launcher",
    "fieldtype": "Check",
-   "label": "إظهار زر واتساب العائم",
+   "label": "Show the floating WhatsApp button",
    "default": "1",
-   "description": "كل مستخدم يستطيع أيضاً سحب الزر لأي مكان أو إخفاءه من قائمة صفحة واتساب."
+   "description": "Every user can also drag the button anywhere or hide it from the WhatsApp page menu."
   },
   {
    "fieldname": "compliance_section",
    "fieldtype": "Section Break",
-   "label": "الالتزام بسياسة Meta (الموافقة والإيقاف)"
+   "label": "Meta Policy (Consent and Opt-out)"
   },
   {
    "fieldname": "require_opt_in",
    "fieldtype": "Check",
-   "label": "منع إرسال القوالب لمن ليس لديه موافقة مسجلة",
+   "label": "Block templates to customers without recorded consent",
    "default": "1",
-   "description": "سياسة Meta: لا تبدأ مراسلة عميل بقالب إلا بعد موافقته الواضحة على تلقي رسائل باتلر. داخل نافذة الـ24 ساعة (العميل راسلكم) الرد مسموح دائماً."
+   "description": "Meta policy: do not start a conversation with a template until the customer clearly agreed to receive Butler's messages. Inside the 24-hour window (the customer wrote to you) replying is always allowed."
   },
   {
    "fieldname": "incoming_is_opt_in",
    "fieldtype": "Check",
-   "label": "اعتبار مراسلة العميل لنا موافقة",
+   "label": "Treat a customer's message to us as consent",
    "default": "0",
-   "description": "غير مستحسن: Meta تشترط موافقة واضحة. فعّله فقط إذا كانت سياستكم أن من يراسلكم يوافق على المتابعة."
+   "description": "Not recommended: Meta requires clear consent. Enable only if your policy is that whoever writes to you agrees to follow-ups."
   },
   {
    "fieldname": "opt_out_reply",
    "fieldtype": "Small Text",
-   "label": "رد تأكيد الإيقاف",
+   "label": "Opt-out confirmation reply (Arabic)",
    "default": "تم إيقاف رسائل باتلر على هذا الرقم. للعودة أرسل كلمة: اشتراك"
   },
   {
@@ -169,38 +196,54 @@
   {
    "fieldname": "opt_out_keywords",
    "fieldtype": "Small Text",
-   "label": "كلمات الإيقاف (كل كلمة في سطر)",
+   "label": "Opt-out keywords (one per line)",
    "default": "إيقاف\nايقاف\nإلغاء الاشتراك\nالغاء الاشتراك\nSTOP\nUNSUBSCRIBE",
-   "description": "تُطابق الرسالة كاملة فقط، فرسالة مثل «أبي إيقاف الطلب» لا تُعتبر إيقافاً."
+   "description": "Matches the whole message only, so a message like \"I want to stop the order\" is not an opt-out."
   },
   {
    "fieldname": "opt_in_keywords",
    "fieldtype": "Small Text",
-   "label": "كلمات الاشتراك",
+   "label": "Opt-in keywords",
    "default": "اشتراك\nSTART"
   },
   {
    "fieldname": "opt_in_reply",
    "fieldtype": "Small Text",
-   "label": "رد تأكيد الاشتراك",
+   "label": "Opt-in confirmation reply (Arabic)",
    "default": "تم تفعيل رسائل باتلر على هذا الرقم. شكراً لك."
+  },
+  {
+   "fieldname": "english_texts_col",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "opt_out_reply_en",
+   "fieldtype": "Small Text",
+   "label": "Opt-out confirmation reply (English)",
+   "default": "Butler's messages to this number have been stopped. To receive them again, send: START"
+  },
+  {
+   "fieldname": "opt_in_reply_en",
+   "fieldtype": "Small Text",
+   "label": "Opt-in confirmation reply (English)",
+   "default": "Butler's messages are enabled for this number. Thank you."
   },
   {
    "fieldname": "documents_section",
    "fieldtype": "Section Break",
-   "label": "قوالب المستندات الافتراضية",
-   "description": "تُختار تلقائياً في نافذة «إرسال عبر واتساب» عندما يكون العميل خارج نافذة الـ24 ساعة. المتغيرات بالترتيب: 1 اسم العميل، 2 رقم المستند، 3 المبلغ، 4 تاريخ الاستحقاق."
+   "label": "Default Document Templates",
+   "description": "Chosen automatically in the \"Send via WhatsApp\" dialog when the customer is outside the 24-hour window, in the customer's language when an approved version exists. Variables in order: 1 customer name, 2 document number, 3 amount, 4 due date."
   },
   {
    "fieldname": "quotation_template",
    "fieldtype": "Link",
-   "label": "قالب عرض السعر",
+   "label": "Quotation template",
    "options": "WhatsApp Templates"
   },
   {
    "fieldname": "order_template",
    "fieldtype": "Link",
-   "label": "قالب أمر البيع",
+   "label": "Sales order template",
    "options": "WhatsApp Templates"
   },
   {
@@ -210,55 +253,55 @@
   {
    "fieldname": "invoice_template",
    "fieldtype": "Link",
-   "label": "قالب الفاتورة",
+   "label": "Invoice template",
    "options": "WhatsApp Templates"
   },
   {
    "fieldname": "hours_section",
    "fieldtype": "Section Break",
-   "label": "أوقات الدوام والرد الآلي",
+   "label": "Business Hours and Automatic Replies",
    "collapsible": 1
   },
   {
    "fieldname": "day_sun",
    "fieldtype": "Check",
-   "label": "الأحد",
+   "label": "Sunday",
    "default": "1"
   },
   {
    "fieldname": "day_mon",
    "fieldtype": "Check",
-   "label": "الاثنين",
+   "label": "Monday",
    "default": "1"
   },
   {
    "fieldname": "day_tue",
    "fieldtype": "Check",
-   "label": "الثلاثاء",
+   "label": "Tuesday",
    "default": "1"
   },
   {
    "fieldname": "day_wed",
    "fieldtype": "Check",
-   "label": "الأربعاء",
+   "label": "Wednesday",
    "default": "1"
   },
   {
    "fieldname": "day_thu",
    "fieldtype": "Check",
-   "label": "الخميس",
+   "label": "Thursday",
    "default": "1"
   },
   {
    "fieldname": "day_fri",
    "fieldtype": "Check",
-   "label": "الجمعة",
+   "label": "Friday",
    "default": "0"
   },
   {
    "fieldname": "day_sat",
    "fieldtype": "Check",
-   "label": "السبت",
+   "label": "Saturday",
    "default": "0"
   },
   {
@@ -268,65 +311,79 @@
   {
    "fieldname": "work_start",
    "fieldtype": "Time",
-   "label": "بداية الدوام",
+   "label": "Work starts",
    "default": "08:00:00"
   },
   {
    "fieldname": "work_end",
    "fieldtype": "Time",
-   "label": "نهاية الدوام",
+   "label": "Work ends",
    "default": "17:00:00"
   },
   {
    "fieldname": "away_enabled",
    "fieldtype": "Check",
-   "label": "رد آلي خارج الدوام",
+   "label": "Automatic reply outside business hours",
    "default": "0"
   },
   {
    "fieldname": "away_message",
    "fieldtype": "Small Text",
-   "label": "نص الرد خارج الدوام",
+   "label": "Outside-hours reply (Arabic)",
    "depends_on": "eval:doc.away_enabled",
    "default": "شكراً لتواصلك مع باتلر. نحن خارج أوقات الدوام الآن، وسيرد عليك فريقنا في أقرب وقت خلال الدوام."
   },
   {
+   "fieldname": "away_message_en",
+   "fieldtype": "Small Text",
+   "label": "Outside-hours reply (English)",
+   "depends_on": "eval:doc.away_enabled",
+   "default": "Thank you for contacting Butler. We are outside business hours now; our team will reply as soon as possible during working hours."
+  },
+  {
    "fieldname": "away_cooldown_hours",
    "fieldtype": "Int",
-   "label": "لا يتكرر الرد الآلي لنفس العميل خلال (ساعات)",
+   "label": "Do not repeat the automatic reply to the same customer within (hours)",
    "default": "12",
    "depends_on": "eval:doc.away_enabled"
   },
   {
    "fieldname": "welcome_enabled",
    "fieldtype": "Check",
-   "label": "رسالة ترحيب لأول مراسلة من رقم جديد",
+   "label": "Welcome message for the first message from a new number",
    "default": "0"
   },
   {
    "fieldname": "welcome_message",
    "fieldtype": "Small Text",
-   "label": "نص الترحيب",
+   "label": "Welcome message (Arabic)",
    "depends_on": "eval:doc.welcome_enabled",
    "default": "أهلاً بك في باتلر للأنظمة الذكية 👋 كيف نقدر نخدمك؟"
   },
   {
+   "fieldname": "welcome_message_en",
+   "fieldtype": "Small Text",
+   "label": "Welcome message (English)",
+   "depends_on": "eval:doc.welcome_enabled",
+   "default": "Welcome to Butler Smart Systems 👋 How can we help you?"
+  },
+  {
    "fieldname": "sla_section",
    "fieldtype": "Section Break",
-   "label": "متابعة سرعة الرد",
+   "label": "Response Time",
    "collapsible": 1
   },
   {
    "fieldname": "sla_minutes",
    "fieldtype": "Int",
-   "label": "تنبيه إذا لم يُرد على العميل خلال (دقيقة)",
+   "label": "Alert when a customer has not been answered within (minutes)",
    "default": "30",
-   "description": "0 = إيقاف التنبيه."
+   "description": "0 = no alert."
   },
   {
    "fieldname": "sla_business_hours_only",
    "fieldtype": "Check",
-   "label": "احتساب التأخير داخل الدوام فقط",
+   "label": "Count the delay during business hours only",
    "default": "1"
   },
   {
@@ -336,37 +393,85 @@
   {
    "fieldname": "sla_notify_supervisors",
    "fieldtype": "Check",
-   "label": "تنبيه المشرفين أيضاً",
+   "label": "Also alert supervisors",
    "default": "1"
   },
   {
    "fieldname": "send_read_receipts",
    "fieldtype": "Check",
-   "label": "إظهار «تمت القراءة» للعميل عند فتح المحادثة",
+   "label": "Show \"read\" to the customer when the conversation is opened",
    "default": "1"
+  },
+  {
+   "fieldname": "appointments_section",
+   "fieldtype": "Section Break",
+   "label": "Showroom Appointments",
+   "description": "WhatsApp confirmation and reminder for ERPNext Appointments. Variables: 1 customer name, 2 day and date, 3 time, 4 showroom location link. The template in the customer's language is used when an approved version exists."
+  },
+  {
+   "fieldname": "appointment_confirm_template",
+   "fieldtype": "Link",
+   "options": "WhatsApp Templates",
+   "label": "Confirmation template"
+  },
+  {
+   "fieldname": "appointment_auto_confirm",
+   "fieldtype": "Check",
+   "default": "1",
+   "label": "Send the confirmation automatically when an appointment is created or confirmed"
+  },
+  {
+   "fieldname": "appointment_booking_is_consent",
+   "fieldtype": "Check",
+   "default": "1",
+   "label": "A booked appointment counts as consent for its confirmation and reminder",
+   "description": "Only for the messages of that appointment (never marketing); a customer who opted out gets nothing. The booking page tells the customer the confirmation comes on WhatsApp."
+  },
+  {
+   "fieldname": "showroom_location_url",
+   "fieldtype": "Data",
+   "options": "URL",
+   "label": "Showroom location link",
+   "description": "Google Maps link sent as variable 4."
+  },
+  {
+   "fieldname": "appointments_col",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "appointment_reminder_template",
+   "fieldtype": "Link",
+   "options": "WhatsApp Templates",
+   "label": "Reminder template"
+  },
+  {
+   "fieldname": "appointment_reminder_hours",
+   "fieldtype": "Int",
+   "default": "24",
+   "label": "Send the reminder before the visit (hours)"
   },
   {
    "fieldname": "health_section",
    "fieldtype": "Section Break",
-   "label": "جودة الرقم وحالة القوالب (تتحدث كل ساعة)",
+   "label": "Number Quality and Template Status (updated hourly)",
    "collapsible": 1
   },
   {
    "fieldname": "quality_rating",
    "fieldtype": "Data",
-   "label": "تقييم الجودة",
+   "label": "Quality rating",
    "read_only": 1
   },
   {
    "fieldname": "messaging_limit_tier",
    "fieldtype": "Data",
-   "label": "حد الرسائل اليومي",
+   "label": "Daily messaging limit",
    "read_only": 1
   },
   {
    "fieldname": "name_status",
    "fieldtype": "Data",
-   "label": "حالة اسم العرض",
+   "label": "Display name status",
    "read_only": 1
   },
   {
@@ -376,34 +481,34 @@
   {
    "fieldname": "display_phone",
    "fieldtype": "Data",
-   "label": "الرقم",
+   "label": "Number",
    "read_only": 1
   },
   {
    "fieldname": "health_checked_at",
    "fieldtype": "Datetime",
-   "label": "آخر تحديث",
+   "label": "Last updated",
    "read_only": 1
   },
   {
    "fieldname": "health_error",
    "fieldtype": "Small Text",
-   "label": "آخر خطأ",
+   "label": "Last error",
    "read_only": 1
   },
   {
    "fieldname": "security_section",
    "fieldtype": "Section Break",
-   "label": "التحقق من مصدر الـWebhook (توقيع Meta)",
+   "label": "Webhook Source Check (Meta Signature)",
    "collapsible": 1,
-   "description": "Meta توقّع كل طلب Webhook بالـApp Secret (من إعدادات تطبيق Meta ← الإعدادات الأساسية). ابدأ بـ«تسجيل فقط» وتأكد أن آخر فحص «صحيح» ثم اختر «رفض»."
+   "description": "Meta signs every webhook request with the App Secret (Meta app > Settings > Basic). Start with \"Log only\", make sure the last check is \"Valid\", then choose \"Reject unsigned\"."
   },
   {
    "fieldname": "webhook_signature_mode",
    "fieldtype": "Select",
-   "label": "الوضع",
-   "options": "معطّل\nتسجيل فقط\nرفض غير الموقّع",
-   "default": "معطّل"
+   "label": "Mode",
+   "options": "Off\nLog only\nReject unsigned",
+   "default": "Off"
   },
   {
    "fieldname": "app_secret",
@@ -417,7 +522,7 @@
   {
    "fieldname": "signature_status",
    "fieldtype": "HTML",
-   "label": "حالة آخر فحص"
+   "label": "Last check"
   }
  ],
  "permissions": [
