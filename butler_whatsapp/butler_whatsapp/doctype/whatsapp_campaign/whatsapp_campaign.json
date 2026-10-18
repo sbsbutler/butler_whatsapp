@@ -1,0 +1,287 @@
+{
+ "actions": [],
+ "creation": "2026-10-18 20:00:00.000000",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "modified": "2026-10-18 20:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Butler WhatsApp",
+ "name": "WhatsApp Campaign",
+ "owner": "Administrator",
+ "links": [],
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": [],
+ "field_order": [
+  "title",
+  "template",
+  "template_language",
+  "column_break_1",
+  "status",
+  "send_at",
+  "per_minute",
+  "content_section",
+  "template_preview",
+  "body_values",
+  "name_fallback",
+  "header_file",
+  "audience_section",
+  "to_customers",
+  "to_leads",
+  "to_staff",
+  "to_others",
+  "column_break_2",
+  "team",
+  "number_import",
+  "skip_recent_days",
+  "summary_section",
+  "total",
+  "eligible",
+  "excluded",
+  "estimated_cost",
+  "column_break_3",
+  "sent",
+  "delivered",
+  "read_count",
+  "failed",
+  "last_error",
+  "recipients_section",
+  "recipients"
+ ],
+ "fields": [
+  {
+   "fieldname": "title",
+   "fieldtype": "Data",
+   "label": "Campaign name",
+   "reqd": 1,
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "template",
+   "fieldtype": "Link",
+   "options": "WhatsApp Templates",
+   "label": "Template",
+   "reqd": 1,
+   "description": "Only approved MARKETING templates that tell the customer how to stop the messages."
+  },
+  {
+   "fieldname": "template_language",
+   "fieldtype": "Data",
+   "label": "Language",
+   "read_only": 1,
+   "fetch_from": "template.language_code"
+  },
+  {
+   "fieldname": "column_break_1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "label": "Status",
+   "read_only": 1,
+   "no_copy": 1,
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "default": "Draft",
+   "options": "Draft\nScheduled\nSending\nPaused\nCompleted\nCancelled"
+  },
+  {
+   "fieldname": "send_at",
+   "fieldtype": "Datetime",
+   "label": "Send at",
+   "description": "Empty = start now when you press Start."
+  },
+  {
+   "fieldname": "per_minute",
+   "fieldtype": "Int",
+   "label": "Messages per minute",
+   "default": "20",
+   "description": "Sending slowly protects the quality rating of the number."
+  },
+  {
+   "fieldname": "content_section",
+   "fieldtype": "Section Break",
+   "label": "Message"
+  },
+  {
+   "fieldname": "template_preview",
+   "fieldtype": "HTML",
+   "label": "Template"
+  },
+  {
+   "fieldname": "body_values",
+   "fieldtype": "Small Text",
+   "label": "Template values",
+   "description": "One line per {{1}}, {{2}} ... of the template. Write {name} to use the customer's name."
+  },
+  {
+   "fieldname": "name_fallback",
+   "fieldtype": "Data",
+   "label": "When the name is unknown write",
+   "default": "عميلنا العزيز"
+  },
+  {
+   "fieldname": "header_file",
+   "fieldtype": "Attach",
+   "label": "Header image / file",
+   "description": "Only for templates with an image or document header."
+  },
+  {
+   "fieldname": "audience_section",
+   "fieldtype": "Section Break",
+   "label": "Who receives it"
+  },
+  {
+   "fieldname": "to_customers",
+   "fieldtype": "Check",
+   "label": "Customers",
+   "default": "1"
+  },
+  {
+   "fieldname": "to_leads",
+   "fieldtype": "Check",
+   "label": "Leads",
+   "default": "1"
+  },
+  {
+   "fieldname": "to_staff",
+   "fieldtype": "Check",
+   "label": "Staff"
+  },
+  {
+   "fieldname": "to_others",
+   "fieldtype": "Check",
+   "label": "Other numbers",
+   "default": "1",
+   "description": "Numbers that are not linked to a customer, lead or staff member."
+  },
+  {
+   "fieldname": "column_break_2",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "team",
+   "fieldtype": "Link",
+   "options": "WhatsApp Team",
+   "label": "Only conversations of team"
+  },
+  {
+   "fieldname": "number_import",
+   "fieldtype": "Link",
+   "options": "WhatsApp Number Import",
+   "label": "Only numbers of import",
+   "description": "e.g. the Excel list you imported for this campaign."
+  },
+  {
+   "fieldname": "skip_recent_days",
+   "fieldtype": "Int",
+   "label": "Skip numbers that got a campaign in the last (days)",
+   "default": "7",
+   "description": "Too many marketing messages make customers block or report the number."
+  },
+  {
+   "fieldname": "summary_section",
+   "fieldtype": "Section Break",
+   "label": "Summary"
+  },
+  {
+   "fieldname": "total",
+   "fieldtype": "Int",
+   "label": "Numbers found",
+   "read_only": 1,
+   "no_copy": 1
+  },
+  {
+   "fieldname": "eligible",
+   "fieldtype": "Int",
+   "label": "Will receive",
+   "read_only": 1,
+   "no_copy": 1,
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "excluded",
+   "fieldtype": "Int",
+   "label": "Excluded",
+   "read_only": 1,
+   "no_copy": 1
+  },
+  {
+   "fieldname": "estimated_cost",
+   "fieldtype": "Float",
+   "label": "Estimated cost",
+   "read_only": 1,
+   "no_copy": 1,
+   "precision": "2"
+  },
+  {
+   "fieldname": "column_break_3",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "sent",
+   "fieldtype": "Int",
+   "label": "Sent",
+   "read_only": 1,
+   "no_copy": 1,
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "delivered",
+   "fieldtype": "Int",
+   "label": "Delivered",
+   "read_only": 1,
+   "no_copy": 1
+  },
+  {
+   "fieldname": "read_count",
+   "fieldtype": "Int",
+   "label": "Read",
+   "read_only": 1,
+   "no_copy": 1
+  },
+  {
+   "fieldname": "failed",
+   "fieldtype": "Int",
+   "label": "Failed",
+   "read_only": 1,
+   "no_copy": 1
+  },
+  {
+   "fieldname": "last_error",
+   "fieldtype": "Small Text",
+   "label": "Note",
+   "read_only": 1,
+   "no_copy": 1
+  },
+  {
+   "fieldname": "recipients_section",
+   "fieldtype": "Section Break",
+   "label": "Recipients"
+  },
+  {
+   "fieldname": "recipients",
+   "fieldtype": "Table",
+   "options": "WhatsApp Campaign Recipient",
+   "label": "Recipients",
+   "no_copy": 1
+  }
+ ],
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "read": 1,
+   "write": 1,
+   "export": 1,
+   "report": 1,
+   "share": 1,
+   "role": "System Manager"
+  }
+ ],
+ "autoname": "format:WA-CMP-{#####}",
+ "title_field": "title",
+ "track_changes": 1,
+ "description": "Sends an approved marketing template to many customers, only to those who agreed to receive Butler's messages."
+}
