@@ -5,7 +5,8 @@
 First response time = from the first customer message of a "turn" (customer
 writes, nobody from staff has answered yet) to the first reply by a person.
 Automatic replies (sent as Administrator) are not counted as a reply.
-Times are wall-clock minutes. Non-supervisors only see their own row.
+Times are wall-clock minutes. Non-supervisors only see their own row (team
+leads see their team). Filter by team to compare the members of one team.
 """
 
 from __future__ import annotations
@@ -13,9 +14,10 @@ from __future__ import annotations
 from collections import defaultdict
 
 import frappe
+from frappe import _
 from frappe.utils import add_days, get_datetime, getdate, now_datetime, today
 
-from butler_whatsapp import access
+from butler_whatsapp import access, teams
 from butler_whatsapp.automation import SYSTEM_USERS, waiting_conversations
 
 
@@ -58,13 +60,26 @@ def execute(filters=None):
 	)
 	waiting = defaultdict(int)
 	longest = defaultdict(float)
+	team_waiting = defaultdict(int)
+	team_longest = defaultdict(float)
 	now = now_datetime()
 	for w in waiting_conversations(since=add_days(now, -3)):
-		key = w.assigned_to or ""
-		waiting[key] += 1
-		longest[key] = max(longest[key], (now - w.waiting_since).total_seconds() / 60)
+		minutes = (now - w.waiting_since).total_seconds() / 60
+		if w.assigned_to or not w.get("team"):
+			key = w.assigned_to or ""
+			waiting[key] += 1
+			longest[key] = max(longest[key], minutes)
+		else:
+			team_waiting[w.team] += 1
+			team_longest[w.team] = max(team_longest[w.team], minutes)
 
 	users = set(stats) | set(assigned) | {u for u in waiting if u}
+	if filters.team:
+		users &= set(teams.members(filters.team))
+	user_team_labels = defaultdict(list)
+	for t in teams.all_teams():
+		for m in t["members"]:
+			user_team_labels[m["user"]].append(_(t["label"]))
 	rows = []
 	for user in sorted(users, key=lambda u: frappe.utils.get_fullname(u) or u):
 		s = stats.get(user) or {"sent": 0, "replied": set(), "times": []}
@@ -73,6 +88,7 @@ def execute(filters=None):
 			{
 				"user": user,
 				"full_name": frappe.utils.get_fullname(user) or user,
+				"teams": ", ".join(user_team_labels.get(user, [])),
 				"open_assigned": assigned.get(user, 0),
 				"waiting": waiting.get(user, 0),
 				"longest_wait": round(longest.get(user, 0)),
@@ -82,26 +98,35 @@ def execute(filters=None):
 				"max_first_response": round(max(times), 1) if times else None,
 			}
 		)
-	if waiting.get(""):
-		rows.append({"user": "", "full_name": "غير مسندة", "waiting": waiting[""], "longest_wait": round(longest[""])})
+	for t in teams.all_teams():
+		if team_waiting.get(t["name"]) and (not filters.team or filters.team == t["name"]):
+			rows.append({"user": "", "full_name": _("{0} (not assigned to a person)").format(_(t["label"])),
+				"teams": _(t["label"]), "team": t["name"], "waiting": team_waiting[t["name"]],
+				"longest_wait": round(team_longest[t["name"]])})
+	if waiting.get("") and not filters.team:
+		rows.append({"user": "", "full_name": _("Unassigned"), "waiting": waiting[""], "longest_wait": round(longest[""])})
 
+	me = frappe.session.user
 	if access.restricted() and not access.is_supervisor():
-		rows = [r for r in rows if r["user"] == frappe.session.user]
+		lead_of = [t["name"] for t in teams.all_teams() if teams.is_lead(me, t["name"])]
+		visible = {me} | {u for t in lead_of for u in teams.members(t)}
+		rows = [r for r in rows if r["user"] in visible or (r.get("team") and r["team"] in teams.user_teams(me))]
 
 	return _columns(), rows, None, _chart(rows)
 
 
 def _columns():
 	return [
-		{"fieldname": "full_name", "label": "الموظف", "fieldtype": "Data", "width": 180},
-		{"fieldname": "open_assigned", "label": "محادثات مفتوحة مسندة", "fieldtype": "Int", "width": 150},
-		{"fieldname": "waiting", "label": "بانتظار الرد الآن", "fieldtype": "Int", "width": 130},
-		{"fieldname": "longest_wait", "label": "أطول انتظار حالي (دقيقة)", "fieldtype": "Int", "width": 170},
-		{"fieldname": "conversations", "label": "محادثات تم الرد فيها", "fieldtype": "Int", "width": 150},
-		{"fieldname": "sent", "label": "رسائل مرسلة", "fieldtype": "Int", "width": 110},
-		{"fieldname": "avg_first_response", "label": "متوسط أول رد (دقيقة)", "fieldtype": "Float", "width": 150},
-		{"fieldname": "max_first_response", "label": "أبطأ أول رد (دقيقة)", "fieldtype": "Float", "width": 150},
-		{"fieldname": "user", "label": "المستخدم", "fieldtype": "Link", "options": "User", "width": 160},
+		{"fieldname": "full_name", "label": _("Employee"), "fieldtype": "Data", "width": 180},
+		{"fieldname": "teams", "label": _("Teams"), "fieldtype": "Data", "width": 150},
+		{"fieldname": "open_assigned", "label": _("Open assigned conversations"), "fieldtype": "Int", "width": 150},
+		{"fieldname": "waiting", "label": _("Waiting for a reply now"), "fieldtype": "Int", "width": 130},
+		{"fieldname": "longest_wait", "label": _("Longest current wait (minutes)"), "fieldtype": "Int", "width": 170},
+		{"fieldname": "conversations", "label": _("Conversations replied to"), "fieldtype": "Int", "width": 150},
+		{"fieldname": "sent", "label": _("Messages sent"), "fieldtype": "Int", "width": 110},
+		{"fieldname": "avg_first_response", "label": _("Average first reply (minutes)"), "fieldtype": "Float", "width": 150},
+		{"fieldname": "max_first_response", "label": _("Slowest first reply (minutes)"), "fieldtype": "Float", "width": 150},
+		{"fieldname": "user", "label": _("User"), "fieldtype": "Link", "options": "User", "width": 160},
 	]
 
 
@@ -112,7 +137,7 @@ def _chart(rows):
 	return {
 		"data": {
 			"labels": [r["full_name"] for r in data],
-			"datasets": [{"name": "متوسط أول رد (دقيقة)", "values": [r["avg_first_response"] for r in data]}],
+			"datasets": [{"name": _("Average first reply (minutes)"), "values": [r["avg_first_response"] for r in data]}],
 		},
 		"type": "bar",
 		"colors": ["#25d366"],
