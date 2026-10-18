@@ -1,0 +1,56 @@
+{
+ "actions": [],
+ "creation": "2026-10-12 09:00:00.000000",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "modified": "2026-10-12 09:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Butler WhatsApp",
+ "name": "WhatsApp Staff Read",
+ "owner": "Administrator",
+ "links": [],
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": [],
+ "field_order": [
+  "user",
+  "channel",
+  "last_read"
+ ],
+ "fields": [
+  {
+   "fieldname": "user",
+   "fieldtype": "Link",
+   "options": "User",
+   "label": "User",
+   "reqd": 1,
+   "search_index": 1
+  },
+  {
+   "fieldname": "channel",
+   "fieldtype": "Data",
+   "label": "Channel",
+   "reqd": 1,
+   "search_index": 1
+  },
+  {
+   "fieldname": "last_read",
+   "fieldtype": "Datetime",
+   "label": "Last Read"
+  }
+ ],
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "read": 1,
+   "write": 1,
+   "export": 1,
+   "report": 1,
+   "share": 1,
+   "role": "System Manager"
+  }
+ ],
+ "autoname": "hash",
+ "description": "Last time a user read an internal chat."
+}
