@@ -453,9 +453,23 @@ class ButlerInbox {
 
 	// -------------------------------------------------------- header / party
 	title_of(info) {
+		// the linked customer / lead first, then the name given to the number (✏ / contact list)
 		return info.customer_name || info.lead_name ||
 			(info.contact_name && info.contact_name.replace("+", "") !== info.number ? info.contact_name : null) ||
 			info.profile_name || "+" + info.number;
+	}
+
+	rename_dialog() {
+		const info = this.info || {};
+		const current = info.contact_name && info.contact_name.replace("+", "") !== info.number ? info.contact_name : "";
+		frappe.prompt([{ fieldname: "name", fieldtype: "Data", label: __w("Name of this number"), reqd: 1,
+			default: current || info.customer_name || info.lead_name || info.profile_name || "",
+			description: (info.customer || info.lead) ? __w("The conversation shows the name of the linked customer / lead; this name is kept on the number.") : "" }],
+		async (v) => {
+			await frappe.xcall("butler_whatsapp.numbers.rename_number", { number: this.number, contact_name: v.name });
+			await this.reload_info();
+			frappe.show_alert({ indicator: "green", message: __w("Saved") });
+		}, __w("Rename"), __w("Save"));
 	}
 
 	wait_label(minutes) {
@@ -485,7 +499,13 @@ class ButlerInbox {
 				{ fieldname: "source", fieldtype: "Select", label: __w("Source of the consent"),
 					options: [{ value: "", label: "" }].concat(sources.map((s) => ({ value: s, label: __w(s) }))),
 					depends_on: `eval:doc.state=='${OPTED_IN}'`, mandatory_depends_on: `eval:doc.state=='${OPTED_IN}'` },
-				{ fieldname: "note", fieldtype: "Small Text", label: __w("Note (optional)") },
+				{ fieldname: "note", fieldtype: "Small Text", label: __w("Note (who agreed, when and how)"),
+					mandatory_depends_on: "eval:['Verbal or phone request','Other'].includes(doc.source)" },
+				{ fieldname: "ask", fieldtype: "HTML", options: (this.info && this.info.in_window && c.state !== OPTED_IN)
+					? `<div style="border-top:1px solid var(--border-color);padding-top:8px;margin-top:4px">
+						<div class="text-muted small">${__w("The customer wrote in the last 24 hours: you can send them the consent question with two buttons. Their answer is recorded by itself.")}</div>
+						<button class="btn btn-xs btn-default bwa-ask-consent">✋ ${__w("Ask the customer on WhatsApp")}</button></div>`
+					: "" },
 			],
 			primary_action_label: __w("Save"),
 			primary_action: async (v) => {
@@ -500,6 +520,12 @@ class ButlerInbox {
 			},
 		});
 		d.show();
+		d.$wrapper.find(".bwa-ask-consent").on("click", async () => {
+			const m = await frappe.xcall("butler_whatsapp.optin.ask_in_chat", { number: this.number });
+			d.hide();
+			if (m && m.name) this.upsert_message(m.name);
+			frappe.show_alert({ indicator: "green", message: __w("The question was sent; the answer is recorded by itself.") });
+		});
 	}
 
 	set_info(info) {
@@ -552,7 +578,7 @@ class ButlerInbox {
 			<div class="bwa-head-top">
 				<button class="btn btn-xs btn-default bwa-back">${this.back_label()}</button>
 				<div style="flex:1;min-width:0">
-					<div class="bwa-head-name">${esc(title)} ${closed ? `<span class="bwa-closed">${__w("Closed")}</span>` : ""}</div>
+					<div class="bwa-head-name">${esc(title)} <a href="#" class="bwa-rename" title="${__w("Rename")}">✏</a> ${closed ? `<span class="bwa-closed">${__w("Closed")}</span>` : ""}</div>
 					<div class="bwa-head-num">+${esc(info.number)}${info.profile_name && info.profile_name !== title ? ` · ${esc(info.profile_name)}` : ""}</div>
 				</div>
 				<div class="bwa-head-actions">
@@ -573,6 +599,7 @@ class ButlerInbox {
 
 		const $head = this.$chat.find(".bwa-head");
 		$head.find(".bwa-back").on("click", () => this.close_chat());
+		$head.find(".bwa-rename").on("click", (e) => { e.preventDefault(); this.rename_dialog(); });
 		$head.find("[data-act=lead]").on("click", () => this.make_lead());
 		$head.find("[data-act=customer]").on("click", () => this.make_customer());
 		$head.find("[data-act=link]").on("click", () => this.link_dialog());
@@ -1512,7 +1539,7 @@ class ButlerInbox {
 		frappe.realtime.on("butler_wa_update", (data) => {
 			refresh_list();
 			if (!this.number || data.number !== this.number) return;
-			if (data.kind === "consent") return this.reload_info();
+			if (data.kind === "consent" || data.kind === "info") return this.reload_info();
 			if (["party", "assign", "status_change"].includes(data.kind)) {
 				return this.load_messages({ keep_scroll: true }).catch(() => {
 					this.$msgs.html(`<div class="bwa-empty">${__w("This conversation is no longer assigned to you")}</div>`);
