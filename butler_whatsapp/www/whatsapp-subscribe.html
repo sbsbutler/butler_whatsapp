@@ -1,0 +1,95 @@
+{% extends "templates/web.html" %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block page_content %}
+<style>
+	.bws { max-width: 560px; margin: 24px auto; font-family: Tahoma, Arial, sans-serif; line-height: 1.9; }
+	.bws h2 { font-size: 1.4rem; margin-bottom: 4px; }
+	.bws .card { border: 1px solid #e3e3e3; border-radius: 12px; padding: 18px; margin-bottom: 16px; background: #fff; }
+	.bws .clause { background: #f2fbf0; border-radius: 8px; padding: 10px 12px; }
+	.bws .en { direction: ltr; text-align: left; color: #666; font-size: .9rem; }
+	.bws label { display: block; margin-top: 10px; font-weight: 600; }
+	.bws input[type=text], .bws input[type=tel] { width: 100%; padding: 9px; border: 1px solid #ccc; border-radius: 8px; }
+	.bws .agree { display: flex; gap: 10px; align-items: flex-start; font-weight: normal; }
+	.bws button { background: #25d366; color: #fff; border: 0; padding: 10px 22px; border-radius: 8px; margin-top: 14px; font-size: 1rem; }
+	.bws .qr svg { width: 170px; height: auto; }
+	.bws .done { display: none; text-align: center; font-size: 1.1rem; }
+	.bws .line { border-bottom: 1px solid #999; display: inline-block; min-width: 240px; height: 1.6em; }
+	@media print { .no-print { display: none !important; } .bws .card { border: 0; } }
+</style>
+<div class="bws" dir="rtl">
+{% if paper %}
+	<div class="card">
+		<h2>نموذج موافقة على استقبال رسائل واتساب — باتلر للأنظمة الذكية</h2>
+		<div class="en">WhatsApp messages consent form — Butler Smart Systems</div>
+		<p class="clause">{{ clause_ar }}</p>
+		<p class="en">{{ clause_en }}</p>
+		<p>الاسم / Name: <span class="line"></span></p>
+		<p>رقم الجوال / Mobile: <span class="line"></span></p>
+		<p>☐ أوافق / I agree &nbsp;&nbsp; التوقيع / Signature: <span class="line" style="min-width:160px"></span></p>
+		<p>التاريخ / Date: <span class="line" style="min-width:160px"></span></p>
+		{% if whatsapp_qr %}<div class="qr">{{ whatsapp_qr }}</div>
+		<div>أو امسح الرمز وأرسل كلمة «اشتراك» عبر واتساب<br><span class="en">Or scan and send "اشتراك" on WhatsApp</span></div>{% endif %}
+		<button class="no-print" onclick="window.print()">طباعة / Print</button>
+	</div>
+{% else %}
+	<div class="card" id="bws-form">
+		<h2>اشترك في رسائل باتلر عبر واتساب</h2>
+		<div class="en">Subscribe to Butler's WhatsApp messages</div>
+		<p class="clause">{{ clause_ar }}</p>
+		<p class="en">{{ clause_en }}</p>
+		<label>الاسم / Name</label>
+		<input type="text" id="bws-name" maxlength="140" value="{{ prefill_name | e }}">
+		{% if token %}
+		<label>رقم الجوال / Mobile</label>
+		<div dir="ltr" style="text-align:right">{{ masked_number | e }}</div>
+		{% else %}
+		<label>رقم الجوال / Mobile</label>
+		<input type="tel" id="bws-mobile" dir="ltr" placeholder="05XXXXXXXX" maxlength="20">
+		{% endif %}
+		<label class="agree"><input type="checkbox" id="bws-agree"> <span>نعم، أوافق على استقبال رسائل باتلر عبر واتساب.<br><span class="en">Yes, I agree to receive Butler's messages on WhatsApp.</span></span></label>
+		<button id="bws-send">إرسال الموافقة / Submit</button>
+		<div id="bws-error" style="color:#c00;margin-top:8px"></div>
+	</div>
+	<div class="card done" id="bws-done">✅ شكراً لك، تم تسجيل موافقتك.<br><span class="en">Thank you, your consent is recorded.</span><br>
+		<small>لإيقاف الرسائل في أي وقت أرسل «إيقاف» على واتساب.</small></div>
+	{% if whatsapp_link %}
+	<div class="card" style="text-align:center">
+		<div>أو افتح واتساب وأرسل كلمة «اشتراك»<br><span class="en">Or open WhatsApp and send "اشتراك"</span></div>
+		<a href="{{ whatsapp_link }}" target="_blank" rel="noopener">واتساب / WhatsApp</a>
+		{% if whatsapp_qr %}<div class="qr">{{ whatsapp_qr }}</div>{% endif %}
+	</div>
+	{% endif %}
+{% endif %}
+</div>
+{% endblock %}
+
+{% block script %}
+{% if not paper %}
+<script>
+document.getElementById("bws-send").addEventListener("click", function () {
+	var err = document.getElementById("bws-error");
+	err.textContent = "";
+	if (!document.getElementById("bws-agree").checked) { err.textContent = "يرجى وضع علامة الموافقة / Please tick the consent box"; return; }
+	var mobile = document.getElementById("bws-mobile");
+	frappe.call({
+		method: "butler_whatsapp.optin.subscribe",
+		args: {
+			full_name: document.getElementById("bws-name").value,
+			mobile: mobile ? mobile.value : "",
+			agree: 1,
+			token: "{{ token }}",
+		},
+		callback: function (r) {
+			if (r.message && r.message.ok) {
+				document.getElementById("bws-form").style.display = "none";
+				document.getElementById("bws-done").style.display = "block";
+			}
+		},
+		error: function () { err.textContent = "تعذر الإرسال، تأكد من الرقم / Could not send, check the number"; },
+	});
+});
+</script>
+{% endif %}
+{% endblock %}
