@@ -1,0 +1,177 @@
+{
+ "actions": [],
+ "creation": "2026-10-18 20:00:00.000000",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "modified": "2026-10-18 20:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Butler WhatsApp",
+ "name": "WhatsApp Number Review",
+ "owner": "Administrator",
+ "links": [],
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": [],
+ "field_order": [
+  "number",
+  "raw_number",
+  "contact_name",
+  "issue",
+  "decision",
+  "column_break_1",
+  "existing_contact",
+  "existing_name",
+  "source_doctype",
+  "source_name",
+  "number_import",
+  "other_rows",
+  "consent_section",
+  "consent",
+  "consent_source",
+  "consent_date",
+  "decided_section",
+  "decided_by",
+  "decided_at"
+ ],
+ "fields": [
+  {
+   "fieldname": "number",
+   "fieldtype": "Data",
+   "label": "Number",
+   "in_list_view": 1,
+   "search_index": 1
+  },
+  {
+   "fieldname": "raw_number",
+   "fieldtype": "Data",
+   "label": "Number as written",
+   "read_only": 1
+  },
+  {
+   "fieldname": "contact_name",
+   "fieldtype": "Data",
+   "label": "Name",
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "issue",
+   "fieldtype": "Select",
+   "label": "Issue",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "read_only": 1,
+   "options": "Repeated in the import\nNumber exists with another name\nInvalid number\nNo country code"
+  },
+  {
+   "fieldname": "decision",
+   "fieldtype": "Select",
+   "label": "Decision",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "default": "Pending",
+   "options": "Pending\nAdd\nUse this name\nKeep existing\nIgnore"
+  },
+  {
+   "fieldname": "column_break_1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "existing_contact",
+   "fieldtype": "Link",
+   "options": "WhatsApp Contact",
+   "label": "Existing WhatsApp number",
+   "read_only": 1
+  },
+  {
+   "fieldname": "existing_name",
+   "fieldtype": "Data",
+   "label": "Existing name",
+   "read_only": 1
+  },
+  {
+   "fieldname": "source_doctype",
+   "fieldtype": "Link",
+   "options": "DocType",
+   "label": "Source",
+   "read_only": 1
+  },
+  {
+   "fieldname": "source_name",
+   "fieldtype": "Dynamic Link",
+   "options": "source_doctype",
+   "label": "Source record",
+   "read_only": 1
+  },
+  {
+   "fieldname": "number_import",
+   "fieldtype": "Link",
+   "options": "WhatsApp Number Import",
+   "label": "Import",
+   "read_only": 1,
+   "in_standard_filter": 1
+  },
+  {
+   "fieldname": "other_rows",
+   "fieldtype": "Small Text",
+   "label": "Same number also appears as",
+   "read_only": 1
+  },
+  {
+   "fieldname": "consent_section",
+   "fieldtype": "Section Break",
+   "label": "Consent from the file",
+   "collapsible": 1,
+   "depends_on": "eval:doc.consent"
+  },
+  {
+   "fieldname": "consent",
+   "fieldtype": "Check",
+   "label": "Agreed in writing",
+   "read_only": 1
+  },
+  {
+   "fieldname": "consent_source",
+   "fieldtype": "Data",
+   "label": "Consent Source",
+   "read_only": 1
+  },
+  {
+   "fieldname": "consent_date",
+   "fieldtype": "Date",
+   "label": "Consent date",
+   "read_only": 1
+  },
+  {
+   "fieldname": "decided_section",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "decided_by",
+   "fieldtype": "Link",
+   "options": "User",
+   "label": "Decided By",
+   "read_only": 1
+  },
+  {
+   "fieldname": "decided_at",
+   "fieldtype": "Datetime",
+   "label": "Decided At",
+   "read_only": 1
+  }
+ ],
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "read": 1,
+   "write": 1,
+   "export": 1,
+   "report": 1,
+   "share": 1,
+   "role": "System Manager"
+  }
+ ],
+ "autoname": "hash",
+ "title_field": "contact_name",
+ "description": "Numbers the import could not add on its own: you decide what to do with each one."
+}
