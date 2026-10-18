@@ -1,0 +1,257 @@
+{
+ "actions": [],
+ "creation": "2026-10-18 20:00:00.000000",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "modified": "2026-10-18 20:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Butler WhatsApp",
+ "name": "WhatsApp Number Import",
+ "owner": "Administrator",
+ "links": [],
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": [],
+ "field_order": [
+  "title",
+  "source",
+  "status",
+  "column_break_1",
+  "from_users",
+  "from_customers",
+  "from_contacts",
+  "from_leads",
+  "excel_section",
+  "file",
+  "columns_found",
+  "column_break_2",
+  "number_column",
+  "name_column",
+  "consent_section",
+  "consent_column",
+  "consent_source",
+  "consent_date_column",
+  "column_break_3",
+  "consent_confirmed",
+  "consent_evidence",
+  "result_section",
+  "total_rows",
+  "added",
+  "updated",
+  "column_break_4",
+  "to_review",
+  "unchanged",
+  "consents",
+  "log"
+ ],
+ "fields": [
+  {
+   "fieldname": "title",
+   "fieldtype": "Data",
+   "label": "Title",
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "source",
+   "fieldtype": "Select",
+   "label": "Source",
+   "options": "ERPNext\nExcel",
+   "default": "ERPNext",
+   "reqd": 1,
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "label": "Status",
+   "options": "Draft\nQueued\nDone\nFailed",
+   "default": "Draft",
+   "read_only": 1,
+   "in_list_view": 1,
+   "no_copy": 1
+  },
+  {
+   "fieldname": "column_break_1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "from_users",
+   "fieldtype": "Check",
+   "label": "Staff (users)",
+   "default": "1",
+   "depends_on": "eval:doc.source=='ERPNext'"
+  },
+  {
+   "fieldname": "from_customers",
+   "fieldtype": "Check",
+   "label": "Customers",
+   "default": "1",
+   "depends_on": "eval:doc.source=='ERPNext'"
+  },
+  {
+   "fieldname": "from_contacts",
+   "fieldtype": "Check",
+   "label": "Contacts",
+   "default": "1",
+   "depends_on": "eval:doc.source=='ERPNext'"
+  },
+  {
+   "fieldname": "from_leads",
+   "fieldtype": "Check",
+   "label": "Leads",
+   "default": "1",
+   "depends_on": "eval:doc.source=='ERPNext'"
+  },
+  {
+   "fieldname": "excel_section",
+   "fieldtype": "Section Break",
+   "label": "Excel / CSV File",
+   "depends_on": "eval:doc.source=='Excel'"
+  },
+  {
+   "fieldname": "file",
+   "fieldtype": "Attach",
+   "label": "File (.xlsx or .csv)",
+   "description": "The first row must contain the column titles."
+  },
+  {
+   "fieldname": "columns_found",
+   "fieldtype": "Small Text",
+   "label": "Columns in the file",
+   "read_only": 1,
+   "no_copy": 1
+  },
+  {
+   "fieldname": "column_break_2",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "number_column",
+   "fieldtype": "Data",
+   "label": "Number column",
+   "description": "The title of the column that has the mobile numbers."
+  },
+  {
+   "fieldname": "name_column",
+   "fieldtype": "Data",
+   "label": "Name column"
+  },
+  {
+   "fieldname": "consent_section",
+   "fieldtype": "Section Break",
+   "label": "Consent in the file (optional)",
+   "depends_on": "eval:doc.source=='Excel'",
+   "collapsible": 1,
+   "description": "Only fill this if the file records people who agreed in writing (paper form, website, contract) to receive WhatsApp messages from Butler. Meta asks for proof of every consent."
+  },
+  {
+   "fieldname": "consent_column",
+   "fieldtype": "Data",
+   "label": "Consent column",
+   "description": "Yes / نعم / 1 = agreed. Anything else = no consent."
+  },
+  {
+   "fieldname": "consent_source",
+   "fieldtype": "Select",
+   "label": "How they agreed",
+   "options": "\nPaper form\nWebsite form\nSigned contract or quotation\nEmail confirmation\nShowroom visit\nOther"
+  },
+  {
+   "fieldname": "consent_date_column",
+   "fieldtype": "Data",
+   "label": "Consent date column"
+  },
+  {
+   "fieldname": "column_break_3",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "consent_confirmed",
+   "fieldtype": "Check",
+   "label": "I confirm these people agreed in writing to receive WhatsApp messages from Butler, and the proof is kept",
+   "description": "Without this the consent column is ignored."
+  },
+  {
+   "fieldname": "consent_evidence",
+   "fieldtype": "Data",
+   "label": "Where the proof is kept",
+   "description": "e.g. \"Showroom forms file 2026\""
+  },
+  {
+   "fieldname": "result_section",
+   "fieldtype": "Section Break",
+   "label": "Result"
+  },
+  {
+   "fieldname": "total_rows",
+   "fieldtype": "Int",
+   "label": "Numbers read",
+   "read_only": 1,
+   "no_copy": 1
+  },
+  {
+   "fieldname": "added",
+   "fieldtype": "Int",
+   "label": "Added",
+   "read_only": 1,
+   "no_copy": 1,
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "updated",
+   "fieldtype": "Int",
+   "label": "Updated",
+   "read_only": 1,
+   "no_copy": 1
+  },
+  {
+   "fieldname": "column_break_4",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "to_review",
+   "fieldtype": "Int",
+   "label": "Sent to review",
+   "read_only": 1,
+   "no_copy": 1,
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "unchanged",
+   "fieldtype": "Int",
+   "label": "Already up to date",
+   "read_only": 1,
+   "no_copy": 1
+  },
+  {
+   "fieldname": "consents",
+   "fieldtype": "Int",
+   "label": "Consents recorded",
+   "read_only": 1,
+   "no_copy": 1
+  },
+  {
+   "fieldname": "log",
+   "fieldtype": "Long Text",
+   "label": "Log",
+   "read_only": 1,
+   "no_copy": 1
+  }
+ ],
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "read": 1,
+   "write": 1,
+   "export": 1,
+   "report": 1,
+   "share": 1,
+   "role": "System Manager"
+  }
+ ],
+ "autoname": "format:WA-IMP-{#####}",
+ "title_field": "title",
+ "track_changes": 1,
+ "description": "Brings mobile numbers into WhatsApp from ERPNext (staff, customers, contacts, leads) or from an Excel / CSV file."
+}
