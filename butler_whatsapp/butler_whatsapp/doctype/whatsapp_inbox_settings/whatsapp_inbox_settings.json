@@ -3,7 +3,7 @@
  "creation": "2026-10-09 03:00:00.000000",
  "doctype": "DocType",
  "engine": "InnoDB",
- "modified": "2026-10-12 09:00:00.000000",
+ "modified": "2026-10-18 20:00:00.000000",
  "modified_by": "Administrator",
  "module": "Butler WhatsApp",
  "name": "WhatsApp Inbox Settings",
@@ -83,6 +83,19 @@
   "display_phone",
   "health_checked_at",
   "health_error",
+  "consent_section",
+  "consent_links_html",
+  "consent_col",
+  "consent_welcome_template",
+  "campaign_section",
+  "campaign_rules",
+  "billing_section",
+  "billing_overview",
+  "billing_col",
+  "billing_month_cost",
+  "billing_currency",
+  "billing_synced_at",
+  "billing_error",
   "security_section",
   "webhook_signature_mode",
   "app_secret",
@@ -495,6 +508,82 @@
    "fieldtype": "Small Text",
    "label": "Last error",
    "read_only": 1
+  },
+  {
+   "fieldname": "consent_section",
+   "fieldtype": "Section Break",
+   "label": "Collecting Consent",
+   "collapsible": 1,
+   "description": "Meta allows marketing messages only to people who agreed to receive messages from Butler. Share these links / QR codes (website, social media, showroom, invoices) so customers can agree."
+  },
+  {
+   "fieldname": "consent_links_html",
+   "fieldtype": "HTML",
+   "label": "Consent links"
+  },
+  {
+   "fieldname": "consent_col",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "consent_welcome_template",
+   "fieldtype": "Link",
+   "options": "WhatsApp Templates",
+   "label": "Welcome template after a new consent",
+   "description": "Optional: sent automatically when somebody agrees on the website or by e-mail. Leave empty to send nothing."
+  },
+  {
+   "fieldname": "campaign_section",
+   "fieldtype": "Section Break",
+   "label": "Campaigns",
+   "collapsible": 1
+  },
+  {
+   "fieldname": "campaign_rules",
+   "fieldtype": "HTML",
+   "label": "Campaign rules",
+   "options": "<div class=\"text-muted small\" style=\"line-height:1.9\"></div>"
+  },
+  {
+   "fieldname": "billing_section",
+   "fieldtype": "Section Break",
+   "label": "Meta Costs",
+   "collapsible": 1
+  },
+  {
+   "fieldname": "billing_overview",
+   "fieldtype": "HTML",
+   "label": "Costs"
+  },
+  {
+   "fieldname": "billing_col",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "billing_month_cost",
+   "fieldtype": "Float",
+   "label": "This month (approximate)",
+   "read_only": 1,
+   "precision": "2"
+  },
+  {
+   "fieldname": "billing_currency",
+   "fieldtype": "Data",
+   "label": "Currency",
+   "read_only": 1
+  },
+  {
+   "fieldname": "billing_synced_at",
+   "fieldtype": "Datetime",
+   "label": "Last update from Meta",
+   "read_only": 1
+  },
+  {
+   "fieldname": "billing_error",
+   "fieldtype": "Small Text",
+   "label": "Last error",
+   "read_only": 1,
+   "depends_on": "eval:doc.billing_error"
   },
   {
    "fieldname": "security_section",
