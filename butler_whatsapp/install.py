@@ -164,6 +164,62 @@ def ensure_whatsapp_inbox():
 				"read_only": 1,
 			},
 			{
+				"fieldname": "butler_consent_ref",
+				"fieldtype": "Data",
+				"label": "Consent Proof",
+				"insert_after": "butler_consent_by",
+				"read_only": 1,
+				"description": "Where the proof of the consent is (document, form, file).",
+			},
+			{
+				"fieldname": "butler_dnc",
+				"fieldtype": "Check",
+				"label": "Never send campaigns",
+				"insert_after": "butler_consent_ref",
+				"in_standard_filter": 1,
+				"description": "This number never gets a campaign, whatever its consent.",
+			},
+			{
+				"fieldname": "butler_user",
+				"fieldtype": "Link",
+				"options": "User",
+				"label": "Staff Member",
+				"insert_after": "butler_lead",
+			},
+			{
+				"fieldname": "butler_source",
+				"fieldtype": "Data",
+				"label": "Number Source",
+				"insert_after": "butler_dnc",
+				"read_only": 1,
+			},
+			{
+				"fieldname": "butler_import",
+				"fieldtype": "Link",
+				"options": "WhatsApp Number Import",
+				"label": "Last Import",
+				"insert_after": "butler_source",
+				"read_only": 1,
+				"search_index": 1,
+			},
+			{
+				"fieldname": "butler_last_campaign",
+				"fieldtype": "Datetime",
+				"label": "Last Campaign",
+				"insert_after": "butler_import",
+				"read_only": 1,
+			},
+			{
+				"fieldname": "butler_consent_token",
+				"fieldtype": "Data",
+				"label": "Consent link token",
+				"insert_after": "butler_last_campaign",
+				"read_only": 1,
+				"hidden": 1,
+				"no_copy": 1,
+				"search_index": 1,
+			},
+			{
 				"fieldname": "butler_last_auto_reply",
 				"fieldtype": "Datetime",
 				"label": "Last automatic reply",
@@ -227,8 +283,24 @@ def ensure_whatsapp_inbox():
 				"depends_on": "eval:doc.butler_wa_error",
 			},
 		]
+	for doctype, after in CONSENT_DOCS.items():
+		if frappe.db.exists("DocType", doctype):
+			fields[doctype] = [
+				{
+					"fieldname": "butler_wa_consent",
+					"fieldtype": "Check",
+					"label": "Customer agreed in writing to receive WhatsApp messages from Butler",
+					"insert_after": after,
+					"allow_on_submit": 1,
+					"no_copy": 1,
+					"print_hide": 1,
+					"description": "Tick only if the customer signed the WhatsApp consent clause (Terms and Conditions \"WhatsApp Consent\") or agreed in writing. It records the consent of the document's mobile number.",
+				}
+			]
 	create_custom_fields(fields, ignore_validate=True)
 	_migrate_legacy_values()
+	_contact_list_view()
+	_consent_terms()
 
 	if first_time:
 		# History before the inbox existed counts as read (no flood of "unread").
@@ -260,6 +332,58 @@ def ensure_whatsapp_inbox():
 	make_existing_attachments_private()
 	remove_existing_duplicates()
 	repair_attachment_urls()
+
+
+CONSENT_DOCS = {
+	"Quotation": "tc_name",
+	"Sales Order": "tc_name",
+	"Sales Invoice": "tc_name",
+	"Customer": "mobile_no",
+	"Lead": "mobile_no",
+	"Contract": "party_name",
+}
+
+
+def _contact_list_view():
+	"""WhatsApp Contact shows the name and the number (not a random id), both searchable."""
+	from frappe.custom.doctype.property_setter.property_setter import make_property_setter
+
+	dt = "WhatsApp Contact"
+	if not frappe.db.exists("DocType", dt):
+		return
+	for prop, value, ptype in (
+		("title_field", "contact_name", "Data"),
+		("show_title_field_in_link", "1", "Check"),
+		("search_fields", "mobile_no,contact_name", "Data"),
+	):
+		make_property_setter(dt, None, prop, value, ptype, for_doctype=True, validate_fields_for_doctype=False)
+	for field, prop, value in (
+		("contact_name", "in_list_view", "1"),
+		("contact_name", "in_standard_filter", "1"),
+		("mobile_no", "in_list_view", "1"),
+		("mobile_no", "in_standard_filter", "1"),
+		("mobile_no", "bold", "1"),
+	):
+		make_property_setter(dt, field, prop, value, "Check" if value in ("0", "1") else "Data",
+			validate_fields_for_doctype=False)
+	frappe.clear_cache(doctype=dt)
+
+
+def _consent_terms():
+	"""Ready-made consent clause to add to quotations and contracts."""
+	if not frappe.db.exists("DocType", "Terms and Conditions") or frappe.db.exists("Terms and Conditions", "WhatsApp Consent"):
+		return
+	from butler_whatsapp.optin import CLAUSE_AR, CLAUSE_EN
+
+	doc = frappe.get_doc({
+		"doctype": "Terms and Conditions",
+		"title": "WhatsApp Consent",
+		"terms": f"<p dir=\"rtl\">{CLAUSE_AR}</p><p>{CLAUSE_EN}</p><p>☐ أوافق / I agree — التوقيع / Signature: ____________</p>",
+	})
+	for field in ("selling", "buying", "hr"):
+		if doc.meta.has_field(field):
+			doc.set(field, 1 if field == "selling" else 0)
+	doc.insert(ignore_permissions=True)
 
 
 def _ensure_agent_permissions():

@@ -213,3 +213,54 @@ def teams_for_context() -> list[dict]:
 		 "leads": [m["user"] for m in t["members"] if m["is_lead"]]}
 		for t in all_teams()
 	]
+
+
+# ---------------------------------------------------------- managing members
+
+
+def _team_users(team: str) -> list[str]:
+	return frappe.get_all(MEMBER, filters={"parent": team, "parenttype": TEAM}, pluck="user")
+
+
+@frappe.whitelist(methods=["POST"])
+def add_members(team: str, users: str | list) -> list[str]:
+	"""Add several users to a team at once (team form / user form)."""
+	frappe.has_permission(TEAM, "write", team, throw=True)
+	users = frappe.parse_json(users) if isinstance(users, str) else users
+	doc = frappe.get_doc(TEAM, team)
+	have = {m.user for m in doc.members}
+	added = []
+	for user in users or []:
+		if user in have or not frappe.db.exists("User", {"name": user, "enabled": 1}):
+			continue
+		doc.append("members", {"user": user})
+		added.append(user)
+	if added:
+		doc.save()
+	return added
+
+
+@frappe.whitelist()
+def get_user_teams(user: str) -> list[dict]:
+	frappe.has_permission(TEAM, "read", throw=True)
+	return [
+		{"team": t.name, "label": _(t.name), "member": user in set(_team_users(t.name))}
+		for t in frappe.get_all(TEAM, fields=["name"], order_by="priority asc")
+	]
+
+
+@frappe.whitelist(methods=["POST"])
+def set_user_teams(user: str, teams: str | list) -> list[str]:
+	"""Make the user a member of exactly these teams (user form)."""
+	teams = set(frappe.parse_json(teams) if isinstance(teams, str) else (teams or []))
+	for name in frappe.get_all(TEAM, pluck="name"):
+		frappe.has_permission(TEAM, "write", name, throw=True)
+		doc = frappe.get_doc(TEAM, name)
+		rows = [m for m in doc.members if m.user == user]
+		if name in teams and not rows:
+			doc.append("members", {"user": user})
+			doc.save()
+		elif name not in teams and rows:
+			doc.set("members", [m for m in doc.members if m.user != user])
+			doc.save()
+	return sorted(teams)

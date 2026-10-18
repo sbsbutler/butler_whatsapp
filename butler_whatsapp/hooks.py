@@ -24,6 +24,9 @@ after_migrate = "butler_whatsapp.install.after_migrate"
 # A bundle so every deploy gets a new hashed URL (no stale browser cache).
 app_include_js = ["butler_whatsapp.bundle.js"]
 
+CONSENT = "butler_whatsapp.optin.on_document_consent"
+NUMBERS = "butler_whatsapp.numbers.on_record_update"
+
 doc_events = {
 	"WhatsApp Message": {
 		# live inbox updates + phone/desktop notifications (realtime.py, push.py)
@@ -35,10 +38,22 @@ doc_events = {
 	"Appointment": {
 		"on_update": "butler_whatsapp.appointments.on_update",
 	},
+	# "customer agreed in writing" box -> WhatsApp consent (optin.py)
+	"Quotation": {"on_submit": CONSENT, "on_update_after_submit": CONSENT},
+	"Sales Order": {"on_submit": CONSENT, "on_update_after_submit": CONSENT},
+	"Sales Invoice": {"on_submit": CONSENT, "on_update_after_submit": CONSENT},
+	"Contract": {"on_update": CONSENT},
+	# new / changed mobile numbers -> WhatsApp numbers (numbers.py)
+	"Customer": {"on_update": [CONSENT, NUMBERS]},
+	"Lead": {"on_update": [CONSENT, NUMBERS]},
+	"Contact": {"on_update": NUMBERS},
+	"User": {"on_update": NUMBERS},
 }
 
-# "Send WhatsApp confirmation" button on the Appointment form
-doctype_js = {"Appointment": "public/js/appointment.js"}
+# "Send WhatsApp confirmation" button on the Appointment form, WhatsApp teams on the User form
+doctype_js = {"Appointment": "public/js/appointment.js", "User": "public/js/user.js"}
+# "Ask for WhatsApp consent by e-mail" on the Customer / Lead lists
+doctype_list_js = {"Customer": "public/js/consent_list.js", "Lead": "public/js/consent_list.js"}
 
 # online booking page (/book_appointment): "the confirmation comes on WhatsApp" note
 web_include_js = ["/assets/butler_whatsapp/js/book_appointment.js"]
@@ -72,8 +87,12 @@ scheduler_events = {
 		# showroom visit reminders (appointments.py)
 		"butler_whatsapp.appointments.send_reminders",
 	],
+	# what Meta charges (billing.py)
+	"daily": ["butler_whatsapp.billing.sync_costs"],
 	"cron": {
 		# customers waiting too long for a reply
 		"*/10 * * * *": ["butler_whatsapp.automation.check_sla"],
+		# campaigns: next batch of messages (campaigns.py)
+		"* * * * *": ["butler_whatsapp.campaigns.process_campaigns"],
 	},
 }
