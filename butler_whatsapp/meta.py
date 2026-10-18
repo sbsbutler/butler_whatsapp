@@ -26,45 +26,50 @@ class WhatsAppError(Exception):
 		self.code = code
 
 
-# Meta error codes we explain to staff in Arabic (anything else shows Meta's own text).
+# Meta error codes we explain to staff (anything else shows Meta's own text).
+# English source strings; callers translate them with frappe._ through `tr`.
 ERROR_HINTS = {
-	131047: "انتهت نافذة الـ24 ساعة — لا يمكن إرسال رسالة حرة، استخدم قالباً معتمداً.",
-	131026: "تعذّر التسليم: الرقم غير مسجل في واتساب، أو تطبيق العميل قديم، أو لم يقبل شروط واتساب.",
-	131049: "لم تُسلَّم: Meta حدّت عدد الرسائل التسويقية لهذا العميل مؤقتاً. لا تُعِد الإرسال الآن.",
-	131048: "تم تقييد الإرسال بسبب بلاغات أو حظر من العملاء. خفّف الإرسال وراجع جودة الرقم.",
-	131056: "رسائل كثيرة لنفس الرقم خلال وقت قصير. انتظر قليلاً قبل الإعادة.",
-	131051: "نوع الرسالة غير مدعوم.",
-	131052: "تعذّر تنزيل الوسائط المرسلة من العميل.",
-	131053: "تعذّر رفع الملف إلى واتساب (النوع أو الحجم غير مدعوم).",
-	131031: "الحساب مقفل من Meta — راجع مدير أعمال Meta.",
-	131000: "خطأ عام من واتساب، حاول لاحقاً.",
-	130472: "الرقم ضمن تجربة من Meta ولم تُسلَّم الرسالة التسويقية.",
-	132000: "عدد متغيرات القالب لا يطابق القالب المعتمد.",
-	132001: "القالب غير موجود أو لغته غير صحيحة.",
-	132005: "النص بعد تعبئة المتغيرات أطول من المسموح.",
-	132007: "محتوى المتغيرات يخالف سياسة Meta.",
-	132012: "صيغة متغيرات القالب غير صحيحة.",
-	132015: "القالب موقوف مؤقتاً من Meta بسبب انخفاض جودته.",
-	132016: "القالب معطّل نهائياً من Meta بسبب تكرار انخفاض جودته.",
-	133010: "رقم الشركة غير مسجل في Cloud API.",
-	368: "الحساب محظور مؤقتاً بسبب مخالفة سياسات Meta.",
-	190: "رمز الوصول (Token) منتهي أو غير صالح.",
+	131047: "The 24-hour window has expired - a free-form message cannot be sent, use an approved template.",
+	131026: "Not delivered: the number is not on WhatsApp, the customer's app is outdated, or they have not accepted WhatsApp's terms.",
+	131049: "Not delivered: Meta is temporarily limiting marketing messages to this customer. Do not resend now.",
+	131048: "Sending was limited because customers reported or blocked the number. Send less and check the number's quality.",
+	131056: "Too many messages to the same number in a short time. Wait a little before retrying.",
+	131051: "Unsupported message type.",
+	131052: "Could not download the media sent by the customer.",
+	131053: "Could not upload the file to WhatsApp (type or size not supported).",
+	131031: "The account is locked by Meta - check Meta Business Manager.",
+	131000: "Generic WhatsApp error, try again later.",
+	130472: "The number is part of a Meta experiment and the marketing message was not delivered.",
+	132000: "The number of template variables does not match the approved template.",
+	132001: "The template does not exist or its language is wrong.",
+	132005: "The text is too long after filling in the variables.",
+	132007: "The variable content violates Meta's policy.",
+	132012: "The template variable format is wrong.",
+	132015: "The template is paused by Meta because of low quality.",
+	132016: "The template is permanently disabled by Meta because of repeated low quality.",
+	133010: "The business number is not registered with the Cloud API.",
+	368: "The account is temporarily blocked for violating Meta's policies.",
+	190: "The access token has expired or is invalid.",
 }
 
 
-def explain_error(code, title: str | None = None, details: str | None = None) -> str:
-	"""Arabic explanation for a Meta error, falling back to Meta's text."""
+def _same(text: str) -> str:
+	return text
+
+
+def explain_error(code, title: str | None = None, details: str | None = None, tr=_same) -> str:
+	"""Explanation for a Meta error (translated with `tr`), falling back to Meta's text."""
 	try:
 		code = int(code) if code is not None else None
 	except (TypeError, ValueError):
 		code = None
 	hint = ERROR_HINTS.get(code) if code is not None else None
-	meta_text = " — ".join(x for x in (title, details) if x)
+	meta_text = " - ".join(x for x in (title, details) if x)
 	if hint:
-		return f"{hint} (#{code})"
+		return f"{tr(hint)} (#{code})"
 	if meta_text:
 		return f"{meta_text} (#{code})" if code is not None else meta_text
-	return f"خطأ من واتساب (#{code})" if code is not None else "خطأ من واتساب"
+	return f"{tr('WhatsApp error')} (#{code})" if code is not None else tr("WhatsApp error")
 
 
 def errors_for_message(payload: dict, message_id: str) -> list[dict]:
@@ -91,7 +96,7 @@ def webhook_signature_ok(secret: str, body: bytes, header: str | None) -> bool:
 
 # ------------------------------------------------------------- opt-out keywords
 
-_PUNCT = re.compile(r"[\s\.\!\?،؛,;:\-_ـ\u064B-\u0652]+")
+_PUNCT = re.compile(r"[\s\.\!\?؟«»،؛,;:\-_ـ\u064B-\u0652]+")
 
 
 def normalize_keyword(text: str | None) -> str:
@@ -110,6 +115,44 @@ def matches_keyword(text: str | None, keywords: list[str]) -> bool:
 	"""Whole-message match only, so 'أبي إيقاف الطلب' is NOT an opt-out."""
 	t = normalize_keyword(text)
 	return bool(t) and t in keywords
+
+
+_PREFIXES = ("وال", "بال", "لل", "ال", "و", "ب", "ل", "ف")
+_WORDS = re.compile(r"[\s\.\!\?؟،؛,;:\-_ـ()\[\]\"'/«»…]+")
+
+
+def _tokens(text: str | None) -> list[str]:
+	t = unicodedata.normalize("NFKC", str(text or "")).casefold()
+	t = re.sub(r"[\u064B-\u0652]", "", t)
+	t = t.translate(str.maketrans({"أ": "ا", "إ": "ا", "آ": "ا", "ى": "ي", "ة": "ه"}))
+	return [w for w in _WORDS.split(t) if w]
+
+
+def _strip_prefix(word: str) -> list[str]:
+	forms = [word]
+	for p in _PREFIXES:
+		if word.startswith(p) and len(word) - len(p) >= 2:
+			forms.append(word[len(p):])
+	return forms
+
+
+def contains_keyword(text: str | None, keywords_raw: str | None) -> str | None:
+	"""First keyword (one per line or comma separated, may be several words)
+	found as whole words anywhere in the text. Arabic prefixes like ال / و / ب
+	are ignored, so 'الصيانة' matches 'صيانة'. Returns the matched keyword."""
+	words = _tokens(text)
+	if not words:
+		return None
+	variants = [set(_strip_prefix(w)) for w in words]
+	for raw in re.split(r"[\n,،]+", keywords_raw or ""):
+		kw = _tokens(raw)
+		if not kw:
+			continue
+		n = len(kw)
+		for i in range(len(words) - n + 1):
+			if all(kw[j] in variants[i + j] for j in range(n)):
+				return raw.strip()
+	return None
 
 
 # ---------------------------------------------------------------- business hours
@@ -131,41 +174,41 @@ def in_business_hours(now: datetime, work_days: set[int], start: time | None, en
 
 
 def validate_template_text(body: str, samples: list[str], header: str | None = None,
-	header_sample: str | None = None, footer: str | None = None) -> list[str]:
+	header_sample: str | None = None, footer: str | None = None, tr=_same) -> list[str]:
 	"""Problems Meta would reject a new template for (empty list = OK)."""
 	problems = []
 	body = body or ""
 	nums = [int(n) for n in re.findall(r"\{\{\s*(\d+)\s*\}\}", body)]
 	distinct = sorted(set(nums))
 	if not body.strip():
-		problems.append("نص القالب فارغ.")
+		problems.append(tr("The template text is empty."))
 	if len(body) > 1024:
-		problems.append("نص القالب أطول من 1024 حرفاً.")
+		problems.append(tr("The template text is longer than 1024 characters."))
 	if distinct and distinct != list(range(1, len(distinct) + 1)):
-		problems.append("المتغيرات يجب أن تكون متتالية تبدأ من {{1}}.")
+		problems.append(tr("Variables must be consecutive, starting at {{1}}."))
 	stripped = body.strip()
 	if re.match(r"^\{\{\s*\d+\s*\}\}", stripped) or re.search(r"\{\{\s*\d+\s*\}\}[\s\.\!\?،]*$", stripped):
-		problems.append("لا يُسمح أن يبدأ النص أو ينتهي بمتغير.")
+		problems.append(tr("The text may not start or end with a variable."))
 	if re.search(r"\}\}\s*\{\{", body):
-		problems.append("لا يُسمح بمتغيرين متجاورين بدون نص بينهما.")
+		problems.append(tr("Two variables may not be next to each other without text between them."))
 	if len(samples) != len(distinct):
-		problems.append(f"عدد الأمثلة ({len(samples)}) لا يساوي عدد المتغيرات ({len(distinct)}).")
+		problems.append(tr("The number of samples ({0}) does not match the number of variables ({1}).").format(len(samples), len(distinct)))
 	if any("," in s for s in samples):
-		problems.append("الأمثلة يجب ألا تحتوي فاصلة إنجليزية (,).")
+		problems.append(tr("Samples must not contain a comma (,)."))
 	if any(not (s or "").strip() for s in samples):
-		problems.append("يوجد مثال فارغ.")
+		problems.append(tr("One of the samples is empty."))
 	if header:
 		hv = re.findall(r"\{\{\s*(\d+)\s*\}\}", header)
 		if len(header) > 60:
-			problems.append("العنوان أطول من 60 حرفاً.")
+			problems.append(tr("The header is longer than 60 characters."))
 		if len(set(hv)) > 1:
-			problems.append("العنوان يقبل متغيراً واحداً فقط.")
+			problems.append(tr("The header accepts only one variable."))
 		if hv and not (header_sample or "").strip():
-			problems.append("العنوان فيه متغير ويحتاج مثالاً.")
+			problems.append(tr("The header has a variable and needs a sample."))
 	if footer and len(footer) > 60:
-		problems.append("التذييل أطول من 60 حرفاً.")
+		problems.append(tr("The footer is longer than 60 characters."))
 	if footer and "{{" in footer:
-		problems.append("التذييل لا يقبل متغيرات.")
+		problems.append(tr("The footer does not accept variables."))
 	return problems
 
 
@@ -314,7 +357,7 @@ def with_reply(payload: dict, reply_to: str | None) -> dict:
 
 def describe_location(loc: dict) -> str:
 	lat, lng = loc.get("latitude"), loc.get("longitude")
-	parts = ["📍 " + (loc.get("name") or "موقع")]
+	parts = ["📍 " + (loc.get("name") or "Location")]
 	if loc.get("address"):
 		parts.append(loc["address"])
 	if lat is not None and lng is not None:

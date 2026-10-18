@@ -8,8 +8,9 @@
   files never need a public URL.
 - A conversation can be linked to a Lead or Customer. Existing parties are
   found automatically by phone number (last 9 digits).
-- Conversations are assigned to staff; only supervisors see all of them
-  (see access.py). Each has a status (Open / Closed) and internal notes.
+- Conversations belong to a team and/or are assigned to a person; only
+  supervisors see all of them (see access.py, teams.py). Each has a status
+  (Open / Closed), internal notes with @mentions and participants.
 """
 
 from __future__ import annotations
@@ -20,7 +21,8 @@ import frappe
 from frappe import _
 from frappe.utils import cint, get_datetime, get_fullname, now_datetime, strip_html
 
-from butler_whatsapp import access, compliance
+from butler_whatsapp import access, compliance, teams
+from butler_whatsapp.notify import notify
 from butler_whatsapp.api import _account, _client, _last_incoming
 from butler_whatsapp.meta import (
 	WhatsAppError,
@@ -119,6 +121,8 @@ def _watchers(num: str) -> set[str]:
 	who = access.assignee(num)
 	if who:
 		users.add(who)
+	users |= set(teams.members(access.team_of(num)))
+	users |= set(access.participants(num))
 	return users
 
 
@@ -223,9 +227,10 @@ def _party(contact: dict | None) -> dict:
 
 @frappe.whitelist()
 def get_conversations(
-	search: str | None = None, limit: int = 60, offset: int = 0, view: str | None = None
+	search: str | None = None, limit: int = 60, offset: int = 0, view: str | None = None,
+	team: str | None = None,
 ) -> list[dict]:
-	"""view: all (open) | unread | mine | unassigned | closed"""
+	"""view: all (open) | unread | mine | team | unassigned | closed; team: filter by one team"""
 	_require()
 	limit = min(cint(limit) or 60, 200)
 	offset = cint(offset)
@@ -233,7 +238,7 @@ def get_conversations(
 	args = {"limit": limit, "offset": offset, "user": user}
 	where = []
 	if not access.is_supervisor(user):
-		where.append("c.butler_assigned_to = %(user)s")
+		where.append(f"t.num IN ({access.visible_numbers_sql(user)})")
 	view = view or "all"
 	if view == "closed":
 		where.append("c.butler_status = 'Closed'")
@@ -245,6 +250,13 @@ def get_conversations(
 		where.append("c.butler_assigned_to = %(user)s")
 	elif view == "unassigned":
 		where.append("IFNULL(c.butler_assigned_to, '') = ''")
+	elif view == "team":
+		mine = teams.user_teams(user)
+		args["my_teams"] = tuple(mine) or ("",)
+		where.append("c.butler_team IN %(my_teams)s")
+	if team:
+		args["team"] = team
+		where.append("c.butler_team = %(team)s")
 	if search:
 		args["q"] = f"%{search.strip()}%"
 		digits = "".join(ch for ch in search if ch.isdigit()).lstrip("0")
@@ -260,7 +272,7 @@ def get_conversations(
 		f"""
 		SELECT t.num, t.last_at, t.unread, t.profile_name,
 			c.name AS contact, c.contact_name, c.butler_customer, c.butler_lead, c.butler_no_auto_link,
-			c.butler_assigned_to, c.butler_status,
+			c.butler_assigned_to, c.butler_status, c.butler_team,
 			cu.customer_name, l.lead_name
 		FROM (
 			SELECT {_NUM} AS num, MAX(m.creation) AS last_at,
@@ -331,6 +343,8 @@ def get_conversations(
 				"suggestion": matched,
 				"assigned_to": r.butler_assigned_to,
 				"assigned_name": _user_name(r.butler_assigned_to),
+				"team": r.butler_team,
+				"team_label": _team_label(r.butler_team),
 				"status": r.butler_status or "Open",
 				"unread": cint(r.unread),
 				"last_at": str(r.last_at),
@@ -359,10 +373,9 @@ def get_unread_total() -> int:
 		)
 	return cint(
 		frappe.db.sql(
-			"""SELECT COUNT(*) FROM `tabWhatsApp Message` m
+			f"""SELECT COUNT(*) FROM `tabWhatsApp Message` m
 			WHERE m.type = 'Incoming' AND m.butler_read_at IS NULL AND REPLACE(m.`from`, '+', '') IN
-				(SELECT REPLACE(mobile_no, '+', '') FROM `tabWhatsApp Contact` WHERE butler_assigned_to = %s)""",
-			(frappe.session.user,),
+				({access.visible_numbers_sql(frappe.session.user)})"""
 		)[0][0]
 	)
 
@@ -496,7 +509,7 @@ def get_conversation_info(number: str) -> dict:
 	contact = frappe.db.get_value(
 		CONTACT, contact_name,
 		["name", "contact_name", "butler_customer", "butler_lead", "butler_no_auto_link", "butler_assigned_to",
-		 "butler_status"],
+		 "butler_status", "butler_team"],
 		as_dict=True,
 	) if contact_name else None
 
@@ -524,9 +537,20 @@ def get_conversation_info(number: str) -> dict:
 		"assigned_to": contact.butler_assigned_to if contact else None,
 		"assigned_name": _user_name(contact.butler_assigned_to) if contact else None,
 		"status": (contact.butler_status if contact else None) or "Open",
+		"team": contact.butler_team if contact else None,
+		"team_label": _team_label(contact.butler_team) if contact else None,
+		"participants": [{"user": u, "name": _user_name(u)} for u in access.participants(num)],
 		"supervisor": access.is_supervisor(),
+		"can_assign": True,
 		"consent": compliance.get_consent(num),
 	}
+
+
+def _team_label(team: str | None) -> str | None:
+	if not team:
+		return None
+	t = teams.get_team(team)
+	return _(t["label"] if t else team)
 
 
 # ------------------------------------------------------------------ sending
@@ -791,8 +815,11 @@ def make_attachment_private(doc, method=None):
 		file_doc = frappe.get_doc("File", name)
 		file_doc.is_private = 1
 		file_doc.attached_to_field = "attach"
-		file_doc.save(ignore_permissions=True)  # moves the file and updates doc.attach in the DB
+		file_doc.save(ignore_permissions=True)  # moves the file to private files
+		# The File may point to an existing identical file (Frappe de-duplicates by content),
+		# so always store the URL the File really has.
 		doc.attach = file_doc.file_url
+		frappe.db.set_value(MSG, doc.name, "attach", file_doc.file_url, update_modified=False)
 	except Exception:
 		frappe.log_error(title="WhatsApp: could not make file private", message=frappe.get_traceback())
 
@@ -802,6 +829,20 @@ def make_existing_attachments_private():
 		MSG, filters={"type": "Incoming", "attach": ["like", "/files/%"]}, fields=["name", "type", "attach"]
 	):
 		make_attachment_private(frappe._dict(row))
+
+
+def repair_attachment_urls():
+	"""Messages whose attach points to a file name that does not exist (de-duplicated
+	files): use the URL of the File attached to the message."""
+	rows = frappe.db.sql(
+		"""SELECT m.name, f.file_url FROM `tabWhatsApp Message` m
+		JOIN `tabFile` f ON f.attached_to_doctype = 'WhatsApp Message' AND f.attached_to_name = m.name
+		WHERE m.type = 'Incoming' AND IFNULL(m.attach, '') != '' AND f.file_url != m.attach""",
+		as_dict=True,
+	)
+	for r in rows:
+		frappe.db.set_value(MSG, r.name, "attach", r.file_url, update_modified=False)
+	return len(rows)
 
 
 def on_message_update(doc, method=None):
@@ -837,38 +878,43 @@ def claim_if_unassigned(num: str, user: str | None = None):
 	user = user or frappe.session.user
 	if user in ("Administrator", "Guest") or access.is_supervisor(user) or not access.restricted():
 		return
-	if not access.assignee(num):
-		_set_contact(num, {"butler_assigned_to": user})
+	if access.assignee(num):
+		return
+	team = access.team_of(num)
+	if team and user not in teams.members(team):
+		return  # a participant helping out does not take the conversation over
+	if not team and user in access.participants(num):
+		return
+	_set_contact(num, {"butler_assigned_to": user, "butler_auto_assigned": 0})
 
 
 def _notify_assignment(num: str, user: str, by: str):
 	title = _conversation_title(num)
-	subject = f"أُسندت إليك محادثة واتساب: {title}"
-	try:
-		from frappe.desk.doctype.notification_log.notification_log import enqueue_create_notification
-
-		enqueue_create_notification(
-			user,
-			{
-				"type": "Alert",
-				"document_type": CONTACT,
-				"document_name": _contact(num),
-				"subject": subject,
-				"from_user": by,
-			},
-		)
-	except Exception:
-		frappe.log_error(title="WhatsApp assignment notification failed", message=frappe.get_traceback())
-	frappe.enqueue(
-		"butler_whatsapp.push.notify_users_job",
-		queue="short",
-		enqueue_after_commit=True,
-		users=[user],
-		data={"title": "واتساب", "body": subject, "tag": f"butler-wa-{num}",
-			"url": f"/desk/whatsapp-inbox?number={num}"},
+	notify(
+		[user], "WhatsApp conversation assigned to you: {0}", (title,),
+		url=f"/desk/whatsapp-inbox?number={num}", document=(CONTACT, _contact(num)), from_user=by,
+		tag=f"butler-wa-{num}",
 	)
 	frappe.publish_realtime("butler_wa_assigned", {"number": num, "title": title, "by": _user_name(by)},
 		user=user, after_commit=True)
+
+
+def _notify_team(num: str, team: str, by: str, exclude: set | None = None, keyword: str | None = None):
+	t = teams.get_team(team)
+	if not t or not t["notify_members"]:
+		return
+	users = set(teams.members(team)) - set(exclude or ()) - {by}
+	if not users:
+		return
+	title = _conversation_title(num)
+	notify(
+		users, "New WhatsApp conversation for {0}: {1}", (t["label"], title),
+		url=f"/desk/whatsapp-inbox?number={num}", document=(CONTACT, _contact(num)), from_user=by,
+		tag=f"butler-wa-{num}",
+	)
+	for u in users:
+		frappe.publish_realtime("butler_wa_assigned", {"number": num, "title": title, "team": team},
+			user=u, after_commit=True)
 
 
 def _conversation_title(num: str) -> str:
@@ -885,21 +931,99 @@ def _conversation_title(num: str) -> str:
 
 
 @frappe.whitelist(methods=["POST"])
-def assign(number: str, user: str | None = None) -> dict:
-	"""Assign (or with empty user: unassign) a conversation. Supervisors only."""
+def assign(number: str, user: str | None = None, team: str | None = None, note: str | None = None) -> dict:
+	"""Hand a conversation over to a person and/or a team.
+
+	user: "" = nobody; team: None = leave the team as it is, "" = no team.
+	Supervisors can assign any conversation; anyone else can hand over the
+	conversations they can see (they may lose access afterwards)."""
 	_require("write")
 	num = _num(number)
 	if not access.is_supervisor():
-		frappe.throw(_("Only supervisors can assign conversations"), frappe.PermissionError)
+		access.check_access(num)
+	user = (user or "").strip() or None
 	if user and not frappe.db.exists("User", {"name": user, "enabled": 1}):
 		frappe.throw(_("User {0} not found").format(user))
-	previous = access.assignee(num)
-	_set_contact(num, {"butler_assigned_to": user or None})
-	_contact_comment(num, f"إسناد المحادثة إلى {_user_name(user)}" if user else "إلغاء إسناد المحادثة")
-	if user and user != frappe.session.user:
-		_notify_assignment(num, user, frappe.session.user)
-	publish(num, "assign", extra_users=[u for u in (previous, user) if u])
+	if team and not teams.get_team(team):
+		frappe.throw(_("Team {0} not found").format(team))
+	previous_user = access.assignee(num)
+	previous_team = access.team_of(num)
+	previous_watchers = _watchers(num)
+	values = {"butler_assigned_to": user, "butler_auto_assigned": 0}
+	if team is not None:
+		values["butler_team"] = team or None
+	if user:
+		if teams.ensure_agent_role(user):
+			_contact_comment(num, _("{0} was given the WhatsApp Agent role").format(_user_name(user)))
+	_set_contact(num, values)
+
+	by = frappe.session.user
+	events = []
+	if team is not None and (team or None) != previous_team:
+		events.append(_("Moved to team {0}").format(_team_label(team)) if team else _("Removed from team"))
+	if user != previous_user:
+		events.append(_("Assigned to {0}").format(_user_name(user)) if user else _("Unassigned"))
+	if events:
+		text = " · ".join(events)
+		if (note or "").strip():
+			text += " — " + frappe.utils.escape_html(note.strip())
+		_contact_comment(num, text)
+	if user and user != by and user != previous_user:
+		_notify_assignment(num, user, by)
+	if team and team != previous_team and not user:
+		_notify_team(num, team, by)
+	publish(num, "assign", extra_users=list(previous_watchers | {u for u in (previous_user, user) if u}))
+	return _info_or_handed_over(num)
+
+
+def _info_or_handed_over(num: str) -> dict:
+	"""After a hand-over the user may no longer see the conversation; raising
+	here would roll the change back, so just tell the page."""
+	if access.can_access(num):
+		return get_conversation_info(num)
+	return {"number": num, "lost_access": True}
+
+
+@frappe.whitelist(methods=["POST"])
+def add_participants(number: str, users: str | list) -> dict:
+	"""Let colleagues see (and help with) a conversation without assigning it."""
+	num = _require_number(number, "write")
+	users = frappe.parse_json(users) if isinstance(users, str) else (users or [])
+	added = _add_participants(num, users, frappe.session.user)
+	if added:
+		_contact_comment(num, _("Added to the conversation: {0}").format(", ".join(_user_name(u) for u in added)))
+		publish(num, "assign", extra_users=added)
 	return get_conversation_info(num)
+
+
+@frappe.whitelist(methods=["POST"])
+def remove_participant(number: str, user: str) -> dict:
+	num = _require_number(number, "write")
+	for name in frappe.get_all(access.PARTICIPANT, filters={"number": num, "user": user}, pluck="name"):
+		frappe.delete_doc(access.PARTICIPANT, name, ignore_permissions=True)
+	_contact_comment(num, _("Removed from the conversation: {0}").format(_user_name(user)))
+	publish(num, "assign", extra_users=[user])
+	return _info_or_handed_over(num)
+
+
+def _add_participants(num: str, users: list, by: str, notify_them: bool = True) -> list[str]:
+	added = []
+	for u in users or []:
+		if not u or not frappe.db.exists("User", {"name": u, "enabled": 1, "user_type": "System User"}):
+			continue
+		if access.can_access(num, u):
+			continue
+		teams.ensure_agent_role(u)
+		frappe.get_doc(
+			{"doctype": access.PARTICIPANT, "number": num, "contact": _contact_for_link(num), "user": u, "added_by": by}
+		).insert(ignore_permissions=True)
+		added.append(u)
+	if added and notify_them:
+		notify(
+			added, "{0} added you to the WhatsApp conversation: {1}", (_user_name(by), _conversation_title(num)),
+			url=f"/desk/whatsapp-inbox?number={num}", from_user=by, tag=f"butler-wa-{num}",
+		)
+	return added
 
 
 @frappe.whitelist(methods=["POST"])
@@ -908,7 +1032,7 @@ def set_status(number: str, status: str) -> dict:
 		frappe.throw(_("Invalid status"))
 	num = _require_number(number, "write")
 	_set_contact(num, {"butler_status": status})
-	_contact_comment(num, "إغلاق المحادثة" if status == "Closed" else "إعادة فتح المحادثة")
+	_contact_comment(num, _("Conversation closed") if status == "Closed" else _("Conversation reopened"))
 	publish(num, "status_change")
 	return get_conversation_info(num)
 
@@ -930,14 +1054,25 @@ def _contact_comment(num: str, text: str, comment_type: str = "Info", by: str | 
 
 
 @frappe.whitelist(methods=["POST"])
-def add_note(number: str, note: str) -> dict:
-	"""Internal note on a conversation (never sent to the customer)."""
+def add_note(number: str, note: str, mentions: str | list | None = None) -> dict:
+	"""Internal note on a conversation (never sent to the customer).
+	Mentioned colleagues are notified and can open the conversation."""
 	num = _require_number(number, "write")
 	text = (note or "").strip()
 	if not text:
 		frappe.throw(_("Note is empty"))
+	by = frappe.session.user
 	_contact_comment(num, frappe.utils.escape_html(text), "Comment")
-	publish(num, "note")
+	mentions = frappe.parse_json(mentions) if isinstance(mentions, str) else (mentions or [])
+	mentions = [u for u in dict.fromkeys(mentions) if u and u != by]
+	if mentions:
+		_add_participants(num, mentions, by, notify_them=False)
+		notify(
+			mentions, "{0} mentioned you in the WhatsApp conversation {1}: {2}",
+			(_user_name(by), _conversation_title(num), text[:140]),
+			url=f"/desk/whatsapp-inbox?number={num}", from_user=by, tag=f"butler-wa-note-{num}",
+		)
+	publish(num, "note", extra_users=mentions)
 	return {"notes": _notes(_contact(num))}
 
 
@@ -984,16 +1119,45 @@ def on_incoming(doc):
 	contact = _contact(num)
 	if not contact:
 		return
-	row = frappe.db.get_value(CONTACT, contact, ["butler_assigned_to", "butler_status"], as_dict=True)
+	row = frappe.db.get_value(
+		CONTACT, contact, ["butler_assigned_to", "butler_status", "butler_team", "butler_auto_assigned"], as_dict=True
+	)
 	s = access.settings()
 	values = {}
 	reopen = s.get("reopen_on_incoming")
 	if row.butler_status == "Closed" and (reopen is None or cint(reopen)):
 		values["butler_status"] = "Open"
-	if not row.butler_assigned_to and s.get("auto_assign"):
+
+	routed = None
+	routing = s.get("team_routing")
+	if (routing is None or cint(routing)) and not row.butler_team \
+		and (not row.butler_assigned_to or cint(row.butler_auto_assigned)):
+		routed = teams.route(doc.get("message") if (doc.get("content_type") or "text") in ("text", "button") else None)
+	if routed:
+		team, keyword = routed
+		t = teams.get_team(team)
+		values["butler_team"] = team
+		user = None
+		if t["distribution"] == teams.ROUND_ROBIN:
+			user = teams.next_member(team)
+		elif row.butler_assigned_to and row.butler_assigned_to not in teams.members(team):
+			values["butler_assigned_to"] = None
+		if user:
+			values["butler_assigned_to"] = user
+			values["butler_auto_assigned"] = 1
+		frappe.db.set_value(CONTACT, contact, values, update_modified=False)
+		_contact_comment(num, _("Routed automatically to team {0} (keyword: {1})").format(_(t["label"]), keyword),
+			by="Administrator")
+		if user:
+			_notify_assignment(num, user, "Administrator")
+		else:
+			_notify_team(num, team, "Administrator")
+		values = {}
+	elif not row.butler_assigned_to and not row.butler_team and s.get("auto_assign"):
 		user = _next_pool_agent()
 		if user:
 			values["butler_assigned_to"] = user
+			values["butler_auto_assigned"] = 1
 			_notify_assignment(num, user, "Administrator")
 	if values:
 		frappe.db.set_value(CONTACT, contact, values, update_modified=False)
@@ -1037,6 +1201,19 @@ def _enrich_message(doc):
 		frappe.log_error(title="WhatsApp: could not read location/contact message", message=frappe.get_traceback())
 
 
+def _check_not_others(num: str):
+	"""Starting / templating a conversation that belongs to someone else needs access to it."""
+	if access.can_access(num):
+		return
+	who = access.assignee(num)
+	team = access.team_of(num)
+	if who or team:
+		frappe.throw(
+			_("This conversation is assigned to {0}").format(_user_name(who) if who else _team_label(team)),
+			frappe.PermissionError,
+		)
+
+
 # --------------------------------------------------------- context / search
 
 
@@ -1051,6 +1228,9 @@ def get_inbox_context() -> dict:
 		"supervisor": access.is_supervisor(),
 		"restricted": access.restricted(),
 		"agents": access.agents(),
+		"users": teams.users_for_assignment(),
+		"teams": teams.teams_for_context(),
+		"my_teams": teams.user_teams(),
 		"quick_replies": replies,
 		"can_settings": bool(frappe.has_permission(access.SETTINGS, "write")),
 		"sla_minutes": cint(access.settings().get("sla_minutes")),
@@ -1094,9 +1274,7 @@ def start_conversation(number: str, doctype: str | None = None, name: str | None
 	the Customer / Lead it was started from."""
 	_require("create")
 	num = _num(number)
-	who = access.assignee(num)
-	if who and who != frappe.session.user and not access.is_supervisor():
-		frappe.throw(_("This conversation is assigned to {0}").format(_user_name(who)), frappe.PermissionError)
+	_check_not_others(num)
 	contact = _contact_for_link(num)
 	if doctype in ("Customer", "Lead") and name:
 		frappe.has_permission(doctype, "read", name, throw=True)
@@ -1180,19 +1358,27 @@ def send_template(
 	"""Send an approved template (works outside the 24-hour window)."""
 	_require("create")
 	num = _num(number)
-	who = access.assignee(num)
-	if who and who != frappe.session.user and not access.is_supervisor():
-		frappe.throw(_("This conversation is assigned to {0}").format(_user_name(who)), frappe.PermissionError)
+	_check_not_others(num)
 	tpl = frappe.get_doc("WhatsApp Templates", template)
-	if tpl.status != "APPROVED":
-		frappe.throw(_("Template {0} is not approved").format(tpl.actual_name or tpl.name))
 	body = frappe.parse_json(body_params) if isinstance(body_params, str) else (body_params or [])
 	head = frappe.parse_json(header_params) if isinstance(header_params, str) else (header_params or [])
+	buttons = frappe.parse_json(button_params) if isinstance(button_params, str) else (button_params or [])
+	name = send_template_core(num, tpl, body, head, header_file_url, buttons)
+	return get_message(name)
+
+
+def send_template_core(num: str, tpl, body: list, head: list | None = None, header_file_url: str | None = None,
+	buttons: list | None = None, reference: tuple | None = None, booking: bool = False) -> str:
+	"""Checks + sends an approved template; returns the WhatsApp Message name.
+	Also used by server-side senders (appointments) running as Administrator."""
+	head = head or []
+	buttons = buttons or []
+	if tpl.status != "APPROVED":
+		frappe.throw(_("Template {0} is not approved").format(tpl.actual_name or tpl.name))
 	if len(body) != count_body_variables(tpl.template):
 		frappe.throw(_("Template needs {0} value(s)").format(count_body_variables(tpl.template)))
-	compliance.check_template_send(num, tpl)
+	compliance.check_template_send(num, tpl, booking=booking)
 	url_buttons = _url_buttons(tpl.name)
-	buttons = frappe.parse_json(button_params) if isinstance(button_params, str) else (button_params or [])
 	if len(buttons) < len(url_buttons) or any(not str(v or "").strip() for v in buttons[: len(url_buttons)]):
 		frappe.throw(_("Fill the link value of every button"))
 
@@ -1237,7 +1423,10 @@ def send_template(
 	text = render_template(tpl.template, body)
 	ctype = "text" if not attach else ("document" if tpl.header_type == "DOCUMENT" else "image")
 	name = _log(account.name, num, message_id, ctype, text, attach, message_type="Template", template=tpl.name)
-	return get_message(name)
+	if reference:
+		frappe.db.set_value(MSG, name, {"reference_doctype": reference[0], "reference_name": reference[1]},
+			update_modified=False)
+	return name
 
 
 # ------------------------------------------------------ ERPNext documents
