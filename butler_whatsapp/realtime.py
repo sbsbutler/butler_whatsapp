@@ -28,6 +28,14 @@ def on_message_insert(doc, method=None):
 		return
 	if doc.type != "Incoming" or not doc.get("from"):
 		return
+	if is_duplicate(doc):
+		# Meta re-sent a webhook we already stored (it retries when our answer is slow,
+		# e.g. while a video downloads): no second notification, and the copy is removed
+		# once frappe_whatsapp has finished with it.
+		frappe.enqueue(
+			"butler_whatsapp.realtime.remove_duplicate", queue="short", enqueue_after_commit=True, name=doc.name
+		)
+		return
 	try:
 		# reopen / auto-assign / location text, in this transaction
 		from butler_whatsapp.inbox import on_incoming
@@ -46,6 +54,41 @@ def on_message_insert(doc, method=None):
 		enqueue_after_commit=True,
 		message=name,
 	)
+
+
+def is_duplicate(doc) -> bool:
+	return bool(doc.get("message_id")) and bool(
+		frappe.db.exists(
+			"WhatsApp Message",
+			{"message_id": doc.message_id, "type": "Incoming", "name": ["!=", doc.name], "creation": ["<=", doc.creation]},
+		)
+	)
+
+
+def remove_duplicate(name: str):
+	"""Delete a duplicate incoming message and its file record (the file on disk is
+	kept when the original message still uses it)."""
+	if not frappe.db.exists("WhatsApp Message", name):
+		return
+	for f in frappe.get_all("File", filters={"attached_to_doctype": "WhatsApp Message", "attached_to_name": name},
+		pluck="name"):
+		frappe.delete_doc("File", f, ignore_permissions=True, force=True)
+	frappe.delete_doc("WhatsApp Message", name, ignore_permissions=True, force=True)
+	frappe.db.commit()
+
+
+def remove_existing_duplicates() -> int:
+	"""Clean up duplicates stored before this check existed (after_migrate)."""
+	rows = frappe.db.sql(
+		"""SELECT name FROM `tabWhatsApp Message` m
+		WHERE m.type = 'Incoming' AND IFNULL(m.message_id, '') != '' AND EXISTS (
+			SELECT 1 FROM `tabWhatsApp Message` o WHERE o.message_id = m.message_id AND o.type = 'Incoming'
+			AND (o.creation < m.creation OR (o.creation = m.creation AND o.name < m.name)))""",
+		pluck=True,
+	)
+	for name in rows:
+		remove_duplicate(name)
+	return len(rows)
 
 
 def _agents() -> list[str]:
