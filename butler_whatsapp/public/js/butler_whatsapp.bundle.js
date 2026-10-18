@@ -5,6 +5,8 @@
 //  2. "Send via WhatsApp" on quotations, orders and invoices (PDF to customer);
 //     "WhatsApp" on Customer / Lead / Contact opens their conversation.
 //  3. Web Push: notifications on phones (iOS home-screen app / Android) and desktops.
+// translations in the "WhatsApp" context (translations/ar.csv), falling back to Frappe's own
+window.__w = window.__w || function (txt, replace) { return __(txt, replace, "WhatsApp"); };
 
 (() => {
 	// ------------------------------------------------------------ legacy chat bubble
@@ -116,7 +118,7 @@
 		const btn = document.createElement("button");
 		btn.id = LAUNCHER_ID;
 		btn.type = "button";
-		btn.title = "واتساب — اسحبه لتغيير مكانه";
+		btn.title = __w("WhatsApp - drag to move");
 		btn.innerHTML = `<svg viewBox="0 0 24 24" width="26" height="26" fill="#fff" aria-hidden="true">
 			<path d="M12 3C6.5 3 2 6.8 2 11.5c0 2.6 1.4 4.9 3.6 6.5L5 22l4.4-2.3c.8.2 1.7.3 2.6.3 5.5 0 10-3.8 10-8.5S17.5 3 12 3z"/></svg>
 			<span id="${LAUNCHER_ID}-badge" style="display:none;position:absolute;top:-4px;right:-4px;min-width:20px;height:20px;
@@ -146,11 +148,11 @@
 		if (el) {
 			el.remove();
 			lsSet(LS_HIDDEN, "1");
-			frappe.show_alert("أُخفي الزر العائم على هذا الجهاز — يمكنك إظهاره من قائمة صفحة واتساب");
+			frappe.show_alert(__w("The floating button is hidden on this device - you can show it again from the WhatsApp page menu"));
 		} else {
 			lsSet(LS_HIDDEN, "0");
 			addLauncher();
-			if (!document.getElementById(LAUNCHER_ID)) frappe.msgprint("الزر العائم معطّل من إعدادات صندوق واتساب.");
+			if (!document.getElementById(LAUNCHER_ID)) frappe.msgprint(__w("The floating button is switched off in WhatsApp Inbox Settings."));
 		}
 	}
 
@@ -209,7 +211,7 @@
 		frappe.realtime.on("butler_wa_assigned", (d) => {
 			refreshBadge();
 			frappe.show_alert({
-				message: `<a href="/desk/${INBOX}?number=${encodeURIComponent(d.number)}">📌 أُسندت إليك محادثة:
+				message: `<a href="/desk/${INBOX}?number=${encodeURIComponent(d.number)}">📌 ${d.team ? __w("New conversation for your team:") : __w("Conversation assigned to you:")}
 					<b>${frappe.utils.escape_html(d.title)}</b>${d.by ? " — " + frappe.utils.escape_html(d.by) : ""}</a>`,
 				indicator: "blue",
 			}, 12);
@@ -304,44 +306,44 @@
 		try {
 			const permission = await Notification.requestPermission();
 			if (permission !== "granted") {
-				frappe.msgprint("تم رفض الإشعارات. فعّلها من إعدادات المتصفح أو الجوال لهذا الموقع ثم حاول مرة أخرى.");
+				frappe.msgprint(__w("Notifications were blocked. Allow them for this site in the browser or phone settings, then try again."));
 				return;
 			}
 			await subscribeHere();
 			dialog && dialog.hide();
 			const r = await frappe.xcall(`${PUSH}.send_test`);
-			frappe.show_alert({ indicator: "green", message: `تم التفعيل ✅ — أرسلنا إشعاراً تجريبياً (${r.sent}/${r.devices})` }, 7);
+			frappe.show_alert({ indicator: "green", message: __w("Enabled ✅ - we sent a test notification ({0}/{1})", [r.sent, r.devices]) }, 7);
 		} catch (e) {
 			console.error(e);
-			frappe.msgprint(`تعذّر تفعيل الإشعارات على هذا الجهاز: ${frappe.utils.escape_html(e.message || String(e))}`);
+			frappe.msgprint(__w("Notifications could not be enabled on this device: {0}", [frappe.utils.escape_html(e.message || String(e))]));
 		}
 	}
 
 	function showPushDialog() {
 		const iosNeedsInstall = isIOS() && !isStandalone();
 		const d = new frappe.ui.Dialog({
-			title: "إشعارات واتساب على هذا الجهاز",
+			title: __w("WhatsApp notifications on this device"),
 			fields: [{ fieldname: "info", fieldtype: "HTML" }],
-			primary_action_label: iosNeedsInstall ? "فهمت" : "تفعيل الإشعارات",
+			primary_action_label: iosNeedsInstall ? __w("Got it") : __w("Enable notifications"),
 			primary_action: () => (iosNeedsInstall ? d.hide() : enablePush(d)),
-			secondary_action_label: "ليس الآن",
+			secondary_action_label: __w("Not now"),
 			secondary_action: () => {
 				lsSet(LS_SNOOZE, String(Date.now() + 7 * 24 * 3600 * 1000));
 				d.hide();
 			},
 		});
 		const html = iosNeedsInstall
-			? `<div dir="rtl" style="line-height:1.9">
-				<p>على الآيفون تعمل الإشعارات فقط عند فتح النظام كتطبيق من الشاشة الرئيسية:</p>
+			? `<div style="line-height:1.9">
+				<p>${__w("On iPhone, notifications only work when the system is opened as an app from the home screen:")}</p>
 				<ol>
-					<li>افتح هذه الصفحة في <b>Safari</b>.</li>
-					<li>اضغط زر <b>المشاركة</b> ثم <b>«إضافة إلى الشاشة الرئيسية»</b>.</li>
-					<li>افتح النظام من الأيقونة الجديدة، ثم اضغط الزر الأخضر مرة أخرى واختر «تفعيل الإشعارات».</li>
+					<li>${__w("Open this page in Safari.")}</li>
+					<li>${__w("Tap the Share button, then \"Add to Home Screen\".")}</li>
+					<li>${__w("Open the system from the new icon, tap the green button again and choose \"Enable notifications\".")}</li>
 				</ol>
-				<p class="text-muted small">يتطلب iOS 16.4 أو أحدث.</p></div>`
-			: `<div dir="rtl" style="line-height:1.9">
-				<p>ستصلك رسائل العملاء الواردة على واتساب الشركة كإشعار على هذا الجهاز، حتى والصفحة مغلقة.</p>
-				<p class="text-muted small">سيطلب المتصفح الإذن — اختر <b>سماح / Allow</b>.</p></div>`;
+				<p class="text-muted small">${__w("Requires iOS 16.4 or later.")}</p></div>`
+			: `<div style="line-height:1.9">
+				<p>${__w("Customer messages to the company WhatsApp will arrive as notifications on this device, even when the page is closed.")}</p>
+				<p class="text-muted small">${__w("The browser will ask for permission - choose Allow.")}</p></div>`;
 		d.fields_dict.info.$wrapper.html(html);
 		d.show();
 	}
@@ -364,22 +366,22 @@
 	function openDialog(target, ctx) {
 		const hasTemplates = ctx.templates.length > 0;
 		const d = new frappe.ui.Dialog({
-			title: __("Send via WhatsApp"),
+			title: __w("Send via WhatsApp"),
 			fields: [
-				{ fieldname: "mobile", fieldtype: "Data", label: __("Mobile"), reqd: 1, default: ctx.mobile,
-					description: __("Saudi numbers like 05xxxxxxxx are converted automatically") },
+				{ fieldname: "mobile", fieldtype: "Data", label: __w("Mobile"), reqd: 1, default: ctx.mobile,
+					description: __w("Saudi numbers like 05xxxxxxxx are converted automatically") },
 				{ fieldname: "window", fieldtype: "HTML" },
-				{ fieldname: "print_format", fieldtype: "Select", label: __("Print Format"),
+				{ fieldname: "print_format", fieldtype: "Select", label: __w("Print Format"),
 					options: ctx.print_formats.length ? ctx.print_formats : ["Standard"],
 					default: ctx.default_print_format || ctx.print_formats[0] || "Standard" },
-				{ fieldname: "caption", fieldtype: "Small Text", label: __("Message"), default: ctx.caption,
+				{ fieldname: "caption", fieldtype: "Small Text", label: __w("Message"), default: ctx.caption,
 					depends_on: "eval:!doc.template" },
-				{ fieldname: "template", fieldtype: "Select", label: __("Template (needed after 24h)"),
+				{ fieldname: "template", fieldtype: "Select", label: __w("Template (needed after 24h)"),
 					options: [""].concat(ctx.templates.map((t) => t.name)), hidden: !hasTemplates,
 					default: !ctx.in_window && ctx.default_template ? ctx.default_template : "" },
 				{ fieldname: "params_html", fieldtype: "HTML" },
 			],
-			primary_action_label: __("Send"),
+			primary_action_label: __w("Send"),
 			primary_action(values) {
 				const tpl = ctx.templates.find((t) => t.name === values.template);
 				const params = [];
@@ -397,11 +399,11 @@
 						body_params: JSON.stringify(params),
 					},
 					freeze: true,
-					freeze_message: __("Sending PDF over WhatsApp..."),
+					freeze_message: __w("Sending PDF over WhatsApp..."),
 				}).then((r) => {
 					if (r.message && r.message.ok) {
 						d.hide();
-						frappe.show_alert({ indicator: "green", message: __("Sent to +{0}", [r.message.to]) });
+						frappe.show_alert({ indicator: "green", message: __w("Sent to +{0}", [r.message.to]) });
 						target.reload && target.reload();
 					}
 				});
@@ -409,17 +411,17 @@
 		});
 
 		const consent = ctx.consent || {};
-		const consentNote = consent.state === "أوقف الرسائل"
-			? `<div class="alert alert-danger small mb-2">⛔ هذا العميل طلب إيقاف رسائل باتلر — لا يمكن إرسال قالب له.</div>`
-			: (!ctx.in_window && consent.state !== "موافق")
-				? `<div class="alert alert-warning small mb-2">لا توجد موافقة مسجلة من العميل على رسائل واتساب. سجّلها من صندوق واتساب (رأس المحادثة ← الموافقة) قبل إرسال قالب.</div>`
+		const consentNote = consent.state === "Opted Out"
+			? `<div class="alert alert-danger small mb-2">⛔ ${__w("This customer asked to stop Butler's messages - a template cannot be sent.")}</div>`
+			: (!ctx.in_window && consent.state !== "Opted In")
+				? `<div class="alert alert-warning small mb-2">${__w("There is no recorded consent from the customer to WhatsApp messages. Record it in the WhatsApp inbox (conversation header > consent) before sending a template.")}</div>`
 				: "";
 		const windowNote = consentNote + (ctx.in_window
-			? `<div class="alert alert-success small mb-2">${__("Customer wrote within 24h — you can send the PDF directly.")}</div>`
+			? `<div class="alert alert-success small mb-2">${__w("Customer wrote within 24h — you can send the PDF directly.")}</div>`
 			: `<div class="alert alert-warning small mb-2">${
 				hasTemplates
-					? __("No message from this number in the last 24h — choose an approved template.")
-					: __("No message from this number in the last 24h and no approved document template yet. Ask the customer to send any message first.")
+					? __w("No message from this number in the last 24h — choose an approved template.")
+					: __w("No message from this number in the last 24h and no approved document template yet. Ask the customer to send any message first.")
 			}</div>`);
 		d.fields_dict.window.$wrapper.html(windowNote);
 
@@ -449,7 +451,7 @@
 	function addButton(frm) {
 		if (frm.is_new() || frm.doc.docstatus === 2) return;
 		if (!frappe.model.can_create("WhatsApp Message")) return;
-		frm.add_custom_button(__("Send via WhatsApp"), () =>
+		frm.add_custom_button(__w("Send via WhatsApp"), () =>
 			sendDocument(frm.doctype, frm.doc.name, null, () => frm.reload_doc()));
 	}
 
@@ -466,7 +468,7 @@
 		if (frm.is_new() || !canUse()) return;
 		const mobile = PARTY_MOBILE[frm.doctype](frm.doc);
 		if (!mobile) return;
-		frm.add_custom_button("💬 واتساب", () => {
+		frm.add_custom_button("💬 " + __w("WhatsApp"), () => {
 			const link = frm.doctype === "Contact" ? {} : { doctype: frm.doctype, name: frm.doc.name };
 			openInbox(mobile, link);
 		});
