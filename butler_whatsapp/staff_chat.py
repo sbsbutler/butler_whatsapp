@@ -165,7 +165,7 @@ def _row(m) -> dict:
 		"ref_number": m.ref_number,
 		"ref_title": _ref_title(m.ref_number) if m.ref_number else None,
 		"owner": m.owner,
-		"sender": get_fullname(m.owner) or m.owner,
+		"sender": _("Butler System") if m.owner == "Administrator" else (get_fullname(m.owner) or m.owner),
 		"creation": str(m.creation),
 		"mine": m.owner == frappe.session.user,
 	}
@@ -238,8 +238,25 @@ def send_staff_message(channel: str, message: str | None = None, attach: str | N
 	return _row(doc)
 
 
-def _broadcast(doc):
-	user = frappe.session.user
+def post_system_message(team: str, message: str) -> str | None:
+	"""Post an automatic message (e.g. an HDL outage alert) into a team's internal chat.
+
+	For server code of other Butler apps; not whitelisted. Posted as Administrator, shown as
+	"Butler System". Returns the message name, or None when the team does not exist.
+	"""
+	if not teams.get_team(team) or not (message or "").strip():
+		return None
+	channel = team_channel(team)
+	doc = frappe.get_doc({"doctype": STAFF_MSG, "channel": channel, "message": message.strip(), "team": team})
+	doc.flags.ignore_permissions = True
+	doc.insert()
+	doc.db_set("owner", "Administrator", update_modified=False)
+	_broadcast(doc, user="Administrator")
+	return doc.name
+
+
+def _broadcast(doc, user: str | None = None):
+	user = user or frappe.session.user
 	members = channel_members(doc.channel)
 	data = {"channel": doc.channel, "name": doc.name, "by": user}
 	for u in members:
